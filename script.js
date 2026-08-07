@@ -237,39 +237,51 @@ function loadQuestion(){
 loadQuestion();
 function playSelectionSound(answer){
 
-    officeAudio.pause();
-    officeAudio.currentTime = 0;
+    [officeAudio, brooklynAudio, gilmoreAudio, hsmAudio].forEach(audio => {
+        if (!audio) return;
+        audio.pause();
+        audio.currentTime = 0;
+    });
 
-    brooklynAudio.pause();
-    brooklynAudio.currentTime = 0;
+    function playClip(audio, startAt, durationMs) {
+        if (!audio) return;
 
-    gilmoreAudio.pause();
-    gilmoreAudio.currentTime = 0;
+        audio.currentTime = startAt;
+        audio.play().catch(() => {});
 
-    hsmAudio.pause();
-    hsmAudio.currentTime = 0;
+        setTimeout(() => {
+            audio.pause();
+            audio.currentTime = 0;
+        }, durationMs);
+    }
 
     switch(answer){
 
         case "The Office":
-            officeAudio.play();
+            // Uploaded clip is 4.27s: "That's what she said!" plus the few seconds after.
+            playClip(officeAudio, 0, 4270);
             break;
 
         case "Brooklyn Nine-Nine":
-            brooklynAudio.play();
+            // One "Nine-Nine!" only.
+            playClip(brooklynAudio, 0, 1500);
             break;
 
         case "Gilmore Girls":
-            gilmoreAudio.play();
+            // Starts just before "I just got hit by a deer!" and keeps the short exchange.
+            playClip(gilmoreAudio, 22.0, 10500);
             break;
 
         case "High School Musical":
+            // Kept unchanged for now: the uploaded wildcats.mp3 contains
+            // the "What team? Wildcats!" chant, not "Get'cha head in the game".
             hsmAudio.play();
             break;
 
     }
 
 }
+
 function nextQuestion(){
 
     currentQuestion++;
