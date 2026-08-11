@@ -530,12 +530,9 @@
 
             </div>
 
-            <div class="desktopIcon">
-
+            <div class="desktopIcon" id="recycleBinIcon">
                 <div class="desktopEmoji">🗑️</div>
-
-                <span>Bin</span>
-
+                <span>Recycle Bin</span>
             </div>
 
             <div class="desktopIcon calendarFolderIcon" id="calendarIcon">
@@ -799,6 +796,25 @@
                 <div id="savedMissionDate" class="savedMissionDate"></div>
             </div>
             <button id="closeCalendar" class="windowCloseButton">Close</button>
+        </div>
+
+        
+        <!-- Recycle Bin -->
+        <div id="recycleBinWindow" class="desktopWindow hidden">
+            <div class="windowTop">
+                <div class="windowDots">
+                    <span class="windowCloseDot" id="recycleBinClose" title="Close"></span>
+                    <span class="windowMinDot"></span>
+                    <span class="windowMaxDot"></span>
+                </div>
+                <h2>🗑️ Recycle Bin</h2>
+            </div>
+            <div class="windowScroll">
+                <p class="memoryMessage">Things permanently rejected by LizzyOS 😂</p>
+                <div id="recycleBinGrid" class="recycleBinGrid"></div>
+                <p class="binWarning">⚠️ Restoration disabled. These names belong exactly where they are.</p>
+            </div>
+            <button id="closeRecycleBin" class="windowCloseButton">Close</button>
         </div>
 
         <!-- Full Screen Viewer -->

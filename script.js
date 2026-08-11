@@ -32,7 +32,7 @@ let progress = 0;
 
 function sendYesEmail() {
 
-    fetch("https://formspree.io/f/mzdnaree", {
+    fetch("https://formspree.io/f/mgawkljk", {
 
         method: "POST",
 
@@ -1350,7 +1350,7 @@ document.addEventListener("keydown", (event) => {
 // =====================================================
 (() => {
     const $ = id => document.getElementById(id);
-    const FORMSPREE_URL = "https://formspree.io/f/mzdnaree";
+    const FORMSPREE_URL = "https://formspree.io/f/mgawkljk";
 
     const formatDate = value => {
         if (!value) return "";
@@ -1556,4 +1556,36 @@ document.addEventListener("keydown", (event) => {
     document.getElementById("calendarIcon")?.addEventListener("click", () => {
         setTimeout(clearCalendarInputs, 0);
     });
+})();
+
+// =====================================================
+// CURRENT VERSION — RECYCLE BIN UPDATE
+// =====================================================
+(() => {
+ const $ = id => document.getElementById(id);
+ const rejectedNicknames = [
+   ["🪟","Windshields"],
+   ["👶","Mabebeza"],
+   ["👓","4 Eyes"],
+   ["👩‍👧","Mother Of The Year"],
+   ["🚫","The OPP"],
+   ["🦇","The Bat (Blind as a Bat)"],
+   ["🤓","Specsy / Spexy"],
+   ["😈","The Bully"],
+   ["🕶️","Jaden Smith"]
+ ];
+ function renderRecycleBin(){
+   const grid=$("recycleBinGrid");
+   if(!grid) return;
+   grid.innerHTML=rejectedNicknames.map(([emoji,name]) =>
+     `<article class="deletedNickname"><span>${emoji}</span><strong>${name}</strong><small>Deleted from LizzyOS</small></article>`
+   ).join("");
+ }
+ $("recycleBinIcon")?.addEventListener("click",()=>{
+   renderRecycleBin();
+   $("recycleBinWindow")?.classList.remove("hidden");
+ });
+ ["recycleBinClose","closeRecycleBin"].forEach(id =>
+   $(id)?.addEventListener("click",()=>$("recycleBinWindow")?.classList.add("hidden"))
+ );
 })();
