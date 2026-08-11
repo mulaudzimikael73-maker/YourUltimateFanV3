@@ -1559,33 +1559,73 @@ document.addEventListener("keydown", (event) => {
 })();
 
 // =====================================================
-// CURRENT VERSION — RECYCLE BIN UPDATE
+
+
+
+// =====================================================
+// CURRENT VERSION — RECYCLE BIN FIXED
+// Uses delegated clicks so it works even when LizzyOS rebuilds the desktop.
 // =====================================================
 (() => {
- const $ = id => document.getElementById(id);
  const rejectedNicknames = [
-   ["🪟","Windshields"],
-   ["👶","Mabebeza"],
-   ["👓","4 Eyes"],
-   ["👩‍👧","Mother Of The Year"],
-   ["🚫","The OPP"],
-   ["🦇","The Bat (Blind as a Bat)"],
-   ["🤓","Specsy / Spexy"],
-   ["😈","The Bully"],
-   ["🕶️","Jaden Smith"]
+   ["🪟","Windshields"],["👶","Mabebeza"],["👓","4 Eyes"],
+   ["👩‍👧","Mother Of The Year"],["🚫","The OPP"],
+   ["🦇","The Bat (Blind as a Bat)"],["🤓","Specsy / Spexy"],
+   ["😈","The Bully"],["🕶️","Jaden Smith"]
  ];
- function renderRecycleBin(){
-   const grid=$("recycleBinGrid");
+
+ function renderBin(){
+   const grid=document.getElementById("recycleBinGrid");
    if(!grid) return;
    grid.innerHTML=rejectedNicknames.map(([emoji,name]) =>
-     `<article class="deletedNickname"><span>${emoji}</span><strong>${name}</strong><small>Deleted from LizzyOS</small></article>`
+     `<button type="button" class="deletedNickname" title="Permanently rejected 😂">
+        <span>${emoji}</span><strong>${name}</strong><small>Deleted from LizzyOS</small>
+      </button>`
    ).join("");
  }
- $("recycleBinIcon")?.addEventListener("click",()=>{
-   renderRecycleBin();
-   $("recycleBinWindow")?.classList.remove("hidden");
+
+ function openBin(){
+   renderBin();
+   const win=document.getElementById("recycleBinWindow");
+   if(!win) return;
+   win.classList.remove("hidden");
+   win.style.display="flex";
+   win.style.zIndex="10050";
+ }
+
+ function closeBin(){
+   const win=document.getElementById("recycleBinWindow");
+   if(!win) return;
+   win.classList.add("hidden");
+   win.style.display="";
+ }
+
+ // Delegated handler survives desktop rerenders and catches clicks on child emoji/text too.
+ document.addEventListener("click", e => {
+   const bin=e.target.closest("#recycleBinIcon");
+   if(bin){
+     e.preventDefault();
+     e.stopPropagation();
+     openBin();
+     return;
+   }
+   if(e.target.closest("#recycleBinClose, #closeRecycleBin")){
+     e.preventDefault();
+     closeBin();
+   }
  });
- ["recycleBinClose","closeRecycleBin"].forEach(id =>
-   $(id)?.addEventListener("click",()=>$("recycleBinWindow")?.classList.add("hidden"))
- );
+
+ // Also support keyboard activation.
+ document.addEventListener("keydown", e=>{
+   if((e.key==="Enter"||e.key===" ") && document.activeElement?.id==="recycleBinIcon"){
+     e.preventDefault(); openBin();
+   }
+   if(e.key==="Escape" && !document.getElementById("recycleBinWindow")?.classList.contains("hidden")){
+     closeBin();
+   }
+ });
+
+ const icon=document.getElementById("recycleBinIcon");
+ if(icon){icon.setAttribute("role","button");icon.setAttribute("tabindex","0");}
+ renderBin();
 })();

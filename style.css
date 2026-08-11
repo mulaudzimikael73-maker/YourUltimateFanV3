@@ -2241,3 +2241,9 @@ color:#ff5ca8;
 .deletedNickname strong,.deletedNickname small{display:block;margin-top:7px}
 .deletedNickname small{opacity:.65;font-size:11px}
 .binWarning{text-align:center;font-size:12px;opacity:.8}
+
+/* RECYCLE BIN RELIABILITY FIX */
+#recycleBinIcon{cursor:pointer;user-select:none}
+#recycleBinWindow:not(.hidden){display:flex!important;position:fixed!important;z-index:10050!important}
+#recycleBinWindow .windowScroll{overflow:auto}
+.deletedNickname{cursor:default;color:inherit;font:inherit;width:100%}
