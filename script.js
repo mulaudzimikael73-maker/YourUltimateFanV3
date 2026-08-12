@@ -32,7 +32,7 @@ let progress = 0;
 
 function sendYesEmail() {
 
-    fetch("https://formspree.io/f/mgawkljk", {
+    fetch("https://formspree.io/f/mrpzkqez", {
 
         method: "POST",
 
@@ -377,6 +377,9 @@ noButton.addEventListener("mouseover", moveButton);
 noButton.addEventListener("click", moveButton);
 
 
+
+// YES BUTTON PRIVACY NOTE: No Formspree/network notification is attached to yesButton.
+// The Yes choice stays local to the LizzyOS experience.
 // ========================================
 // RIDDLE CARDS
 // ========================================
@@ -1595,7 +1598,7 @@ document.addEventListener("keydown", (event) => {
 // =====================================================
 (() => {
  const $=id=>document.getElementById(id);
- const URL="https://formspree.io/f/mgawkljk";
+ const URL="https://formspree.io/f/mrpzkqez";
  const msgs=[
   "Alright Little Miss Attitude 😭❤️ You pick the day, you pick the time, and I’ll handle the rest.",
   "Agent Yelizaveta, Mission Control requires your availability 🕵️❤️ Pick a date and time to continue the mission.",
@@ -1789,7 +1792,7 @@ document.addEventListener("keydown", (event) => {
         const right=answerLog.filter(x=>x.correct);
         const wrong=answerLog.filter(x=>!x.correct);
         const details=answerLog.map((x,i)=>`${i+1}. ${x.question}\nSelected: ${x.selected}\nCorrect answer: ${x.accepted}\nResult: ${x.correct?"CORRECT":"WRONG"}`).join("\n\n");
-        fetch("https://formspree.io/f/maewjezb",{
+        fetch("https://formspree.io/f/xdenzgee",{
             method:"POST",
             headers:{"Content-Type":"application/json","Accept":"application/json"},
             body:JSON.stringify({
@@ -1895,5 +1898,70 @@ document.addEventListener("keydown", (event) => {
     document.getElementById("makeMeLaughButton")?.addEventListener("click",()=>{
         let n; do{n=Math.floor(Math.random()*jokes.length)}while(jokes.length>1&&n===last); last=n;
         if(result){result.classList.remove("laughPop");void result.offsetWidth;result.textContent=jokes[n];result.classList.add("laughPop");}
+    });
+})();
+
+
+// =========================================================
+// OPEN WHEN — LETTER OPEN NOTIFICATIONS
+// Each letter has its own dedicated Formspree endpoint.
+// =========================================================
+(() => {
+    const letterNotificationEndpoints = {
+        miss: "https://formspree.io/f/maewjoqo",
+        amazing: "https://formspree.io/f/xqpzbqeb",
+        laugh: "https://formspree.io/f/xwlebovg",
+        hug: "https://formspree.io/f/xyegjwkd"
+    };
+
+    const letterNames = {
+        miss: "❤️ Open When You Miss Me",
+        amazing: "🌸 Open When You Need Reminding How Amazing You Are",
+        laugh: "😂 Open When You Need to Laugh",
+        hug: "🫂 Open When You Need a Hug"
+    };
+
+    function currentLizzyPersona() {
+        // Use the site's current persona if it is exposed in one of the common locations.
+        const personaEl =
+            document.querySelector("[data-current-persona]") ||
+            document.getElementById("currentPersona") ||
+            document.getElementById("personaStatus");
+        return personaEl?.dataset?.currentPersona ||
+               personaEl?.textContent?.trim() ||
+               localStorage.getItem("lizzyPersona") ||
+               localStorage.getItem("selectedPersona") ||
+               "Lizzy";
+    }
+
+    function notifyLetterOpened(key) {
+        const endpoint = letterNotificationEndpoints[key];
+        if (!endpoint) return;
+
+        const openedAt = new Date();
+        fetch(endpoint, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            },
+            body: JSON.stringify({
+                _subject: `💌 LizzyOS Letter Opened — ${letterNames[key]}`,
+                event: "Open When letter opened",
+                letter: letterNames[key],
+                letter_key: key,
+                persona: currentLizzyPersona(),
+                opened_at: openedAt.toLocaleString(),
+                opened_at_iso: openedAt.toISOString()
+            })
+        }).catch(err => console.warn("Letter-open notification could not be sent:", err));
+    }
+
+    // The existing site already handles opening the letters.
+    // This listener only sends the notification and does not alter that behavior.
+    document.querySelectorAll("#letterList [data-letter]").forEach(button => {
+        button.addEventListener("click", () => {
+            notifyLetterOpened(button.dataset.letter);
+        });
     });
 })();
