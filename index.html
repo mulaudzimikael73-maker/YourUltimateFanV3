@@ -545,14 +545,22 @@
                 <div class="desktopEmoji">💗</div>
                 <span>Heart Catch</span>
             </div>
+            <div class="desktopIcon" id="mikhailQuizIcon">
+                <div class="desktopEmoji">🧠</div>
+                <span>Mikhail Quiz</span>
+            </div>
 
-        </div>
-            <div class="desktopIcon" id="mikhailQuizIcon"><div class="desktopEmoji">🧠</div><span>Mikhail Quiz</span></div>
-            <div class="desktopIcon" id="mysteryBoxIcon"><div class="desktopEmoji">🎁</div><span>Daily Mystery</span></div>
+            <div class="desktopIcon" id="mysteryBoxIcon">
+                <div class="desktopEmoji">🎁</div>
+                <span>Daily Mystery</span>
+            </div>
+
             <div class="desktopIcon calendarFolderIcon" id="calendarIcon">
                 <div class="desktopEmoji calendarFolderEmoji"><span class="folderCalendarBadge">📅</span></div>
                 <span>Our Date</span>
             </div>
+
+        </div>
 
 
         <!-- Finder Window -->
@@ -770,11 +778,25 @@
                 <div id="letterList" class="letterList">
                     <button class="letterButton" data-letter="miss">❤️ Open when you miss me</button>
                     <button class="letterButton" data-letter="amazing">🌸 Open when you need reminding how amazing you are</button>
+                    <button class="letterButton" data-letter="hug">🫂 Open when you need a hug</button>
+                    <button class="letterButton" data-letter="laugh">😂 Open when you need to laugh</button>
                 </div>
 
                 <article id="letterContent" class="letterPaper hidden">
                     <h3 id="letterTitle"></h3>
                     <div id="letterText"></div>
+                    <div id="hugExperience" class="openWhenExtra hidden">
+                        <div class="virtualHug">
+                            <span class="hugArm hugArmLeft">🫲</span>
+                            <div class="hugHeart">❤️</div>
+                            <span class="hugArm hugArmRight">🫱</span>
+                        </div>
+                        <p class="hugStatus">Virtual hug successfully delivered 🫂</p>
+                    </div>
+                    <div id="laughExperience" class="openWhenExtra hidden">
+                        <button id="makeMeLaughButton" class="laughButton">Make Me Laugh 😂</button>
+                        <div id="laughResult" class="laughResult">Press the button. LizzyOS will handle the emergency.</div>
+                    </div>
                     <button id="backLetters" class="secondaryButton">← Back to letters</button>
                 </article>
             </div>
@@ -830,7 +852,70 @@
         </div>
 
         
-        <div id="calendarWindow" class="desktopWindow hidden">
+        
+        <!-- Mikhail Quiz -->
+        <div id="mikhailQuizWindow" class="desktopWindow hidden">
+            <div class="windowTop">
+                <div class="windowDots">
+                    <span class="windowCloseDot" id="mikhailQuizClose" title="Close"></span>
+                    <span class="windowMinDot"></span>
+                    <span class="windowMaxDot"></span>
+                </div>
+                <h2>🧠 How Well Do You Know Mikhail?</h2>
+            </div>
+            <div class="windowScroll lizzyMiniApp">
+                <div id="mikhailLevelSelect">
+                    <p class="memoryMessage">Choose your clearance level, Agent Yelizaveta 😏</p>
+                    <div class="mikhailLevelGrid">
+                        <button class="mikhailLevelCard" data-mikhail-level="easy"><span>🌸</span><strong>Easy</strong><small>Basic Mikhail knowledge</small></button>
+                        <button class="mikhailLevelCard" data-mikhail-level="medium"><span>👀</span><strong>Medium</strong><small>You've been paying attention... right?</small></button>
+                        <button class="mikhailLevelCard" data-mikhail-level="hard"><span>🕵️</span><strong>Agent Level</strong><small>Classified information</small></button>
+                    </div>
+                </div>
+                <div id="mikhailQuizPlay" class="hidden">
+                    <div class="mikhailQuizMeta"><span id="mikhailLevelLabel"></span><span id="mikhailProgress"></span></div>
+                    <h3 id="mikhailQuestion"></h3>
+                    <div id="mikhailAnswers" class="mikhailAnswers"></div>
+                    <p id="mikhailReaction" class="gameFeedback"></p>
+                </div>
+                <div id="mikhailQuizResult" class="hidden">
+                    <div class="mikhailResultMedal">🏆</div>
+                    <h3 id="mikhailResultTitle"></h3>
+                    <p id="mikhailResultText"></p>
+                    <div class="mikhailRewardTicket">
+                        <small>LIZZYOS OFFICIAL REWARD</small>
+                        <strong id="rewardTicketTitle"></strong>
+                        <p id="rewardTicketText"></p>
+                        <span>AUTHORIZED BY AGENT MIKHAIL ❤️</span>
+                    </div>
+                    <button id="restartMikhailQuiz">Choose Another Level</button>
+                </div>
+            </div>
+            <button id="closeMikhailQuiz" class="windowCloseButton">Close</button>
+        </div>
+
+        <!-- Daily Mystery Box -->
+        <div id="mysteryBoxWindow" class="desktopWindow hidden">
+            <div class="windowTop">
+                <div class="windowDots">
+                    <span class="windowCloseDot" id="mysteryBoxClose" title="Close"></span>
+                    <span class="windowMinDot"></span>
+                    <span class="windowMaxDot"></span>
+                </div>
+                <h2>🎁 Daily Mystery Box</h2>
+            </div>
+            <div class="windowScroll mysteryBoxContent">
+                <div id="mysteryGift" class="mysteryGift">🎁</div>
+                <h3>One surprise every day.</h3>
+                <p>LizzyOS has prepared today's classified delivery...</p>
+                <button id="openMysteryBox">Open Today's Box ✨</button>
+                <div id="mysteryReward" class="mysteryReward hidden"></div>
+                <p id="mysteryCountdown" class="memoryMessage"></p>
+            </div>
+            <button id="closeMysteryBox" class="windowCloseButton">Close</button>
+        </div>
+
+<div id="calendarWindow" class="desktopWindow hidden">
             <div class="windowTop">
                 <div class="windowDots">
                     <span class="windowCloseDot" id="calendarRedClose"></span>

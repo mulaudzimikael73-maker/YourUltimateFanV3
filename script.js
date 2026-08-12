@@ -898,6 +898,40 @@ Whenever you forget, come back here. I'll happily remind you again.<br><br>
 
 };
 
+openWhenLetters.hug = {
+    title: "🫂 Open When You Need a Hug",
+    body: `
+        <p><strong>Come here, Lizzy 🫂❤️</strong></p>
+        <p>I don't know what's happened or why you need a hug right now, but since I can't physically give you one through a computer screen, this will have to do for now.</p>
+        <p>Consider yourself officially hugged.</p>
+        <p>The long kind too — not one of those awkward two-second hugs. 😂</p>
+        <p>Whatever is going on, I hope this makes things feel even just a tiny bit better.</p>
+        <p>And if this digital hug isn't enough...</p>
+        <p><strong>You know where to find the real one. ❤️</strong></p>
+        <p class="letterSignature">— Mikael a.k.a Mr Perfect</p>
+    `
+};
+
+openWhenLetters.laugh = {
+    title: "😂 Open When You Need to Laugh",
+    body: `
+        <p><strong>🚨 LIZZYOS EMERGENCY COMEDY PROTOCOL</strong></p>
+        <p>Apparently you require immediate assistance.</p>
+        <p>First of all...</p>
+        <p>Why did you come to <strong>ME</strong> for comedy? 😭</p>
+        <p>That's a lot of pressure.</p>
+        <p>So here's your emergency procedure:</p>
+        <p><strong>Step 1:</strong> Think about something embarrassing I've done.</p>
+        <p><strong>Step 2:</strong> Remember that there are probably several options.</p>
+        <p><strong>Step 3:</strong> Laugh.</p>
+        <p>If that hasn't worked, please switch yourself off and back on again.</p>
+        <p>Still nothing?</p>
+        <p>Fine.</p>
+    `
+};
+
+
+
 function showOpenWhenLetter(letterKey) {
 
     const letter = openWhenLetters[letterKey];
@@ -1661,42 +1695,189 @@ document.addEventListener("keydown", (event) => {
 })();
 
 
-// QUIZ+ — MIKHAIL QUIZ / LEVELS / REWARD TICKET / DAILY MYSTERY
-(()=>{const $=id=>document.getElementById(id);
-const bank={
-easy:[
-{q:"What name does Mikhail usually go by when he's coaching?",a:["Coach Micky","Coach Michael Scott","Coach 99"],c:0},
-{q:"Which sport has Mikhail coached a lot of?",a:["Soccer","Ice hockey","Baseball"],c:0},
-{q:"What is Mikhail's LizzyOS agent surname?",a:["Petrov","Peralta","Hunt"],c:0},
-{q:"What does Mikhail call the children he coaches?",a:["Champions","Cadets","Minions"],c:0}],
-medium:[
-{q:"Which fitness event has Mikhail planned to take part in?",a:["HYROX","Wimbledon","Tour de France"],c:0},
-{q:"Which sport has Mikhail looked for casual teams to play around Johannesburg?",a:["Basketball","Golf","Rugby"],c:0},
-{q:"What organisation appears on Mikhail's coaching messages?",a:["The B-Active Group","Active HQ","B-Sport"],c:0},
-{q:"Which theme is used heavily in LizzyOS?",a:["Secret agents","Pirates","Astronaut school"],c:0}],
-hard:[
-{q:"What is Mikhail's coaching nickname?",a:["Micky","Mikey P","M"],c:0},
-{q:"What is Mikhail's full LizzyOS agent alias?",a:["Mikhail Petrov","Mikhail Peralta","Mikhail Hunt"],c:0},
-{q:"Which two HYROX categories has Mikhail planned for?",a:["Open Men's Doubles & Mixed Doubles","Singles & Relay","Pro Singles & Mixed Relay"],c:0},
-{q:"Which nickname belongs in LizzyOS rather than the Recycle Bin?",a:["Agent Mikhail","The OPP","Jaden Smith"],c:0}]};
-let level="easy",qs=[],i=0,score=0;const names={easy:"🌸 EASY",medium:"👀 MEDIUM",hard:"🕵️ AGENT LEVEL"};
-function levels(){$("mikhailLevelSelect")?.classList.remove("hidden");$("mikhailQuizPlay")?.classList.add("hidden");$("mikhailQuizResult")?.classList.add("hidden")}
-function start(l){level=l;qs=[...bank[l]].sort(()=>Math.random()-.5);i=score=0;$("mikhailLevelSelect").classList.add("hidden");$("mikhailQuizPlay").classList.remove("hidden");$("mikhailLevelLabel").textContent=names[l];render()}
-function render(){let q=qs[i];$("mikhailProgress").textContent=`${i+1} / ${qs.length}`;$("mikhailQuestion").textContent=q.q;$("mikhailReaction").textContent="";$("mikhailAnswers").innerHTML=q.a.map((x,n)=>`<button data-a="${n}">${x}</button>`).join("");$("mikhailAnswers").querySelectorAll("button").forEach(b=>b.onclick=()=>answer(+b.dataset.a))}
-function answer(n){let q=qs[i];if(n===q.c){score++;$("mikhailReaction").textContent="Correct 😌❤️"}else $("mikhailReaction").textContent="LizzyOS is taking notes 🤨😂";$("mikhailAnswers").querySelectorAll("button").forEach(b=>b.disabled=true);setTimeout(()=>{i++;i<qs.length?render():finish()},700)}
-function finish(){let p=Math.round(score/qs.length*100);$("mikhailQuizPlay").classList.add("hidden");$("mikhailQuizResult").classList.remove("hidden");$("mikhailResultTitle").textContent=`${score}/${qs.length} — ${p}% Mikhail Knowledge`;$("mikhailResultText").textContent=p===100?"Suspiciously perfect 😭❤️":p>=75?"Agent Mikhail approves 😌❤️":p>=50?"Further research recommended 😂":"Emergency Mikhail revision required 😭";let r=p===100?["👑 Ultimate Mikhail Expert","One completely unreasonable bragging session."]:p>=75?["🍝 Pasta Emergency Pass","Valid for one dramatic pasta-related request."]:p>=50?["🎳 Bowling Rematch Ticket","One official request for a rematch."]:["📚 Mikhail Revision Pass","Permission to investigate Agent Mikhail further 😂"];$("rewardTicketTitle").textContent=r[0];$("rewardTicketText").textContent=r[1]}
-$("mikhailQuizIcon")?.addEventListener("click",()=>{$("mikhailQuizWindow").classList.remove("hidden");levels()});["mikhailQuizClose","closeMikhailQuiz"].forEach(x=>$(x)?.addEventListener("click",()=>$("mikhailQuizWindow").classList.add("hidden")));document.querySelectorAll(".quizLevelCard").forEach(b=>b.onclick=()=>start(b.dataset.level));$("restartMikhailQuiz")?.addEventListener("click",levels);
 
-const gifts=[
-["💗 Compliment Drop","Today's system message: you're ridiculously pretty. This is not a bug."],
-["🎟️ Argument Voucher","Redeemable for one argument where Mikhail admits you were right 😂"],
-["🌸 Flower Delivery","Digital flowers: 🌸🌷🌹"],
-["🍝 Pasta Alert","Today's mission: pasta should probably be involved somehow."],
-["☕ Tiny Date Idea","Coffee + a walk + unnecessarily long conversation."],
-["🕵️ Classified Compliment","Agent report: Subject Yelizaveta remains dangerously beautiful."],
-["🎳 Bowling Pass","One rematch has been authorised. Trash talk is permitted."],
-["💕 Mikhail Message","Somebody made you your own operating system 😭❤️"]];
-function key(){let d=new Date();return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`}function idx(){return [...key()].reduce((n,ch)=>(n*31+ch.charCodeAt(0))>>>0,0)%gifts.length}
-function daily(){let opened=localStorage.getItem("lizzyMysteryOpened")===key(),r=gifts[idx()];$("mysteryGift").textContent=opened?"✨":"🎁";$("mysteryReward").classList.toggle("hidden",!opened);if(opened)$("mysteryReward").innerHTML=`<strong>${r[0]}</strong><p>${r[1]}</p>`;$("openMysteryBox").disabled=opened;$("openMysteryBox").textContent=opened?"Come back tomorrow 💗":"Open Today's Box ✨";$("mysteryCountdown").textContent=opened?"Today's surprise has already been claimed. Another arrives tomorrow.":""}
-$("mysteryBoxIcon")?.addEventListener("click",()=>{$("mysteryBoxWindow").classList.remove("hidden");daily()});["mysteryBoxClose","closeMysteryBox"].forEach(x=>$(x)?.addEventListener("click",()=>$("mysteryBoxWindow").classList.add("hidden")));$("openMysteryBox")?.addEventListener("click",()=>{localStorage.setItem("lizzyMysteryOpened",key());daily();if(typeof confetti==="function")confetti({particleCount:80,spread:80,origin:{y:.7}})});
+
+
+// =========================================================
+// QUIZ+ — MIKHAIL QUIZ / LEVELS / REWARDS / DAILY MYSTERY
+// Current v3 stays the base; existing Lizzy Quiz/Heart Catch stay untouched.
+// =========================================================
+(() => {
+    const $ = id => document.getElementById(id);
+
+    const bank = {
+        easy: [
+            {q:"What is Mikhail's middle name?",a:["Thembinkosi","Thabang","Thabiso","Themba"],correct:[0]},
+            {q:"What is Mikhail's favourite colour?",a:["Purple 💜","Black","Blue","Red"],correct:[0]},
+            {q:"What is Mikhail's favourite season?",a:["Winter ❄️","Summer ☀️","Spring 🌸","Autumn 🍂"],correct:[0]},
+            {q:"What is Mikhail's favourite TV show?",a:["The Office","Brooklyn Nine-Nine","Suits","Snowfall"],correct:[0]},
+            {q:"What is Mikhail's favourite movie genre?",a:["Comedy 😂","Action","Horror","Romance"],correct:[0]},
+            {q:"Which team does Mikhail consider the best in the world?",a:["Liverpool","Orlando Pirates","Manchester United","Kaizer Chiefs"],correct:[0,1]}
+        ],
+        medium: [
+            {q:"Who is Mikhail's favourite hero?",a:["Batman 🦇","Superman","Spider-Man","Iron Man"],correct:[0]},
+            {q:"Who is one of Mikhail's favourite artists?",a:["Dave","J. Cole","Drake","Kendrick Lamar"],correct:[0,1]},
+            {q:"Who is one of Mikhail's favourite local artists?",a:["Kwesta","Sjava","A-Reece","Nasty C"],correct:[0,1]},
+            {q:"What is the name of Mikhail's Instagram finsta?",a:["Mickys_clubhouse","Mickys_house","Clubhouse_Micky","Mikhail_private"],correct:[0]},
+            {q:"What is Mikhail's dream holiday destination?",a:["Dagestan","Japan","Italy","Brazil"],correct:[0]},
+            {q:"If there were no limitations, how long would Mikhail want to spend there?",a:["6 Months","2 Weeks","1 Month","1 Year"],correct:[0]}
+        ],
+        hard: [
+            {q:"What is Cody's middle name?",a:["Aladeen","Theodore","Maximus","Mikhail"],correct:[0]},
+            {q:"What is Mikhail's favourite Batman movie?",a:["The Dark Knight","The Batman","Batman Begins","The Dark Knight Rises"],correct:[0]},
+            {q:"What is Mikhail's favourite sport to play?",a:["Basketball 🏀","Soccer ⚽","Tennis 🎾","Rugby 🏉"],correct:[0]},
+            {q:"What was Mikhail's high-school basketball number?",a:["4","23","30","8"],correct:[0]},
+            {q:"Who is Mikhail's all-time favourite athlete?",a:["Michael Jordan","LeBron James","Kobe Bryant","Cristiano Ronaldo"],correct:[0]},
+            {q:"Who is Mikhail's current favourite NBA player?",a:["Steph Curry","Seth Curry","Dell Curry","Luka Dončić"],correct:[0]}
+        ]
+    };
+
+    const labels={easy:"🌸 EASY",medium:"👀 MEDIUM",hard:"🕵️ AGENT LEVEL"};
+    let level="easy",questions=[],index=0,score=0;
+
+    function showLevels(){
+        $("mikhailLevelSelect")?.classList.remove("hidden");
+        $("mikhailQuizPlay")?.classList.add("hidden");
+        $("mikhailQuizResult")?.classList.add("hidden");
+    }
+    function openQuiz(){
+        $("mikhailQuizWindow")?.classList.remove("hidden");
+        showLevels();
+        if(typeof unlockAchievement==="function")unlockAchievement("Mikhail Quiz Activated 🧠");
+    }
+    function closeQuiz(){$("mikhailQuizWindow")?.classList.add("hidden")}
+    function startQuiz(selectedLevel){
+        level=selectedLevel;questions=[...bank[level]].sort(()=>Math.random()-.5);index=0;score=0;
+        $("mikhailLevelSelect")?.classList.add("hidden");
+        $("mikhailQuizResult")?.classList.add("hidden");
+        $("mikhailQuizPlay")?.classList.remove("hidden");
+        $("mikhailLevelLabel").textContent=labels[level];
+        render();
+    }
+    function render(){
+        const q=questions[index];
+        $("mikhailProgress").textContent=`${index+1} / ${questions.length}`;
+        $("mikhailQuestion").textContent=q.q;
+        $("mikhailReaction").textContent="";
+        $("mikhailAnswers").innerHTML=q.a.map((x,n)=>`<button class="mikhailAnswer" data-answer="${n}">${x}</button>`).join("");
+        $("mikhailAnswers").querySelectorAll("[data-answer]").forEach(b=>b.onclick=()=>answer(+b.dataset.answer));
+    }
+    function answer(n){
+        const q=questions[index],ok=q.correct.includes(n);
+        if(ok)score++;
+        $("mikhailReaction").textContent=ok?"Correct 😌❤️":(level==="hard"?"Agent clearance denied 😂":"LizzyOS is taking notes 🤨😂");
+        $("mikhailAnswers").querySelectorAll("button").forEach(b=>b.disabled=true);
+        setTimeout(()=>{index++;index<questions.length?render():finish()},650);
+    }
+    function finish(){
+        const total=questions.length,p=Math.round(score/total*100);
+        let title,msg,reward,rewardText;
+        if(score===6){title="Perfect Clearance 🕵️";msg="6/6?! This is getting suspicious 😭❤️";reward="👑 Ultimate Mikhail Expert";rewardText="Redeemable for one completely unreasonable bragging session."}
+        else if(score>=4){title="Very Impressive 👀";msg="Okayyy, you've actually been paying attention 😌❤️";reward="🍝 Pasta Emergency Pass";rewardText="Valid for one dramatic pasta-related request."}
+        else if(score>=2){title="Further Research Required 😂";msg="Not terrible... but LizzyOS recommends some Mikhail revision.";reward="📚 Mikhail Study Pass";rewardText="Permission to investigate Agent Mikhail further."}
+        else{title="🚨 SECURITY ALERT";msg="Agent Yelizaveta, we need to talk. How do you know this little?! 😭";reward="🚨 LizzyOS Interrogation Ticket";rewardText="Report immediately for questioning 😂"}
+        $("mikhailQuizPlay")?.classList.add("hidden");$("mikhailQuizResult")?.classList.remove("hidden");
+        $("mikhailResultTitle").textContent=`${title} — ${score}/${total} (${p}%)`;
+        $("mikhailResultText").textContent=msg;
+        $("rewardTicketTitle").textContent=reward;
+        $("rewardTicketText").textContent=rewardText;
+        const old=Number(localStorage.getItem(`mikhailQuizBest_${level}`)||0);
+        localStorage.setItem(`mikhailQuizBest_${level}`,Math.max(old,p));
+    }
+
+    $("mikhailQuizIcon")?.addEventListener("click",openQuiz);
+    $("mikhailQuizClose")?.addEventListener("click",closeQuiz);
+    $("closeMikhailQuiz")?.addEventListener("click",closeQuiz);
+    $("restartMikhailQuiz")?.addEventListener("click",showLevels);
+    document.querySelectorAll("[data-mikhail-level]").forEach(b=>b.addEventListener("click",()=>startQuiz(b.dataset.mikhailLevel)));
+
+    const rewards=[
+        ["💗 Compliment Drop","Today's system message: you're ridiculously pretty. This is not a bug."],
+        ["🎟️ Argument Voucher","Redeemable for one argument where Mikhail admits you were right. Terms and conditions definitely apply 😂"],
+        ["🌸 Flower Delivery","Digital flowers because apparently LizzyOS has standards now 🌸🌷🌹"],
+        ["🍝 Pasta Alert","Today's mission: pasta should probably be involved somehow."],
+        ["☕ Tiny Date Idea","Coffee + a walk + unnecessarily long conversation. Simple. Cute. Approved."],
+        ["🕵️ Classified Compliment","Agent report: Subject Yelizaveta remains dangerously beautiful. Proceed with caution."],
+        ["🎳 Bowling Pass","One rematch has been authorised. Trash talk is permitted."],
+        ["💕 Mikhail Message","Just a reminder that somebody put a ridiculous amount of effort into making you your own operating system 😭❤️"]
+    ];
+    function key(){const d=new Date();return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`}
+    function reward(){let n=0;for(const ch of key())n=(n*31+ch.charCodeAt(0))>>>0;return rewards[n%rewards.length]}
+    function refreshMystery(){
+        const opened=localStorage.getItem("lizzyMysteryOpened")===key(),r=reward();
+        $("mysteryGift").textContent=opened?"✨":"🎁";
+        $("mysteryReward")?.classList.toggle("hidden",!opened);
+        if(opened)$("mysteryReward").innerHTML=`<strong>${r[0]}</strong><p>${r[1]}</p>`;
+        $("openMysteryBox").disabled=opened;
+        $("openMysteryBox").textContent=opened?"Come back tomorrow 💗":"Open Today's Box ✨";
+        $("mysteryCountdown").textContent=opened?"Today's surprise has already been claimed. Another arrives tomorrow.":"";
+    }
+    function openMystery(){
+        $("mysteryBoxWindow")?.classList.remove("hidden");refreshMystery();
+        if(typeof unlockAchievement==="function")unlockAchievement("Daily Mystery Box Found 🎁");
+    }
+    function closeMystery(){$("mysteryBoxWindow")?.classList.add("hidden")}
+    $("mysteryBoxIcon")?.addEventListener("click",openMystery);
+    $("mysteryBoxClose")?.addEventListener("click",closeMystery);
+    $("closeMysteryBox")?.addEventListener("click",closeMystery);
+    $("openMysteryBox")?.addEventListener("click",()=>{
+        localStorage.setItem("lizzyMysteryOpened",key());refreshMystery();
+        if(typeof confetti==="function")confetti({particleCount:80,spread:85,origin:{y:.7}});
+    });
+})();
+
+// OPEN WHEN SPECIAL EFFECTS — Hug + Laugh
+(() => {
+    const hugExtra=document.getElementById("hugExperience");
+    const laughExtra=document.getElementById("laughExperience");
+    const result=document.getElementById("laughResult");
+    const reset=()=>{hugExtra?.classList.add("hidden");laughExtra?.classList.add("hidden");};
+
+    document.querySelectorAll('[data-letter="hug"],[data-letter="laugh"]').forEach(btn=>{
+        btn.addEventListener("click",()=>{
+            reset();
+            if(btn.dataset.letter==="hug"){
+                setTimeout(()=>{
+                    hugExtra?.classList.remove("hidden");
+                    hugExtra?.classList.remove("hugPlaying");
+                    void hugExtra?.offsetWidth;
+                    hugExtra?.classList.add("hugPlaying");
+                },60);
+            }else{
+                setTimeout(()=>laughExtra?.classList.remove("hidden"),60);
+            }
+        });
+    });
+    document.getElementById("backLetters")?.addEventListener("click",reset);
+
+    const jokes=[
+        "⚠️ SYSTEM WARNING: Little Miss Attitude levels have exceeded recommended limits.",
+        "Fun Fact: Mikael has never lost an argument. Source: Mikael.",
+        "LizzyOS has detected a smile. Mission accomplished. Please stop pressing the button. 😭",
+        "🚨 ALERT: A wild Mr Perfect has appeared. Unfortunately, there is no uninstall option.",
+        "Mikael tried to write a normal website. LizzyOS would like to report that he failed spectacularly.",
+        "Breaking News: Agent Yelizaveta has once again been accused of having too much attitude. Investigation ongoing.",
+        "Mr Perfect would like to remind you that being right all the time is extremely exhausting. Please be considerate.",
+        "Technical Support: Have you tried turning the attitude off and back on again? 😂",
+        "Official LizzyOS diagnosis: You probably need pasta. 🍝",
+        "Achievement unlocked: You pressed the button instead of simply admitting that Mikael is funny. 🏆"
+    ,
+        "Girl, you look so good, I’d marry your brother just to get into your family.",
+        "Somebody call the cops, because it’s got to be illegal to look that good.",
+        "I guess I can kiss heaven goodbye—because it’s got to be a sin to look that good.",
+        "Hey girl, you must be tired, because you’ve been running through my mind all day.",
+        "I think I’ve seen your picture somewhere before… Oh yeah, in the dictionary next to kablam!",
+        "Do you believe in love at first sight, or should I walk past again?",
+        "Will you go on the worst date ever with me? You have to say yes.",
+        "Are you the Halloween Heist? Because I’ve been planning all year to win you over.",
+        "Lizzy, are you always this adorable, or are you just showing off today?",
+        "I was going to play it cool, but then you smiled and ruined my entire strategy.",
+        "You’re honestly very distracting. I’m trying to think, and your face keeps appearing.",
+        "Lizzy, are you a calendar? Because I’m trying very hard to secure a date 😌",
+        "You’re lucky you’re cute, Little Miss Attitude—because the amount of attitude coming from those four eyes is unbelievable 😂❤️"];
+    let last=-1;
+    document.getElementById("makeMeLaughButton")?.addEventListener("click",()=>{
+        let n; do{n=Math.floor(Math.random()*jokes.length)}while(jokes.length>1&&n===last); last=n;
+        if(result){result.classList.remove("laughPop");void result.offsetWidth;result.textContent=jokes[n];result.classList.add("laughPop");}
+    });
 })();
