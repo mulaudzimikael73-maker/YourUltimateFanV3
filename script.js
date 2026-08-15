@@ -2312,6 +2312,21 @@ $("crackBack")?.addEventListener("click",menu);$("crackAnother")?.addEventListen
 })();
 
 
+
+// One-time live progress preservation: restore the existing 4-day streak after deployment.
+// Never lowers or overwrites a streak that is already 4 or higher.
+(() => {
+  const migrationKey = "lizzyPreserveStreak4MigrationV1";
+  if (!localStorage.getItem(migrationKey)) {
+    const current = Number(localStorage.getItem("lizzyMysteryStreak") || 0);
+    if (current < 4) {
+      localStorage.setItem("lizzyMysteryStreak", "4");
+      // Do not mark today's reward as opened; this only restores the displayed/progress streak.
+    }
+    localStorage.setItem(migrationKey, "done");
+  }
+})();
+
 // DAILY REWARDS + STRICT CONSECUTIVE STREAK
 (()=>{
 const $=id=>document.getElementById(id);
