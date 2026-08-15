@@ -577,6 +577,11 @@
                 <span>Token Jar</span>
             </div>
 
+            <div class="desktopIcon" id="seedStoreIcon">
+                <div class="desktopEmoji">🛒</div>
+                <span>Seed Store</span>
+            </div>
+
             <div class="desktopIcon calendarFolderIcon" id="calendarIcon">
                 <div class="desktopEmoji calendarFolderEmoji"><span class="folderCalendarBadge">📅</span></div>
                 <span>Our Date</span>
@@ -1392,5 +1397,32 @@ if (window.netlifyIdentity) {
 
 <script src="script.js"></script>
 
+
+        <div id="seedStoreWindow" class="desktopWindow hidden seedStoreWindow">
+            <div class="windowTop">
+                <div class="windowDots">
+                    <span class="windowCloseDot" id="seedStoreClose"></span>
+                    <span class="windowMinDot"></span><span class="windowMaxDot"></span>
+                </div>
+                <strong>🌱 Lizzy's Seed Store</strong>
+            </div>
+            <div class="seedStoreBody">
+                <div class="mickyWalletCard">
+                    <div><small>MICKY WALLET</small><h2>💵 <span id="mickyBalance">0</span> MB</h2></div>
+                    <button id="claimMickyAllowance">Claim Daily +2 MB</button>
+                </div>
+                <div id="mickyAllowanceStatus" class="seedStoreStatus"></div>
+                <h3>💼 Today's Micky Jobs</h3>
+                <p class="seedStoreIntro">Five missions are selected each day from 50 possible jobs. Complete them to earn Micky Bucs.</p>
+                <div id="mickyJobsList" class="mickyJobsGrid"></div>
+                <h3>🛍️ Seed Shop</h3>
+                <p class="seedStoreIntro">Purchased seeds are added directly to your existing Garden inventory.</p>
+                <div id="seedShopList" class="seedShopGrid"></div>
+                <div id="seedStoreStatus" class="seedStoreStatus"></div>
+                <button id="closeSeedStore" class="secondaryButton">Close Store</button>
+            </div>
+        </div>
+
+<script src="seed-store.js"></script>
 </body>
 </html>
