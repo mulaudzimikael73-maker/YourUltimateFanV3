@@ -3418,3 +3418,5 @@ window.addEventListener("load", () => {
     }, 1200);
   }
 });
+
+if (typeof lizzyTelegramNotify === "function") window.lizzyTelegramNotify = lizzyTelegramNotify;
