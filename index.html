@@ -8,7 +8,7 @@
 
     <title>Lizzy ❤️</title>
 
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=20260818-locked-final">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
 
@@ -1398,7 +1398,7 @@ if (window.netlifyIdentity) {
 <script src="script.js"></script>
 
 
-        <div id="seedStoreWindow" class="desktopWindow hidden seedStoreWindow">
+        <div id="seedStoreWindow" data-build="20260818-locked-final" class="desktopWindow hidden seedStoreWindow">
             <div class="windowTop">
                 <div class="windowDots">
                     <span class="windowCloseDot" id="seedStoreClose"></span>
@@ -1419,10 +1419,49 @@ if (window.netlifyIdentity) {
                 <p class="seedStoreIntro">Purchased seeds are added directly to your existing Garden inventory.</p>
                 <div id="seedShopList" class="seedShopGrid"></div>
                 <div id="seedStoreStatus" class="seedStoreStatus"></div>
+                <div class="storeExpansionTabs">
+                    <button data-store-tab="extras">✨ Extras</button>
+                    <button data-store-tab="bank">🏦 Micky Bank</button>
+                    <button data-store-tab="achievements">🏆 Achievements</button>
+                    <button data-store-tab="secret">🔒 Secret Shelf</button>
+                </div>
+                <section id="storeExtrasPanel" class="storeExpansionPanel">
+                    <h3>✨ Store Extras</h3>
+                    <div id="classifiedItemCard" class="classifiedItemCard"></div>
+                    <div id="storeExtrasList" class="seedShopGrid"></div>
+                    <section id="purchasedExtrasBox" class="purchasedExtrasBox"><h3>🎒 My Extras</h3><p class="seedStoreIntro">Purchased extras will appear here.</p></section>
+                </section>
+                <section id="mickyBankPanel" class="storeExpansionPanel hidden">
+                    <h3>🏦 Bank of Micky</h3>
+                    <div class="bankCard">
+                        <p>Wallet: <strong><span id="bankWalletBalance">0</span> MB</strong></p>
+                        <p>Savings: <strong><span id="bankSavingsBalance">0</span> MB</strong></p>
+                        <div class="bankButtons">
+                            <button data-bank="deposit">Deposit 5 MB</button>
+                            <button data-bank="withdraw">Withdraw 5 MB</button>
+                        </div>
+                        <small>Keep at least 15 MB saved for 7 days to claim a +2 MB savings bonus.</small>
+                        <button id="claimSavingsBonus">Claim Weekly Savings Bonus</button>
+                    </div>
+                </section>
+                <section id="storeAchievementsPanel" class="storeExpansionPanel hidden">
+                    <h3>🏆 Micky Bucs Achievements</h3>
+                    <div id="storeAchievementsList" class="achievementGrid"></div>
+                </section>
+                <section id="secretShelfPanel" class="storeExpansionPanel hidden">
+                    <h3>🔒 Mikael's Secret Shelf</h3>
+                    <p class="seedStoreIntro">These cannot be bought with Micky Bucs. Mikael controls when they unlock.</p>
+                    <div class="secretShelfGrid">
+                        <div class="secretItem">🔒 <strong>Classified Seed</strong><small>LOCKED</small></div>
+                        <div class="secretItem">🔒 <strong>Unreleased Letter</strong><small>LOCKED</small></div>
+                        <div class="secretItem">🔒 <strong>Secret Reward</strong><small>LOCKED</small></div>
+                    </div>
+                </section>
+
                 <button id="closeSeedStore" class="secondaryButton">Close Store</button>
             </div>
         </div>
 
-<script src="seed-store.js"></script>
+<script src="seed-store.js?v=20260818-locked-final"></script>
 </body>
 </html>

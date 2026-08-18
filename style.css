@@ -3292,3 +3292,34 @@ color:#ff5ca8;
 .seedStoreIntro{opacity:.8}
 .seedStoreStatus{min-height:22px;margin:8px 0 12px;font-weight:700}
 @media(max-width:600px){.mickyWalletCard{align-items:flex-start;flex-direction:column}.seedStoreWindow{width:95vw}}
+
+
+/* STORE EXPANSION V2 — additive, existing progress keys are untouched */
+.storeExpansionTabs{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}
+.storeExpansionTabs button,.bankButtons button,#claimSavingsBonus{border:0;border-radius:12px;padding:10px 13px;cursor:pointer;font-weight:800}
+.storeExpansionPanel{margin:12px 0 20px;padding:14px;border-radius:16px;background:rgba(255,255,255,.07)}
+.classifiedItemCard{padding:15px;border:1px dashed rgba(255,255,255,.4);border-radius:16px;margin:10px 0 15px}
+.bankCard{padding:15px;border-radius:16px;background:rgba(255,255,255,.09)}
+.bankButtons{display:flex;gap:8px;margin:10px 0;flex-wrap:wrap}
+.achievementGrid,.secretShelfGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px}
+.achievementCard,.secretItem{padding:13px;border-radius:14px;background:rgba(255,255,255,.09)}
+.achievementCard.unlocked{outline:1px solid rgba(255,255,255,.45)}
+.secretItem small{display:block;margin-top:7px;opacity:.7}
+.verifyBadge{display:inline-block;padding:4px 8px;border-radius:999px;font-size:10px;font-weight:900;margin:4px 0}
+.jobPending{opacity:.82}
+
+.secretItem input{width:100%;margin-top:10px;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.12);color:inherit}.purchasedLettersBox,.mikaelTokensBox{margin:18px;padding:15px;border-radius:16px;background:rgba(255,255,255,.08)}.purchasedLetter{margin:8px 0;padding:10px;border-radius:12px;background:rgba(255,255,255,.08)}.purchasedLetter pre{white-space:pre-wrap;font-family:inherit;line-height:1.6;margin-top:10px}
+
+/* Locked final Store fixes */
+.purchasedExtrasBox{margin-top:16px;padding:14px;border-radius:18px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18)}
+.ownedExtraRow{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.12)}
+.ownedExtraRow:last-child{border-bottom:0}.ownedDestination{display:block;margin-top:8px;opacity:.85}
+.purchasedLetter{margin:10px 0;padding:10px;border-radius:12px;background:rgba(255,255,255,.08)}.purchasedLetter pre{white-space:pre-wrap;font:inherit;line-height:1.55}
+.lizzyRealExtrasFx{position:absolute;inset:60px 0 0;pointer-events:none;overflow:hidden;z-index:12}
+.realFairyLights{position:absolute;top:5px;left:6%;right:6%;border-top:2px solid rgba(40,30,20,.65);display:flex;justify-content:space-around}
+.realFairyLights i{width:10px;height:10px;margin-top:7px;border-radius:50%;background:#fff5b1;box-shadow:0 0 8px #fff,0 0 15px #ffe878;animation:realGlow 1.4s infinite alternate}
+.realButterfly,.realPetal{position:absolute;font-size:22px}.rb1{left:15%;top:30%;animation:realFly 6s infinite ease-in-out}.rb2{left:70%;top:55%;animation:realFly 7s 1s infinite ease-in-out}
+.realPetal{top:-25px;animation:realFall 7s linear infinite}.rp1{left:20%}.rp2{left:50%;animation-delay:2s}.rp3{left:80%;animation-delay:4s}
+.plantVisual{position:relative}.realCustomPot{position:absolute;left:50%;bottom:-24px;transform:translateX(-50%);width:44px;height:30px;display:flex;align-items:center;justify-content:center;z-index:3}
+.realCustomPot.heart{background:#e85c9b;color:#fff;clip-path:polygon(50% 100%,5% 48%,5% 22%,22% 5%,50% 23%,78% 5%,95% 22%,95% 48%)}.realCustomPot.gotham{background:#17171b;color:#ffd65a;border-radius:4px 4px 12px 12px}.realCustomPot.moon{background:#343b78;color:#fff3a5;border-radius:4px 4px 12px 12px}
+@keyframes realGlow{to{transform:scale(1.2);opacity:.55}}@keyframes realFly{50%{transform:translate(45px,-25px)}}@keyframes realFall{to{transform:translateY(650px) rotate(300deg);opacity:.2}}
