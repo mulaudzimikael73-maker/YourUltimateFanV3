@@ -22,6 +22,7 @@ function home(){
  <div class="browserBookmarks">
   <button data-site="bank"><span>🏦</span><b>Bank of Micky</b><small>Online Banking</small></button>
   <button data-site="lessons"><span>🧠</span><b>Life Lessons with Micky</b><small>Qualifications: Trust Me.</small></button>
+  <button data-site="news"><span>📰</span><b>Micky's Daily News</b><small>Headlines, Bank & President's Words</small></button>
  </div></div>`;
 }
 const BANK_SESSION="lizzyBankLoggedInV2";
@@ -143,6 +144,87 @@ async function vote(kind){
  await notify("🧠 LIFE LESSON VOTE",`Lesson #${current+1} — ${label}`,LESSONS[current]);
  lesson();
 }
+
+const NEWS_STORAGE_KEY="lizzyMickyDailyNewsV1";
+
+function news(){
+ setAddress("https://mickydailynews.lizzy");
+ const today=new Date().toLocaleDateString("en-ZA",{weekday:"long",year:"numeric",month:"long",day:"numeric"});
+ $("browserPage").innerHTML=`<div class="newsPage">
+  <header class="newsHeader">
+    <div class="newsMasthead">
+      <span class="newsLogo">📰</span>
+      <div>
+        <h1>Micky's Daily News</h1>
+        <small>Your most trusted source inside LizzyOS • ${today}</small>
+      </div>
+    </div>
+    <div class="newsTagline">"All the news that's fit to print, and some that probably isn't."</div>
+  </header>
+
+  <section class="newsBulletin">
+    <div class="newsSectionTitle">🚨 Headlines Bulletin</div>
+    <div class="newsHeadlineCard featured">
+      <span class="newsLabel">BREAKING</span>
+      <h2>Major Announcement Expected from the President</h2>
+      <p>The President has confirmed that savings across LizzyOS are at an all-time high, and that the weekly +2 MB bonus will continue for every citizen who keeps at least 15 MB banked for seven days.</p>
+      <small>Updated just now</small>
+    </div>
+    <div class="newsHeadlineGrid">
+      <div class="newsHeadlineCard">
+        <span class="newsLabel">BANKING</span>
+        <h3>Bank of Micky Reports Record Savings</h3>
+        <p>More Micky Bucs are being saved than ever before. Full report inside.</p>
+      </div>
+      <div class="newsHeadlineCard">
+        <span class="newsLabel">LIFESTYLE</span>
+        <h3>Life Lessons With Micky Goes Viral</h3>
+        <p>Readers can't decide if the advice is helpful or absolutely useless.</p>
+      </div>
+      <div class="newsHeadlineCard">
+        <span class="newsLabel">SPORTS</span>
+        <h3>Local Hero Declared "Mr Perfect" Again</h3>
+        <p>Unofficial poll confirms what everyone already knew.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="newsBlog">
+    <div class="newsSectionTitle">🏦 The Bank and Funds</div>
+    <article class="newsArticle">
+      <h2>Inside the Bank of Micky: A Financial Update</h2>
+      <p class="newsByline">By Micky's Daily News Finance Desk</p>
+      <p>The Bank of Micky continues to operate as the only financial institution in LizzyOS fully backed by charm, confidence, and the occasional weekly bonus. This blog will hold the full story of how funds are managed, where Micky Bucs come from, and what the future holds for savers.</p>
+      <p>Here is how it works. Every Micky Buc you deposit is stored in your savings balance and stays there until you withdraw it. Keep 15 MB or more saved for seven full days and the bank pays you a +2 MB weekly bonus, claimable once per week straight from the Bank of Micky page.</p>
+      <p>Withdrawals are instant, deposits are free, and nothing is ever deducted for holding your money. The vault holds the rewards you unlock along the way, from free items to the rarer prizes that only show up now and then.</p>
+      <div class="newsArticleBox">
+        <strong>Quick tips:</strong> deposit early in the week, never let your savings drop below 15 MB, and claim your bonus as soon as the timer clears.
+      </div>
+    </article>
+  </section>
+
+  <section class="newsBlog">
+    <div class="newsSectionTitle">🎙️ Words From the President</div>
+    <article class="newsArticle">
+      <h2>A Message to the People</h2>
+      <p class="newsByline">Office of the President</p>
+      <p>To everyone inside LizzyOS: thank you. This little world runs on the people who show up for it every day, save what they can, laugh at the life lessons, and keep coming back.</p>
+      <p>The plan stays simple. Keep the bank fair, keep the rewards worth chasing, and keep adding things worth exploring. If something feels broken or unfair, say so, and it gets fixed.</p>
+      <blockquote class="newsQuote">
+        "Leadership is not about being perfect. It is about showing up, being kind, and occasionally bringing snacks."
+        <cite>— The President</cite>
+      </blockquote>
+    </article>
+  </section>
+
+  <footer class="newsFooter">
+    <p>© ${new Date().getFullYear()} Micky's Daily News • Printed digitally with love.</p>
+    <button id="newsBackHome" class="newsHomeBtn">← Back to LizzySearch</button>
+  </footer>
+ </div>`;
+}
+
+function newsBackHome(){ home(); }
 function open(){ $("internetWindow")?.classList.remove("hidden"); home(); }
 function close(){ $("internetWindow")?.classList.add("hidden"); }
 
@@ -153,7 +235,7 @@ $("browserHome")?.addEventListener("click",home);
 $("browserBack")?.addEventListener("click",home);
 $("browserPage")?.addEventListener("click",e=>{
  const site=e.target.closest("[data-site]")?.dataset.site;
- if(site==="bank")bank(); else if(site==="lessons")lesson(); else if(site==="home")home();
+ if(site==="bank")bank(); else if(site==="lessons")lesson(); else if(site==="news")news(); else if(site==="home")home();
  if(e.target.closest("#bankLoginBtn")) bankLogin();
  if(e.target.closest("#bankLogout")){sessionStorage.removeItem(BANK_SESSION);bank();}
  const bankAct=e.target.closest("[data-web-bank]")?.dataset.webBank;
@@ -161,6 +243,7 @@ $("browserPage")?.addEventListener("click",e=>{
  const v=e.target.closest("[data-vote]")?.dataset.vote;
  if(v)vote(v);
  if(e.target.closest("#anotherLesson")){let n=current;while(n===current&&LESSONS.length>1)n=Math.floor(Math.random()*LESSONS.length);current=n;lesson()}
+ if(e.target.closest("#newsBackHome")) home();
 });
 $("browserPage")?.addEventListener("keydown",e=>{
  if(e.key==="Enter" && e.target?.id==="bankPassword")bankLogin();
