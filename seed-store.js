@@ -657,6 +657,10 @@ function claimFreeVaultItem(id){
 }
 
 function shelfNotifyPurchase(i,paid,balanceAfter){
+ if(i.kind==="letter"){
+  try{fetch(WORKER,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({type:"secret_shelf_letter_purchased",letter:i.publicName,item:i.publicName,itemId:i.id,paid,price:paid,cost:paid,balance:balanceAfter})}).catch(()=>{})}catch(e){}
+  return;
+ }
  try{fetch(WORKER,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({type:"secret_shelf_purchase",item:i.publicName,itemId:i.id,kind:i.kind||"item",paid,price:paid,cost:paid,balance:balanceAfter,details:`Paid: ${paid} MB\nRemaining balance: ${balanceAfter} MB`})}).catch(()=>{})}catch(e){}
 }
 function buyShelfItem(id){
