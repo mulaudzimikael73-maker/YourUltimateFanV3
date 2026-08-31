@@ -147,9 +147,76 @@ async function vote(kind){
 
 const NEWS_STORAGE_KEY="lizzyMickyDailyNewsV1";
 
+const NEWS_BREAKING=[
+ {h:"Major Announcement Expected from the President",p:"The President has confirmed that savings across LizzyOS are at an all-time high, and that the weekly +2 MB bonus will continue for every citizen who keeps at least 15 MB banked for seven days."},
+ {h:"Bank of Micky Vault Reaches Record Balance",p:"Analysts describe the current savings climate as 'suspiciously stable,' pointing to disciplined depositors and an unusually low number of impulse withdrawals this week."},
+ {h:"City-Wide Celebration as Weekly Bonus Confirmed Again",p:"Officials confirm the +2 MB weekly bonus remains fully funded, with no changes expected to the 15 MB, seven-day qualifying threshold."},
+ {h:"President Addresses Rumours of a New Currency",p:"Sources close to the Office of the President deny any plans to replace the Micky Buc, calling the current system 'financially iconic.'"},
+ {h:"LizzyOS Citizens Report Record Levels of Contentment",p:"An informal survey suggests satisfaction is up across the board, with several respondents crediting 'consistent snack access' as a leading factor."},
+ {h:"Emergency Session Called Over Snack Shortage Scare",p:"The scare has since been resolved. Officials confirm the pantry was simply relocated, not depleted."},
+ {h:"Bank of Micky Announces Zero Fee Increases, Again",p:"For the count-th consecutive week, the Bank of Micky has raised absolutely nothing. Depositors are reportedly thrilled."},
+ {h:"Local Investigation Into 'Mr Perfect' Title Reopened",p:"A newly formed review board says it will 'look into it,' though a source close to the investigation predicts the outcome is 'not exactly a mystery.'"},
+ {h:"President Praises Citizens for Strong Weekly Turnout",p:"Attendance across LizzyOS activities remains high, with officials calling engagement levels 'genuinely impressive.'"},
+ {h:"Micky's Daily News Wins Award for Most Trusted Source",p:"The award was self-issued. The newsroom stands by its accuracy regardless."},
+ {h:"Bank of Micky Confirms Vault Remains Fully Guarded",p:"Security has not been tested recently, largely because nobody has attempted to test it."},
+ {h:"President Unveils Plans for a Quieter, Calmer Week Ahead",p:"Details remain scarce, but officials describe the plan as 'mostly vibes, but promising vibes.'"}
+];
+const NEWS_BANKING=[
+ {h:"Bank of Micky Reports Record Savings",p:"More Micky Bucs are being saved than ever before. Full report inside."},
+ {h:"Weekly Bonus Claim Rate Hits New High",p:"More citizens than ever are claiming their +2 MB on time this week."},
+ {h:"Savings Habits Improving Across LizzyOS",p:"Financial analysts note a steady rise in citizens keeping their balance above the 15 MB threshold."},
+ {h:"Bank of Micky Processes Its Smoothest Week Yet",p:"No reported issues, no reported drama. Just deposits, withdrawals, and one very reliable bonus."},
+ {h:"Vault Rewards Remain a Top Talking Point",p:"Citizens continue to speculate about what the rarer prizes might be, with theories ranging from 'plausible' to 'wildly optimistic.'"},
+ {h:"Micky Buc Holds Steady Against All Known Currencies",p:"Experts confirm the Micky Buc remains exactly as valuable as it was yesterday, which is apparently reassuring."},
+ {h:"Depositors Urged to Claim Bonuses Promptly",p:"The Bank of Micky reminds all savers that the weekly bonus won't claim itself."},
+ {h:"Bank of Micky Confirms: Still No Hidden Fees",p:"For the record, there have never been any hidden fees. This remains true today."}
+];
+const NEWS_LIFESTYLE=[
+ {h:"Life Lessons With Micky Goes Viral",p:"Readers can't decide if the advice is helpful or absolutely useless."},
+ {h:"Citizens Debate Whether Micky's Wisdom Counts as Wisdom",p:"The debate remains unresolved, though engagement is at an all-time high."},
+ {h:"Poll: Most Popular Life Lesson of the Week Announced",p:"Results were close, but the pasta-related advice narrowly took the lead."},
+ {h:"Local Reader Claims Life Lesson 'Actually Helped'",p:"Skeptics remain unconvinced. The reader stands by their statement."},
+ {h:"Life Lessons With Micky Now Read Daily By Thousands",p:"Or at least by everyone currently browsing LizzyOS. Numbers pending verification."},
+ {h:"Experts Still Can't Explain Why the Advice Works",p:"And yet, somehow, it keeps working."},
+ {h:"Micky's Advice Column Now Considered 'Required Reading'",p:"Required by whom remains unclear, but the column persists."},
+ {h:"New Poll Finds Readers Want More Life Lessons, Not Fewer",p:"The people have spoken. Micky is reportedly 'flattered but not surprised.'"}
+];
+const NEWS_SPORTS=[
+ {h:'Local Hero Declared "Mr Perfect" Again',p:"Unofficial poll confirms what everyone already knew."},
+ {h:"Bowling Rematch Rumours Continue to Circulate",p:"Sources close to the matter say a rematch is 'not off the table,' though no date has been confirmed."},
+ {h:'"Mr Perfect" Title Successfully Defended Once More',p:"No formal challenger has stepped forward. Analysts aren't surprised."},
+ {h:"Tic-Tac-Toe Rivalry Reaches New Heights",p:"The scoreboard remains close, and both sides insist they are clearly winning."},
+ {h:"Heart Catch High Score Broken, Again",p:"A new record has been set. The previous record holder has been notified."},
+ {h:"Local Athlete Praised for 'Surprisingly Consistent' Form",p:"Consistency, experts note, is a rare quality — especially in bowling."},
+ {h:"Underdog Victory Shocks LizzyOS Sports Desk",p:"Few saw it coming. Fewer still are willing to admit they didn't see it coming."},
+ {h:"Sports Desk Confirms: The Rivalry Is Not Over",p:"It was never going to be over. Everyone already knew that."}
+];
+const NEWS_QUOTES=[
+ "Leadership is not about being perfect. It is about showing up, being kind, and occasionally bringing snacks.",
+ "A good week is measured less in achievements and more in laughs shared along the way.",
+ "The strength of LizzyOS has never been the system. It has always been the people who show up for it.",
+ "Progress doesn't need to be loud. Sometimes it's just showing up again tomorrow.",
+ "We don't need everything to go perfectly. We just need to keep choosing to try.",
+ "Small, consistent things — a saved Micky Buc, a shared laugh — add up to something real.",
+ "Every day someone opens LizzyOS is a day worth acknowledging. Thank you for showing up.",
+ "The best policy this office has ever passed is simply: be kind, and keep going."
+];
+
+function hashDayString(s){let h=0;for(const ch of s)h=(h*31+ch.charCodeAt(0))>>>0;return h}
+function pickForToday(arr,salt){
+ const dayKey=new Date().toDateString();
+ const idx=hashDayString(dayKey+"|"+salt)%arr.length;
+ return arr[idx];
+}
+
 function news(){
  setAddress("https://mickydailynews.lizzy");
  const today=new Date().toLocaleDateString("en-ZA",{weekday:"long",year:"numeric",month:"long",day:"numeric"});
+ const breaking=pickForToday(NEWS_BREAKING,"breaking");
+ const banking=pickForToday(NEWS_BANKING,"banking");
+ const lifestyle=pickForToday(NEWS_LIFESTYLE,"lifestyle");
+ const sports=pickForToday(NEWS_SPORTS,"sports");
+ const quote=pickForToday(NEWS_QUOTES,"quote");
  $("browserPage").innerHTML=`<div class="newsPage">
   <header class="newsHeader">
     <div class="newsMasthead">
@@ -166,25 +233,25 @@ function news(){
     <div class="newsSectionTitle">🚨 Headlines Bulletin</div>
     <div class="newsHeadlineCard featured">
       <span class="newsLabel">BREAKING</span>
-      <h2>Major Announcement Expected from the President</h2>
-      <p>The President has confirmed that savings across LizzyOS are at an all-time high, and that the weekly +2 MB bonus will continue for every citizen who keeps at least 15 MB banked for seven days.</p>
-      <small>Updated just now</small>
+      <h2>${breaking.h}</h2>
+      <p>${breaking.p}</p>
+      <small>Updated today</small>
     </div>
     <div class="newsHeadlineGrid">
       <div class="newsHeadlineCard">
         <span class="newsLabel">BANKING</span>
-        <h3>Bank of Micky Reports Record Savings</h3>
-        <p>More Micky Bucs are being saved than ever before. Full report inside.</p>
+        <h3>${banking.h}</h3>
+        <p>${banking.p}</p>
       </div>
       <div class="newsHeadlineCard">
         <span class="newsLabel">LIFESTYLE</span>
-        <h3>Life Lessons With Micky Goes Viral</h3>
-        <p>Readers can't decide if the advice is helpful or absolutely useless.</p>
+        <h3>${lifestyle.h}</h3>
+        <p>${lifestyle.p}</p>
       </div>
       <div class="newsHeadlineCard">
         <span class="newsLabel">SPORTS</span>
-        <h3>Local Hero Declared "Mr Perfect" Again</h3>
-        <p>Unofficial poll confirms what everyone already knew.</p>
+        <h3>${sports.h}</h3>
+        <p>${sports.p}</p>
       </div>
     </div>
   </section>
@@ -211,7 +278,7 @@ function news(){
       <p>To everyone inside LizzyOS: thank you. This little world runs on the people who show up for it every day, save what they can, laugh at the life lessons, and keep coming back.</p>
       <p>The plan stays simple. Keep the bank fair, keep the rewards worth chasing, and keep adding things worth exploring. If something feels broken or unfair, say so, and it gets fixed.</p>
       <blockquote class="newsQuote">
-        "Leadership is not about being perfect. It is about showing up, being kind, and occasionally bringing snacks."
+        "${quote}"
         <cite>— The President</cite>
       </blockquote>
     </article>
