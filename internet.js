@@ -199,14 +199,133 @@ const NEWS_QUOTES=[
  "We don't need everything to go perfectly. We just need to keep choosing to try.",
  "Small, consistent things — a saved Micky Buc, a shared laugh — add up to something real.",
  "Every day someone opens LizzyOS is a day worth acknowledging. Thank you for showing up.",
- "The best policy this office has ever passed is simply: be kind, and keep going."
+ "The best policy this office has ever passed is simply: be kind, and keep going.",
+ "My fellow citizens, remember: you do not need to have everything figured out. Sometimes you just need to survive Monday.",
+ "Never compare your Chapter 1 to someone else's Chapter 20. Unless they're Lizzy. Then obviously compare yourself.",
+ "Believe in yourself. And if that doesn't work, believe in the fact that you've already come this far.",
+ "Life is too short to worry about people who don't like you. Unless Lizzy doesn't like you. Then we need to investigate.",
+ "Some days you conquer the world. Other days, getting out of bed is the achievement. Both count.",
+ "Remember, citizens: progress is progress, even if your progress today was simply replying to one email.",
+ "Do not be afraid to fail. Be afraid of never trying because you were too busy overthinking.",
+ "The government encourages everyone to chase their dreams. Except Micky's dream of owning a pair of jeans. That man has suffered enough.",
+ "Surround yourself with people who make you laugh, support you, and tell you when you're being ridiculous.",
+ "To anyone having a bad day: tomorrow is another opportunity. Unless you're Lizzy and you've already scheduled a nap.",
+ "You are capable of more than you think. You have survived every difficult day you've faced so far.",
+ "Do not let one bad moment convince you that you are having a bad life.",
+ "Sometimes the bravest thing you can do is keep going.",
+ "The President would like to remind everyone that asking for help is not weakness. It is called outsourcing.",
+ "You don't have to be perfect to be proud of yourself.",
+ "Make mistakes. Learn from them. Grow. And preferably don't make the exact same mistake seventeen times.",
+ "Be kind. You never know what someone else is carrying.",
+ "The nation is proud of you. Yes, you specifically.",
+ "Rest when you need to. Even elite athletes need recovery. Lizzy has demonstrated this principle extensively.",
+ "And finally: if today feels impossible, just take it one step at a time. Tomorrow can worry about itself."
+];
+const NEWS_TICKER=[
+ "COST OF LIVING HAS INCREASED — LIZZY HAS DECIDED THIS IS A PERSONAL ATTACK.",
+ "BANK OFFICIALS CONFIRM LIZZY HAS MONEY. They cannot confirm for how long.",
+ "NEW TAX PROPOSED ON PEOPLE WHO SAY \"IT'S ONLY R___.\"",
+ "MICKY'S BANK INTRODUCES THE LIZZY FUND — MONEY DEPOSITED IMMEDIATELY DISAPPEARS.",
+ "LIZZY REQUESTS 50 MILLION PAIRS OF THE SAME SHOES. BANK ASKS WHY. LIZZY: \"BECAUSE I LIKE THEM.\"",
+ "FINANCIAL EXPERTS HAVE CONFIRMED THAT OWNING 50 PAIRS OF THE SAME SHOES IS NOT TECHNICALLY AN INVESTMENT.",
+ "MINIMUM WAGE HAS GONE UP. LIZZY'S SHOPPING WAGE HAS GONE UP EVEN FASTER.",
+ "LIZZY'S BANK ACCOUNT HAS BEEN PLACED ON LIFE SUPPORT.",
+ "MICKY ATTEMPTS TO INTRODUCE A MONTHLY BUDGET. LIZZY DECLINES TO PARTICIPATE.",
+ "NEW SAVINGS PLAN ANNOUNCED: LIZZY WILL SAVE EVERYTHING SHE DOESN'T SPEND.",
+ "BANK STATEMENT REVEALS MULTIPLE PURCHASES DESCRIBED ONLY AS \"NECESSARY.\"",
+ "MICKY ASKS LIZZY TO SAVE MONEY. LIZZY ASKS MICKY WHY HE DOESN'T HAVE JEANS.",
+ "TREASURY CONSIDERS A NEW \"LIZZY TAX\" TO OFFSET NATIONAL RETAIL SPENDING.",
+ "BANK MANAGER: \"WE HAVE NEVER SEEN ANYONE TURN MONEY INTO RECEIPTS THIS QUICKLY.\"",
+ "LIZZY DISCOVERS A SALE. ECONOMISTS IMMEDIATELY DECLARE A STATE OF EMERGENCY.",
+ "MICKY'S FINANCIAL ADVICE: SAVE FIRST, SPEND LATER. LIZZY'S ADVICE: MIND YOUR BUSINESS.",
+ "BREAKING: LIZZY HAS CHECKED HER BANK BALANCE. SHE WILL NOT BE TAKING QUESTIONS.",
+ "THE BANK HAS LOST TRACK OF HOW MANY PAIRS OF SHOES LIZZY OWNS.",
+ "MICKY'S EMERGENCY FUND: R500. LIZZY'S EMERGENCY: \"I NEED THESE.\"",
+ "BANK OFFICIALS CONCLUDE: LIZZY MAY NOT BE FINANCIALLY RESPONSIBLE, BUT SHE IS VERY GOOD FOR THE ECONOMY.",
+ "MICKY'S BANK HAS INTRODUCED A NEW ACCOUNT: CHEQUE, SAVINGS & LIZZY'S SHOPPING FUND.",
+ "FINANCIAL MARKETS RALLY AFTER LIZZY PROMISES NOT TO SHOP TODAY.",
+ "MARKETS CRASH AFTER LIZZY ENTERS THE MALL.",
+ "LIZZY SAYS SHE'S \"JUST LOOKING.\" RETAILERS PREPARE FOR WAR.",
+ "MICKY'S BANK ANNOUNCES NEW POLICY: NO FINANCIAL ADVICE WILL BE GIVEN TO PEOPLE WHO BUY 50 IDENTICAL SHOES.",
+ "BREAKING: MICKY STILL DOES NOT OWN A SINGLE PAIR OF JEANS.",
+ "FASHION EXPERTS BAFFLED: LOCAL MAN HAS SURVIVED 21 YEARS WITHOUT JEANS.",
+ "MICKY ENTERS CLOTHING STORE. EMPLOYEES ASK IF HE NEEDS HELP FINDING JEANS. HE LEAVES.",
+ "REPORT: MICKY'S WARDROBE CONSISTS OF SPORTS CLOTHES AND THE OCCASIONAL ATTEMPT AT FORMAL WEAR.",
+ "MICKY CLAIMS JEANS ARE \"UNNECESSARY.\" FASHION INDUSTRY DISAGREES.",
+ "LIZZY HAS BEEN TASKED WITH FIXING MICKY'S WARDROBE. NATIONAL SECURITY ALERT ISSUED.",
+ "EXPERTS SAY MICKY MAY EVENTUALLY BUY JEANS. Experts refuse to say when.",
+ "LIZZY WANTS 50 MILLION PAIRS OF THE SAME SHOES — CALLS IT \"BUILDING A COLLECTION.\"",
+ "LIZZY SEES SHOES SHE ALREADY OWNS. BUYS THEM AGAIN.",
+ "BANK OFFICIALS ASK: \"HOW MANY PAIRS DO YOU ACTUALLY NEED?\" LIZZY: \"NEXT QUESTION.\"",
+ "SHOE INDUSTRY REPORTS RECORD PROFITS FOLLOWING LIZZY'S LATEST SHOPPING TRIP.",
+ "LIZZY CLAIMS ALL 50 PAIRS ARE DIFFERENT. INVESTIGATION FINDS THEY ARE THE EXACT SAME SHOE.",
+ "NEW STUDY FINDS LIZZY HAS MORE SHOES THAN REASONS TO EXPLAIN WHY SHE NEEDS THEM.",
+ "HYROX TRAINING POSTPONED AGAIN — LIZZY CITES \"IMPORTANT REASONS.\"",
+ "LIZZY ANNOUNCES SHE WILL DO HYROX SOON. \"SOON\" REMAINS A LEGALLY UNDEFINED TERM.",
+ "HYROX ORGANISERS CONFIRM LIZZY HAS NOT YET ARRIVED.",
+ "LIZZY'S HYROX PREPARATION ENTERS ITS PREPARATION PHASE.",
+ "MICKY ASKS WHEN HYROX IS HAPPENING. LIZZY: \"DON'T WORRY ABOUT IT.\"",
+ "BREAKING: LIZZY HAS POSTPONED HYROX. AGAIN. NATIONAL FITNESS COMMUNITY IN SHOCK.",
+ "EXPERTS PREDICT LIZZY WILL COMPLETE HYROX EVENTUALLY. Experts have declined to provide a year.",
+ "LIZZY'S TRAINING PLAN: 1. Think about HYROX. 2. Postpone HYROX. 3. Repeat.",
+ "MICKY DESCRIBES HIMSELF AS A \"FUNCTIONING CRIPPLE.\" MEDICAL COMMUNITY REQUESTS CLARIFICATION.",
+ "MICKY MANAGES TO COACH SPORTS, PLAY SPORTS AND WALK AROUND — THEN COMPLAINS ABOUT HIS BODY.",
+ "LOCAL COACH CLAIMS HE IS \"FINE.\" HIS KNEES HAVE ISSUED A STATEMENT DISAGREEING.",
+ "MICKY'S BODY ENTERS RECOVERY MODE AFTER WALKING UP TWO FLIGHTS OF STAIRS.",
+ "MICKY REFUSES TO REST — BODY FILES FORMAL COMPLAINT.",
+ "SPORTS MEDICINE EXPERTS ASK MICKY TO LISTEN TO HIS BODY. MICKY SAYS HE DOESN'T TAKE ORDERS FROM PEOPLE WITH NO WHISTLE.",
+ "MICKY'S LEGS HAVE ANNOUNCED THEY WILL NO LONGER BE ACCEPTING OVERTIME.",
+ "COACH MICKY PREACHES FITNESS WHILE HIS OWN BODY REQUESTS EARLY RETIREMENT.",
+ "BREAKING: MICKY HAS COMPLETED A PHYSICAL ACTIVITY WITHOUT COMPLAINING. WITNESSES CALL IT A MIRACLE.",
+ "LIZZY DECLARES NAPS AN ESSENTIAL PART OF ATHLETIC RECOVERY.",
+ "MICKY CLAIMS HE CAN COOK. SOURCES SAY HE CAN MAKE INSTANT NOODLES.",
+ "LIZZY'S OUTFIT RECEIVES MORE COMPLIMENTS THAN MICKY'S ENTIRE WARDROBE.",
+ "MICKY SPENDS 30 MINUTES GETTING READY — STILL LOOKS LIKE HE'S GOING TO COACH.",
+ "LIZZY TAKES 47 MINUTES TO PICK AN OUTFIT. MICKY TAKES 47 SECONDS.",
+ "SPORTS EXPERTS CONFIRM MICKY WILL TURN ANY ACTIVITY INTO A COMPETITION.",
+ "LIZZY CLAIMS SHE IS \"NOT COMPETITIVE.\" MICKY HAS REQUESTED THE RECORD BE CORRECTED.",
+ "MICKY CHALLENGES LIZZY TO A COMPETITION. LIZZY ACCEPTS BEFORE HE FINISHES THE SENTENCE.",
+ "FITNESS INDUSTRY INTRODUCES NEW CATEGORY: \"I'LL START TOMORROW.\"",
+ "LIZZY ANNOUNCES NEW FITNESS PLAN: THINK POSITIVE, STRETCH SOMETIMES, POSTPONE HYROX."
+];
+const NEWS_BANK_ARTICLES=[
+ {h:"Inside the Bank of Micky: A Financial Update",p1:"The Bank of Micky continues to operate as the only financial institution in LizzyOS fully backed by charm, confidence, and the occasional weekly bonus. This blog will hold the full story of how funds are managed, where Micky Bucs come from, and what the future holds for savers.",p2:"Here is how it works. Every Micky Buc you deposit is stored in your savings balance and stays there until you withdraw it. Keep 15 MB or more saved for seven full days and the bank pays you a +2 MB weekly bonus, claimable once per week straight from the Bank of Micky page.",p3:"Withdrawals are instant, deposits are free, and nothing is ever deducted for holding your money. The vault holds the rewards you unlock along the way, from free items to the rarer prizes that only show up now and then.",tip:"deposit early in the week, never let your savings drop below 15 MB, and claim your bonus as soon as the timer clears."},
+ {h:"Why Citizens Keep Choosing the Bank of Micky",p1:"When asked why they keep banking with the Bank of Micky, most citizens cite the same three reasons: it's reliable, it's fair, and nobody has ever been charged a mystery fee.",p2:"The weekly bonus system remains the bank's most talked-about feature. Keep at least 15 MB banked for seven consecutive days and you'll unlock a +2 MB bonus, ready to claim the moment the timer clears.",p3:"Unlike other institutions, the Bank of Micky has never once changed its terms overnight. What you see is genuinely what you get, which analysts describe as 'refreshingly rare.'",tip:"set a reminder for your bonus timer, and don't withdraw the day before it clears — patience pays, literally."},
+ {h:"Bank of Micky Explains: Where Do Micky Bucs Actually Come From?",p1:"A common question from newer citizens: where do Micky Bucs come from in the first place? The answer, according to bank officials, is simple — daily activity, completed missions, and the occasional generous reward.",p2:"Every deposit strengthens your standing balance, and every seven days spent above the 15 MB threshold earns a further +2 MB, no paperwork required.",p3:"The bank stresses that there is no penalty for saving slowly. Whether you deposit a little or a lot, the rules apply exactly the same way to everyone.",tip:"small, regular deposits build up faster than people expect — check your balance weekly to see the difference."},
+ {h:"The Bank of Micky's Quiet Reputation for Reliability",p1:"It rarely makes headlines, and that, insiders say, is exactly the point. The Bank of Micky has spent this week doing what it always does: processing deposits and withdrawals without a single hiccup.",p2:"The weekly bonus remains unchanged — 15 MB banked for seven days earns a +2 MB reward, claimable directly from the Bank of Micky page the moment it's ready.",p3:"Officials describe this week as 'business as usual,' which, for a bank, is considered high praise.",tip:"consistency beats big deposits — a steady balance above 15 MB is the fastest route to your next bonus."}
+];
+const NEWS_PRESIDENT_ARTICLES=[
+ {p1:"To everyone inside LizzyOS: thank you. This little world runs on the people who show up for it every day, save what they can, laugh at the life lessons, and keep coming back.",p2:"The plan stays simple. Keep the bank fair, keep the rewards worth chasing, and keep adding things worth exploring. If something feels broken or unfair, say so, and it gets fixed."},
+ {p1:"This week's message is a short one: keep going. Whether that means banking a few more Micky Bucs, finishing one more mission, or simply logging back in tomorrow — it all counts.",p2:"This office continues to believe that the small, everyday choices matter more than the big dramatic ones. Show up, be kind, and the rest tends to follow."},
+ {p1:"A brief note to every citizen reading this: the numbers matter less than the habit. A saved Micky Buc today is worth more than a big plan you never start.",p2:"The office remains committed to keeping things fair and worth showing up for. That hasn't changed, and it isn't going to."},
+ {p1:"Some weeks are quiet, and that's not a bad thing. Quiet weeks mean nothing's broken, everyone's showing up, and the system is doing exactly what it's meant to do.",p2:"As always, if something feels off, say so. This office would rather hear about a small problem early than a big one late."}
 ];
 
 function hashDayString(s){let h=0;for(const ch of s)h=(h*31+ch.charCodeAt(0))>>>0;return h}
+const NEWS_ROTATION_VERSION="v2";
 function pickForToday(arr,salt){
  const dayKey=new Date().toDateString();
- const idx=hashDayString(dayKey+"|"+salt)%arr.length;
+ const idx=hashDayString(dayKey+"|"+NEWS_ROTATION_VERSION+"|"+salt)%arr.length;
  return arr[idx];
+}
+function mulberry32(seed){
+ return function(){
+  seed|=0;seed=seed+0x6D2B79F5|0;
+  let t=Math.imul(seed^seed>>>15,1|seed);
+  t=t+Math.imul(t^t>>>7,61|t)^t;
+  return ((t^t>>>14)>>>0)/4294967296;
+ };
+}
+function pickManyForToday(arr,salt,count){
+ const dayKey=new Date().toDateString();
+ const seed=hashDayString(dayKey+"|"+NEWS_ROTATION_VERSION+"|"+salt);
+ const rand=mulberry32(seed);
+ const pool=arr.slice();
+ for(let i=pool.length-1;i>0;i--){
+  const j=Math.floor(rand()*(i+1));
+  [pool[i],pool[j]]=[pool[j],pool[i]];
+ }
+ return pool.slice(0,count);
 }
 
 function news(){
@@ -217,6 +336,9 @@ function news(){
  const lifestyle=pickForToday(NEWS_LIFESTYLE,"lifestyle");
  const sports=pickForToday(NEWS_SPORTS,"sports");
  const quote=pickForToday(NEWS_QUOTES,"quote");
+ const bankArticle=pickForToday(NEWS_BANK_ARTICLES,"bankArticle");
+ const presidentArticle=pickForToday(NEWS_PRESIDENT_ARTICLES,"presidentArticle");
+ const ticker=pickManyForToday(NEWS_TICKER,"ticker",6);
  $("browserPage").innerHTML=`<div class="newsPage">
   <header class="newsHeader">
     <div class="newsMasthead">
@@ -257,15 +379,22 @@ function news(){
   </section>
 
   <section class="newsBlog">
+    <div class="newsSectionTitle">📢 In Other News</div>
+    <ul class="newsTicker">
+      ${ticker.map(item=>`<li>${item}</li>`).join("")}
+    </ul>
+  </section>
+
+  <section class="newsBlog">
     <div class="newsSectionTitle">🏦 The Bank and Funds</div>
     <article class="newsArticle">
-      <h2>Inside the Bank of Micky: A Financial Update</h2>
+      <h2>${bankArticle.h}</h2>
       <p class="newsByline">By Micky's Daily News Finance Desk</p>
-      <p>The Bank of Micky continues to operate as the only financial institution in LizzyOS fully backed by charm, confidence, and the occasional weekly bonus. This blog will hold the full story of how funds are managed, where Micky Bucs come from, and what the future holds for savers.</p>
-      <p>Here is how it works. Every Micky Buc you deposit is stored in your savings balance and stays there until you withdraw it. Keep 15 MB or more saved for seven full days and the bank pays you a +2 MB weekly bonus, claimable once per week straight from the Bank of Micky page.</p>
-      <p>Withdrawals are instant, deposits are free, and nothing is ever deducted for holding your money. The vault holds the rewards you unlock along the way, from free items to the rarer prizes that only show up now and then.</p>
+      <p>${bankArticle.p1}</p>
+      <p>${bankArticle.p2}</p>
+      <p>${bankArticle.p3}</p>
       <div class="newsArticleBox">
-        <strong>Quick tips:</strong> deposit early in the week, never let your savings drop below 15 MB, and claim your bonus as soon as the timer clears.
+        <strong>Quick tips:</strong> ${bankArticle.tip}
       </div>
     </article>
   </section>
@@ -275,8 +404,8 @@ function news(){
     <article class="newsArticle">
       <h2>A Message to the People</h2>
       <p class="newsByline">Office of the President</p>
-      <p>To everyone inside LizzyOS: thank you. This little world runs on the people who show up for it every day, save what they can, laugh at the life lessons, and keep coming back.</p>
-      <p>The plan stays simple. Keep the bank fair, keep the rewards worth chasing, and keep adding things worth exploring. If something feels broken or unfair, say so, and it gets fixed.</p>
+      <p>${presidentArticle.p1}</p>
+      <p>${presidentArticle.p2}</p>
       <blockquote class="newsQuote">
         "${quote}"
         <cite>— The President</cite>
