@@ -855,6 +855,11 @@ missionIcon?.addEventListener("click", () => {
 
     unlockAchievement("Opened Mission Log 🗂️");
 
+    if(!localStorage.getItem("lizzyFirstDateBadgeV1")){
+        localStorage.setItem("lizzyFirstDateBadgeV1", "1");
+        setTimeout(()=>unlockAchievement("First Date Badge 🏅"), 3800);
+    }
+
 });
 
 closeMission?.addEventListener("click", () => {
