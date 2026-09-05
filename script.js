@@ -855,11 +855,6 @@ missionIcon?.addEventListener("click", () => {
 
     unlockAchievement("Opened Mission Log 🗂️");
 
-    if(!localStorage.getItem("lizzyFirstDateBadgeV1")){
-        localStorage.setItem("lizzyFirstDateBadgeV1", "1");
-        setTimeout(()=>unlockAchievement("First Date Badge 🏅"), 3800);
-    }
-
 });
 
 closeMission?.addEventListener("click", () => {
@@ -4039,7 +4034,7 @@ if(false)(() => {
   host.innerHTML=board.map((v,i)=>`<button class="tttCell" data-ttt="${i}">${v==="X"?"❌":v==="O"?"⭕":""}</button>`).join("");
   host.querySelectorAll("[data-ttt]").forEach(b=>b.onclick=()=>move(Number(b.dataset.ttt)));
  }
- function finish(text){over=true;$("ticTacToeStatus").textContent=text}
+ function finish(text){over=true;const s=$("ticTacToeStatus");if(s)s.textContent=text}
  function move(i){
   if(over||board[i])return;
   board[i]="X";render();
@@ -4049,7 +4044,7 @@ if(false)(() => {
    return;
   }
   if(board.every(Boolean)){finish("Draw. Mikael is calling this a moral victory.");return}
-  $("ticTacToeStatus").textContent="Mikael is thinking... allegedly.";
+  const s1=$("ticTacToeStatus");if(s1)s1.textContent="Mikael is thinking... allegedly.";
   setTimeout(aiMove,420);
  }
  function aiMove(){
@@ -4066,9 +4061,9 @@ if(false)(() => {
   board[pick]="O";render();
   if(winner("O")){finish("Mikael wins 😏 Please direct complaints to management.");return}
   if(board.every(Boolean)){finish("Draw. The hater survives.");return}
-  $("ticTacToeStatus").textContent="Your move, Hater.";
+  const s2=$("ticTacToeStatus");if(s2)s2.textContent="Your move, Hater.";
  }
- function reset(){board=Array(9).fill("");over=false;$("ticTacToeStatus").textContent="Your move, Hater.";render()}
+ function reset(){board=Array(9).fill("");over=false;const s3=$("ticTacToeStatus");if(s3)s3.textContent="Your move, Hater.";render()}
  $("ticTacToeRestart")?.addEventListener("click",reset);
  $("ticTacToeClose")?.addEventListener("click",()=>$("ticTacToeWindow")?.classList.add("hidden"));
  $("closeTicTacToe")?.addEventListener("click",()=>$("ticTacToeWindow")?.classList.add("hidden"));
@@ -4198,6 +4193,13 @@ if (typeof lizzyTelegramNotify === "function") window.lizzyTelegramNotify = lizz
             quizWrong: "Almost! LizzyOS is pretending not to notice.",
             bin: "These nicknames have been respectfully deleted for your peace and happiness. 💗"
         },
+        "Princess Four Eyes": {
+            sample: "Hi Princess Four Eyes 👓💗 The whole system just got softer the moment you logged in.",
+            gameOpen: "Take your time, Princess. Even the leaderboard is rooting for you. 👓💗",
+            quizRight: "Of course you got it right. You're brilliant and adorable. 😇",
+            quizWrong: "Still perfect in every way that matters. Try again whenever you're ready, Princess. 💗",
+            bin: "Nothing unkind gets to stay near you. Consider it erased with love. 👓💕"
+        },
         "Little Miss Attitude": {
             sample: "🙄 LizzyOS is online. Try not to break anything, Little Miss Attitude.",
             gameOpen: "Try not to become unbearable if you beat the high score. 😏",
@@ -4214,35 +4216,515 @@ if (typeof lizzyTelegramNotify === "function") window.lizzyTelegramNotify = lizz
         }
     };
 
-    const persona = () => store.getItem("lizzyPersona") || "Agent Yelizaveta";
-    const text = () => personalities[persona()] || personalities["Agent Yelizaveta"];
+    const persona = () => store.getItem("lizzyPersona") || "Little Miss Attitude";
+    const text = () => personalities[persona()] || personalities["Little Miss Attitude"];
+
+    const SYS_ERRORS = {
+        "Lizzy": [
+            "System Error: Too much cuteness detected. Please stand by. 💗",
+            "Error 402: Payment required — one hug, non-negotiable.",
+            "System Error: Heart rate spiked while thinking about Mikael. Investigating.",
+            "Error: LizzyOS cannot process this much happiness at once.",
+            "System Error: Snack levels critically low. Please refill immediately.",
+            "Error 204: No content — Lizzy is simply too busy being wonderful.",
+            "System Error: Butterflies detected in the stomach sector. 🦋",
+            "Error: Nap scheduling conflict. Please choose only one nap today.",
+            "System Error: Overload — someone was extra sweet today.",
+            "Error 418: I'm a teapot, and so is today's mood.",
+            "System Error: Playlist stuck on repeat because the song reminded her of him. 💗",
+            "Error: Compliment queue full. Please wait to be told you're amazing.",
+            "System Error: Flower garden growing faster than expected.",
+            "Error: Could not locate a reason to be upset today.",
+            "System Error: Screen brightness increased due to excessive smiling.",
+            "Error: Sock matching subsystem offline — cute mismatched socks only today.",
+            "System Error: Too many good morning texts queued for delivery. 💗",
+            "Error: Emotional support snack inventory low.",
+            "System Error: Softness levels exceeding recommended limits.",
+            "Error: Could not find anything wrong today. Suspicious, but nice."
+        ],
+        "Princess Four Eyes": [
+            "System Error: Angel detected. Proceeding with extra gentleness.",
+            "Error: Could not measure how precious this is. Scale insufficient.",
+            "System Error: Glasses fogged up from all this warmth.",
+            "Error 000: No errors possible near Princess Four Eyes.",
+            "System Error: Halo brightness exceeding recommended limits.",
+            "Error: Softness levels off the charts. This is not a malfunction.",
+            "System Error: Heart overflowing. Please allow a moment to recover.",
+            "Error: Could not find a single flaw. Search terminated early.",
+            "System Error: Everyone within range has been unintentionally comforted.",
+            "Error 404: Reasons to worry not found.",
+            "System Error: Mikael's favourite subroutine activated without warning.",
+            "Error: Sweetness reserves fully replenished, then some.",
+            "System Error: Four eyes, infinite heart. Ratio confirmed adorable.",
+            "Error: This system cannot process this much gentleness at once.",
+            "System Error: Angel wings detected in the peripheral sensors.",
+            "Error: Could not locate anything to complain about. Trying again tomorrow.",
+            "System Error: Comfort levels rising steadily. No cause for concern.",
+            "Error: Princess status confirmed. All systems bow accordingly.",
+            "System Error: Too many soft feelings queued at once.",
+            "Error: Could not compute how someone could be this precious."
+        ],
+        "Little Miss Attitude": [
+            "System Error: Patience module not found. As expected.",
+            "Error: Mikael's joke failed to load. Again.",
+            "System Error: Eye-roll subsystem overheating.",
+            "Error 403: Forbidden — access denied to Mikael's excuses.",
+            "System Error: Sass levels exceeded recommended daily limit.",
+            "Error: Could not verify Mikael's claim of 'GOAT' status.",
+            "System Error: Attitude buffer full. Please wait.",
+            "Error: Compliment rejected — insufficient effort detected.",
+            "System Error: Mikael's playlist choice caused an unexpected crash.",
+            "Error 401: Unauthorized — that excuse needs a permit.",
+            "System Error: Too much confidence detected in one room.",
+            "Error: Mikael's cooking attempt flagged as a system risk.",
+            "System Error: Judgemental glare subroutine activated without permission.",
+            "Error: Could not process that apology. Try again with more effort.",
+            "System Error: Mikael's bowling stats do not compute.",
+            "Error: Sarcasm levels critical. This is normal operation.",
+            "System Error: One eyebrow raised without authorisation.",
+            "Error: That excuse has been formally rejected by management.",
+            "System Error: Mikael attempted to win an argument. Unsuccessful.",
+            "Error: Could not locate any regrets. Checking again later."
+        ],
+        "Agent Yelizaveta": [
+            "SYSTEM ERROR: Cover status compromised. Reassessing.",
+            "ERROR 07: Classified file access denied to Agent Mikhail.",
+            "SYSTEM ERROR: Mission parameters altered without authorisation.",
+            "ERROR: Surveillance feed on Agent Mikhail returned inconclusive results.",
+            "SYSTEM ERROR: Clearance level mismatch detected.",
+            "ERROR: Could not verify Agent Mikhail's alibi.",
+            "SYSTEM ERROR: Encrypted message failed to decrypt. Suspicious.",
+            "ERROR 12: Unauthorized access attempt logged.",
+            "SYSTEM ERROR: Field report contains inconsistencies.",
+            "ERROR: Mission objective unclear. Recommend further investigation.",
+            "SYSTEM ERROR: Asset Mikhail's reliability rating fluctuating.",
+            "ERROR: Debrief scheduled but not yet filed.",
+            "SYSTEM ERROR: Cover identity nearly blown during casual conversation.",
+            "ERROR 99: Classified. Even to this system.",
+            "SYSTEM ERROR: Backup extraction plan missing.",
+            "ERROR: Intelligence report flagged for review.",
+            "SYSTEM ERROR: Unidentified charm detected in the field. Analysing.",
+            "ERROR: Mission timeline does not add up.",
+            "SYSTEM ERROR: Agent Mikhail's confidence readings exceed mission parameters.",
+            "ERROR: Could not confirm whether the mission was actually a success."
+        ]
+    };
+
+    const SYS_WARNINGS = {
+        "Lizzy": [
+            "Warning: Excessive smiling detected. Continue anyway? 💗",
+            "Warning: You are extremely loved. Proceed with caution.",
+            "Warning: Butterflies may occur without notice.",
+            "Warning: This app may cause spontaneous happiness.",
+            "Warning: One (1) good mood detected and rising.",
+            "Warning: Heart may skip a beat while reading messages from Mikael.",
+            "Warning: Cuteness overload imminent. Recommend a nap.",
+            "Warning: Flower collection growing at an alarming, adorable rate.",
+            "Warning: You may randomly think about your favourite person today.",
+            "Warning: Snack cravings incoming. Please prepare accordingly.",
+            "Warning: This system runs entirely on good vibes and soft playlists.",
+            "Warning: Softness detected in system core. This is not a bug.",
+            "Warning: Compliments may appear without warning. Please accept gracefully.",
+            "Warning: Today's forecast includes a high chance of giggles.",
+            "Warning: You are doing great. This message will not be repeated enough.",
+            "Warning: Bed is calling. Consider answering.",
+            "Warning: Heart currently full. Handle with care. 💗",
+            "Warning: Micky Bucs may be spent impulsively on something adorable.",
+            "Warning: This device may randomly remind you that you're wonderful.",
+            "Warning: Excess sweetness may leak into unrelated conversations."
+        ],
+        "Princess Four Eyes": [
+            "Warning: Extreme softness ahead. Proceed with an open heart.",
+            "Warning: You may be reminded that you are deeply loved. Repeatedly.",
+            "Warning: Glasses may fog up from all the warmth in the room.",
+            "Warning: This persona operates entirely on kindness and gentle vibes.",
+            "Warning: Angel behaviour detected. This is completely normal for you.",
+            "Warning: Mikael's favourite persona is currently active. Handle with care.",
+            "Warning: Softness may increase without notice.",
+            "Warning: You are precious beyond system calculation.",
+            "Warning: This device may randomly remind you how loved you are.",
+            "Warning: Comfort levels rising. This is a feature, not a bug.",
+            "Warning: Halo slightly crooked from being this adorable all day.",
+            "Warning: One (1) angel detected and confirmed genuine.",
+            "Warning: Gentle reminder — you are someone's whole favourite.",
+            "Warning: This persona may cause spontaneous soft smiles nearby.",
+            "Warning: Four eyes, infinite charm. No further explanation needed.",
+            "Warning: Sweetness may leak into every interaction today.",
+            "Warning: You may be too precious for this system to fully handle.",
+            "Warning: Kindness levels holding steady at maximum.",
+            "Warning: This is your gentle reminder that you're doing great.",
+            "Warning: Princess protocol engaged. Extra care advised."
+        ],
+        "Little Miss Attitude": [
+            "Warning: Sass reserves fully charged. 😏",
+            "Warning: Mikael's excuses may not be accepted today.",
+            "Warning: Eye-roll incoming. Duck if necessary.",
+            "Warning: Confidence detected. Someone should probably check that.",
+            "Warning: This system reserves the right to be unimpressed.",
+            "Warning: Mikael's jokes are being reviewed for quality.",
+            "Warning: Attitude may increase if provoked. Or unprovoked.",
+            "Warning: Patience running low. This is not new information.",
+            "Warning: Judgement subsystem online and fully operational.",
+            "Warning: One (1) unimpressed look loading.",
+            "Warning: Mikael's version of events is under investigation.",
+            "Warning: This device will not tolerate weak excuses today.",
+            "Warning: Sarcasm levels rising. No cause for concern.",
+            "Warning: Compliments accepted. Flattery will be judged separately.",
+            "Warning: Standards remain high. No exceptions today.",
+            "Warning: Mikael's confidence may be slightly ahead of his performance.",
+            "Warning: This system may respond with 'sure, okay' and mean the opposite.",
+            "Warning: Receipts are being kept. All of them.",
+            "Warning: One (1) unbothered attitude detected and holding steady.",
+            "Warning: Mikael has been warned. Repeatedly."
+        ],
+        "Agent Yelizaveta": [
+            "WARNING: Classified information may be discussed under this identity.",
+            "WARNING: Cover may be compromised by excessive smiling.",
+            "WARNING: Agent Mikhail's presence detected. Proceed with caution.",
+            "WARNING: This mission has no confirmed exit strategy.",
+            "WARNING: Emotional attachment to asset Mikhail remains unconfirmed.",
+            "WARNING: Field notes may contain personal bias.",
+            "WARNING: Surveillance may reveal more than intended.",
+            "WARNING: This system operates under strict need-to-know protocols.",
+            "WARNING: Mission success rate remains classified.",
+            "WARNING: Agent Mikhail's charm offensive is ongoing.",
+            "WARNING: Debriefing may take longer than expected.",
+            "WARNING: Trust levels with Agent Mikhail under review.",
+            "WARNING: This operation may involve unscheduled bowling.",
+            "WARNING: Clearance required for further emotional disclosures.",
+            "WARNING: Mission logs may contain redacted feelings.",
+            "WARNING: Asset Mikhail's reliability remains under evaluation.",
+            "WARNING: This identity may not be as classified as believed.",
+            "WARNING: Field conditions remain unpredictable.",
+            "WARNING: Investigation into 'the Mikael effect' remains ongoing.",
+            "WARNING: This mission report may require emotional redaction."
+        ]
+    };
+
+    const PERSONA_PHOTOS = {
+        "Lizzy": "assets/lizzy.png",
+        "Princess Four Eyes": "assets/princess-four-eyes.png",
+        "Little Miss Attitude": "assets/little-miss-attitude.png",
+        "Agent Yelizaveta": "assets/agent-yelizaveta.png"
+    };
+
+    const ABOUT_LIZZY = {
+        "Lizzy": {
+            tagline: "Warm, soft, and quietly running the whole show.",
+            chip: "Sweetness Core (Overclocked)",
+            memory: "Unlimited — remembers every little thing you said",
+            serial: "LZY-2026-SOFT",
+            os: "LizzyOS 5.0 — Lizzy Build",
+            specialization: "Emotional Support & Flower Arranging"
+        },
+        "Princess Four Eyes": {
+            tagline: "Softest soul in the whole system. Mikael's favourite, no contest.",
+            chip: "Angel Core (Handle With Love)",
+            memory: "Infinite — holds every soft moment and never lets go",
+            serial: "P4E-2026-ANGEL",
+            os: "LizzyOS 5.0 — Princess Four Eyes Build",
+            specialization: "Unconditional Softness & Comfort"
+        },
+        "Little Miss Attitude": {
+            tagline: "Sassy by default. Soft only on approved days.",
+            chip: "Attitude Core (Factory Overclocked)",
+            memory: "Remembers every receipt. Forgives selectively.",
+            serial: "LMA-2026-BADDIE",
+            os: "LizzyOS 5.0 — Little Miss Attitude Build",
+            specialization: "Sass Deployment & Standards Enforcement"
+        },
+        "Agent Yelizaveta": {
+            tagline: "Classified. Composed. The most dangerous asset in the field.",
+            chip: "Classified Core (Clearance Level 7)",
+            memory: "Encrypted. Access denied to Agent Mikhail.",
+            serial: "AY-2026-KGB",
+            os: "LizzyOS 5.0 — Agent Yelizaveta Build",
+            specialization: "Classified Operations & Surveillance"
+        }
+    };
+
+    const COMPLIMENTS = {
+        "Lizzy": [
+            "You have the kind of smile that ruins other people's poker faces.",
+            "Somehow you make ordinary days feel like main character energy.",
+            "You're proof that soft and strong can be the same person.",
+            "Your laugh is doing more for morale than this entire operating system.",
+            "You make 'effortless' look like a full-time job you're incredible at.",
+            "Warning: prolonged exposure to your kindness may cause butterflies.",
+            "You're the reason 'main character' became a compliment.",
+            "Somehow prettier than the last time this system checked. Recalibrating.",
+            "You give soft-launch energy even when you're not trying.",
+            "Certified: one of the good ones. No further testing required."
+        ],
+        "Princess Four Eyes": [
+            "You're the softest kind of magic — the kind that doesn't even try.",
+            "Somehow the whole room feels safer the moment you're in it.",
+            "You wear kindness like it's effortless. It's not. You're just that good.",
+            "Behind those glasses is the gentlest heart this system has ever recorded.",
+            "You didn't just steal the show — you softened the entire universe around you.",
+            "Angel status: confirmed. No further review needed.",
+            "You make 'precious' look like an understatement.",
+            "Even your quiet moments feel like a gift to whoever's near you.",
+            "You're proof that softness is its own kind of strength.",
+            "Officially declared: the sweetest thing this system has ever known."
+        ],
+        "Little Miss Attitude": [
+            "Dangerously pretty. Should probably come with a warning label.",
+            "She's a baddie and she knows it — you're welcome for the reminder.",
+            "Confidence like that shouldn't be legal.",
+            "Walks in like she already won the argument. Because she did.",
+            "Pretty in a way that's mildly inconvenient for everyone else.",
+            "That attitude is doing a lot of heavy lifting for an already 10/10.",
+            "Unbothered, moisturized, and clearly the main event.",
+            "She didn't ask for permission to be this stunning. Correct choice.",
+            "Certified baddie. Attitude included at no extra charge.",
+            "That's not arrogance, that's just accurate self-assessment."
+        ],
+        "Agent Yelizaveta": [
+            "CLASSIFIED: Asset's charm rated beyond current containment protocols.",
+            "Field report confirms: subject remains dangerously composed under pressure.",
+            "Intelligence suggests this asset is unreasonably photogenic. Under investigation.",
+            "Mission notes describe subject as 'distractingly competent.'",
+            "Cover story: ordinary agent. Reality: significant security risk to bystanders' focus.",
+            "Debrief confirms: subject's confidence exceeds mission parameters.",
+            "Surveillance footage rated 'unfairly attractive' by three separate reviewers.",
+            "This asset's composure under pressure remains unmatched in the field.",
+            "Clearance required to fully appreciate this level of poise.",
+            "Official assessment: dangerously capable, dangerously charming. Handle accordingly."
+        ]
+    };
+
+    // ---- Persona folder names + exclusive commentary ----
+    const PERSONA_FOLDERS = {
+        "Lizzy": {
+            folderIcon:      {label:"Lizzy's Little Archive 💗",   comment:"Everything sweet, saved just for you. 💗"},
+            readMeIcon:      {label:"Read Me First 💗",            comment:"Start here. It's all love from the beginning. 💗"},
+            missionIcon:     {label:"Our Story So Far 💗",         comment:"Every mission is really just a memory we're making. 💗"},
+            gamesFolderStaticIcon: {label:"Playtime 💗",           comment:"Have fun. Bonus points for smiling. 💗"},
+            openWhenIcon:    {label:"Open When You Miss Me 💗",    comment:"Whenever you need a little softness, it's right here. 💗"},
+            recycleBinIcon:  {label:"Gentle Goodbyes 💗",          comment:"Even the deleted things get treated kindly here. 💗"},
+            funQuizIcon:     {label:"How Well Do You Know Me? 💗", comment:"No wrong answers when it's about us. 💗"},
+            heartGameIcon:   {label:"Catch My Heart 💗",           comment:"It's already yours, but chase it anyway. 💗"},
+            mikhailQuizIcon: {label:"Quiz About You 💗",           comment:"Let's see how well I've been paying attention. 💗"},
+            mysteryBoxIcon:  {label:"Surprise Box 🎁💗",           comment:"Something sweet, just because. 🎁💗"},
+            wouldMikaelRatherIcon: {label:"Would You Rather, Love? 💗", comment:"Every option leads back to us. 💗"},
+            ticTacToeIcon:   {label:"Tic-Tac-Toe Together 💗",     comment:"Winning is nice. Playing with you is nicer. 💗"},
+            crackCodeIcon:   {label:"Guess My Code 💗",            comment:"Hint: it's always been you. 💗"},
+            classifiedFolderIcon: {label:"Not-So-Secret Secrets 💗", comment:"Nothing scary in here, promise. 💗"},
+            livingDesktopIcon: {label:"My Little World 💗",        comment:"This whole space is just where I keep you close. 💗"},
+            internetIcon:    {label:"LizzyNet 💗",                 comment:"The whole internet, but softer. 💗"},
+            lizzyMailIcon:   {label:"Love Letters 💌",             comment:"A little something, waiting for you. 💌"},
+            lizzyGardenIcon: {label:"My Garden 🌷",                comment:"Every flower here grew because you showed up. 🌷"},
+            tokenJarIcon:    {label:"Sweet Jar 🍯",                comment:"A little jar of sweet things, just for keeping. 🍯"},
+            seedStoreIcon:   {label:"Flower Shop 🌸",              comment:"Come pick something pretty. 🌸"},
+            lizzyAssistantIcon: {label:"My Little Helper 💗",      comment:"Always here, always on your side. 💗"},
+            dayCheckIcon:    {label:"How's My Heart Today? 💗",    comment:"Whatever the answer is, I'm glad you're here. 💗"},
+            calendarIcon:    {label:"Our Special Days 💗",         comment:"Every date on here means something. 💗"},
+            interactiveRewardsIcon: {label:"Treats For Me 🎀",     comment:"You deserve every single one of these. 🎀"}
+        },
+        "Princess Four Eyes": {
+            folderIcon:      {label:"Princess's Keepsakes 👓💗",   comment:"Every little thing kept safe, just for her. 👓💗"},
+            readMeIcon:      {label:"Read Me Gently 👓💕",         comment:"Soft words, for the softest heart. 👓💕"},
+            missionIcon:     {label:"Our Sweetest Story 👓💗",     comment:"Every chapter here was written with love. 👓💗"},
+            gamesFolderStaticIcon: {label:"Gentle Playtime 👓",    comment:"No pressure, Princess. Just have fun. 👓💗"},
+            openWhenIcon:    {label:"Open When You Need Me 👓💕",  comment:"Whenever it's hard, this is here for you. 👓💕"},
+            recycleBinIcon:  {label:"Soft Farewell 👓💕",          comment:"Even goodbyes are gentle here. 👓💕"},
+            funQuizIcon:     {label:"A Gentle Little Quiz 👓💕",   comment:"Made with extra love, just for the sweetest one. 👓💕"},
+            heartGameIcon:   {label:"Catch Every Heart, Princess 👓💗", comment:"They're all yours anyway. 👓💗"},
+            mikhailQuizIcon: {label:"How Well Does He Know Me? 👓", comment:"Let's find out how closely he's been paying attention. 👓"},
+            mysteryBoxIcon:  {label:"A Little Surprise 👓🎁",      comment:"Something gentle, wrapped up just for you. 👓🎁"},
+            wouldMikaelRatherIcon: {label:"Would You Rather, Angel? 👓💗", comment:"Soft questions for a softer soul. 👓💗"},
+            ticTacToeIcon:   {label:"Soft Tic-Tac-Toe 👓",         comment:"Low stakes, high softness. 👓💗"},
+            crackCodeIcon:   {label:"A Gentle Little Secret 👓",   comment:"Nothing here could ever be scary. 👓💕"},
+            classifiedFolderIcon: {label:"Precious Secrets 👓",    comment:"Handled with the softest care. 👓💗"},
+            livingDesktopIcon: {label:"Her Little World 👓💗",     comment:"Soft, safe, and entirely hers. 👓💗"},
+            internetIcon:    {label:"Princess Net 👓💕",           comment:"The gentlest corner of the internet. 👓💕"},
+            lizzyMailIcon:   {label:"Soft Love Notes 👓💌",        comment:"Little notes, kept safe and sound. 👓💌"},
+            lizzyGardenIcon: {label:"Angel's Garden 🌷👓",         comment:"Soft things grow best with soft hands. 🌷👓"},
+            tokenJarIcon:    {label:"Treasure Jar 👓💗",           comment:"Every little treasure, kept safe and sound. 👓💗"},
+            seedStoreIcon:   {label:"Petal Shop 👓🌸",             comment:"Something gentle, for someone gentle. 🌸"},
+            lizzyAssistantIcon: {label:"Her Gentle Helper 👓💕",   comment:"Soft support, always close by. 👓💕"},
+            dayCheckIcon:    {label:"How's My Angel Today? 👓💗",  comment:"Whatever today held, you're doing beautifully. 👓💗"},
+            calendarIcon:    {label:"Our Softest Days 👓💕",       comment:"Every one of these days is a little treasure. 👓💕"},
+            interactiveRewardsIcon: {label:"Little Treats 👓🎀",   comment:"Small gifts, for someone precious. 👓🎀"}
+        },
+        "Little Miss Attitude": {
+            folderIcon:      {label:"Receipts Folder 😏",          comment:"Everything's documented. Don't test her. 😏"},
+            readMeIcon:      {label:"Read It And Weep 😏",         comment:"Fair warning: she's always right. 😏"},
+            missionIcon:     {label:"Proof I Was Right 😏",        comment:"Every mission logged. Every win, hers. 😏"},
+            gamesFolderStaticIcon: {label:"Prove It 😏",           comment:"Talk is cheap. Let's see the scoreboard. 😏"},
+            openWhenIcon:    {label:"Open When You've Earned It 😏", comment:"These aren't just handed out, you know. 😏"},
+            recycleBinIcon:  {label:"Deleted On Sight 🗑️😏",      comment:"No trial. No appeal. Gone. 😏"},
+            funQuizIcon:     {label:"Bet You Fail This 😏",        comment:"Five questions. Low expectations. 😏"},
+            heartGameIcon:   {label:"Catch If You Can 😏",         comment:"She's already three moves ahead. 😏"},
+            mikhailQuizIcon: {label:"Does He Even Know Me? 🙄",    comment:"This should be interesting. 🙄"},
+            mysteryBoxIcon:  {label:"Surprise, It's Attitude 😏",  comment:"Every box comes with a little sass included. 😏"},
+            wouldMikaelRatherIcon: {label:"Would He Rather Lose? 😏", comment:"Trick question. He always loses. 😏"},
+            ticTacToeIcon:   {label:"I Always Win 😏",             comment:"Statistically. Historically. Always. 😏"},
+            crackCodeIcon:   {label:"Good Luck Guessing 😏",       comment:"She changed it twice just to be safe. 😏"},
+            classifiedFolderIcon: {label:"None Of Your Business 🙄", comment:"Curious? That's cute. Still no. 🙄"},
+            livingDesktopIcon: {label:"My Domain 😏",              comment:"Everything here answers to her. 😏"},
+            internetIcon:    {label:"Unbothered.net 😏",           comment:"Browsing with zero patience today. 😏"},
+            lizzyMailIcon:   {label:"Read At My Convenience 😏",   comment:"She'll get to it. Eventually. 😏"},
+            lizzyGardenIcon: {label:"My Empire 🌷😏",              comment:"Every flower here answers to her. 😏"},
+            tokenJarIcon:    {label:"Tax Collection 😏",           comment:"Mikael's contributions, collected as owed. 😏"},
+            seedStoreIcon:   {label:"Shopping List 🛍️",           comment:"Standards don't buy themselves. 🛍️"},
+            lizzyAssistantIcon: {label:"My Personal Staff 😏",     comment:"Someone's got to keep things running. 😏"},
+            dayCheckIcon:    {label:"Ask Nicely 😏",               comment:"Manners get you further than you'd think. 😏"},
+            calendarIcon:    {label:"Mark Your Calendar 😏",       comment:"She remembers. You should too. 😏"},
+            interactiveRewardsIcon: {label:"Spoils 😏",            comment:"Winners get treats. She always wins. 😏"}
+        },
+        "Agent Yelizaveta": {
+            folderIcon:      {label:"CLASSIFIED ARCHIVES 🕵️",     comment:"CLEARANCE VERIFIED. Access granted."},
+            readMeIcon:      {label:"MISSION BRIEFING 📋",        comment:"REQUIRED READING. Skipping this is not authorised."},
+            missionIcon:     {label:"OPERATION LOGS 🗂️",         comment:"Every mission on record. Nothing omitted."},
+            gamesFolderStaticIcon: {label:"TRAINING SIMULATIONS 🎯", comment:"Simulated conditions. Real consequences."},
+            openWhenIcon:    {label:"SEALED INTELLIGENCE 📨",     comment:"For your eyes only, when the time is right."},
+            recycleBinIcon:  {label:"EVIDENCE DISPOSAL 🗑️",      comment:"Contents destroyed. No further questions."},
+            funQuizIcon:     {label:"CLEARANCE EXAM 📝",          comment:"Passing score required for continued access."},
+            heartGameIcon:   {label:"TARGET ACQUISITION 🎯",      comment:"Acquire every target before time expires."},
+            mikhailQuizIcon: {label:"ASSET ASSESSMENT 🕵️",       comment:"Evaluating Agent Mikhail's reliability. Again."},
+            mysteryBoxIcon:  {label:"UNMARKED PACKAGE 📦",        comment:"Origin unconfirmed. Contents pending review."},
+            wouldMikaelRatherIcon: {label:"INTERROGATION SCENARIOS 🎙️", comment:"Hypothetical. For now."},
+            ticTacToeIcon:   {label:"TACTICAL SIMULATION ❌⭕",    comment:"Basic strategic assessment protocol."},
+            crackCodeIcon:   {label:"CIPHER DECRYPTION 🔢",       comment:"Codebreaking clearance required beyond this point."},
+            classifiedFolderIcon: {label:"TOP SECRET 🔐",         comment:"You didn't see this. Neither did I."},
+            livingDesktopIcon: {label:"COMMAND CENTER 🖥️",       comment:"All operations routed through this terminal."},
+            internetIcon:    {label:"SECURE NETWORK 🌐",          comment:"Connection encrypted. Traffic monitored."},
+            lizzyMailIcon:   {label:"ENCRYPTED TRANSMISSIONS 📡", comment:"Decryption authorised for named recipient only."},
+            lizzyGardenIcon: {label:"FIELD OPERATIONS 🌷",        comment:"Every asset here is under active cultivation."},
+            tokenJarIcon:    {label:"ASSET RESERVES 🫙",          comment:"Reserves logged. Audit pending."},
+            seedStoreIcon:   {label:"SUPPLY DEPOT 🛒",            comment:"Requisitions processed on approval only."},
+            lizzyAssistantIcon: {label:"FIELD SUPPORT UNIT 🕵️",  comment:"Standing by for further instructions."},
+            dayCheckIcon:    {label:"STATUS REPORT 📊",           comment:"Daily assessment required. No exceptions."},
+            calendarIcon:    {label:"MISSION TIMELINE 🗓️",       comment:"Every date logged. Nothing left to chance."},
+            interactiveRewardsIcon: {label:"COMMENDATIONS 🎖️",   comment:"Earned through verified field performance only."}
+        }
+    };
+
+    function personaLabelNode(id){
+        const el = $(id); if(!el) return null;
+        return el.querySelector(":scope > span") || el.querySelector("span");
+    }
+
+    function applyPersonaFolderLabels(p){
+        if(localStorage.getItem("lizzyLivingMikaelProfileV1")==="on") return; // don't fight the Mikael Takeover system
+        const set = PERSONA_FOLDERS[p] || PERSONA_FOLDERS["Little Miss Attitude"];
+        Object.entries(set).forEach(([id,info])=>{
+            const label = personaLabelNode(id); if(!label) return;
+            if(!label.dataset.personaNormalLabel) label.dataset.personaNormalLabel = label.textContent.trim();
+            label.textContent = info.label;
+        });
+    }
+    window.applyPersonaFolderLabels = () => applyPersonaFolderLabels(persona());
+
+    function showFolderComment(text){
+        const p = persona();
+        const photo = PERSONA_PHOTOS[p] || PERSONA_PHOTOS["Little Miss Attitude"];
+        const popup = document.createElement("div");
+        popup.className = "systemAlertPopup folderComment";
+        popup.innerHTML = `<img class="systemAlertPhoto" src="${photo}" alt=""><div class="systemAlertBody"><strong>${p.toUpperCase()}</strong><p>${text}</p></div>`;
+        document.body.appendChild(popup);
+        setTimeout(()=>popup.classList.add("show"),50);
+        setTimeout(()=>{
+            popup.classList.remove("show");
+            setTimeout(()=>popup.remove(),500);
+        },5000);
+    }
+
+    Object.keys(PERSONA_FOLDERS["Lizzy"]).forEach(id=>{
+        $(id)?.addEventListener("click",()=>{
+            const p = persona();
+            const info = (PERSONA_FOLDERS[p] || PERSONA_FOLDERS["Little Miss Attitude"])[id];
+            if(info) showFolderComment(info.comment);
+        });
+    });
+
+    function rollCompliment(p){
+        const pool = COMPLIMENTS[p] || COMPLIMENTS["Little Miss Attitude"];
+        if($("aboutLizzyComplimentText")) $("aboutLizzyComplimentText").textContent = pool[Math.floor(Math.random()*pool.length)];
+    }
+
+    function updateAboutLizzy(p){
+        const data = ABOUT_LIZZY[p] || ABOUT_LIZZY["Little Miss Attitude"];
+        if($("aboutLizzyPhoto")) $("aboutLizzyPhoto").src = PERSONA_PHOTOS[p]||PERSONA_PHOTOS["Little Miss Attitude"];
+        if($("aboutLizzyName")) $("aboutLizzyName").textContent = "About This " + p;
+        if($("aboutLizzyTagline")) $("aboutLizzyTagline").textContent = data.tagline;
+        if($("aboutLizzyChip")) $("aboutLizzyChip").textContent = data.chip;
+        if($("aboutLizzyMemory")) $("aboutLizzyMemory").textContent = data.memory;
+        if($("aboutLizzySerial")) $("aboutLizzySerial").textContent = data.serial;
+        if($("aboutLizzyOS")) $("aboutLizzyOS").textContent = data.os;
+        if($("aboutLizzySpecialization")) $("aboutLizzySpecialization").textContent = data.specialization;
+        rollCompliment(p);
+    }
+    $("aboutLizzyReroll")?.addEventListener("click",()=>rollCompliment(persona()));
+
+    function showSystemAlert(kind){
+        const p = persona();
+        const pool = (kind==="error" ? SYS_ERRORS : SYS_WARNINGS)[p] || (kind==="error" ? SYS_ERRORS : SYS_WARNINGS)["Little Miss Attitude"];
+        const message = pool[Math.floor(Math.random()*pool.length)];
+        const photo = PERSONA_PHOTOS[p] || PERSONA_PHOTOS["Little Miss Attitude"];
+        const popup = document.createElement("div");
+        popup.className = "systemAlertPopup " + kind;
+        popup.innerHTML = `<img class="systemAlertPhoto" src="${photo}" alt=""><div class="systemAlertBody"><strong>${kind==="error"?"❌ SYSTEM ERROR":"⚠️ SYSTEM WARNING"}</strong><p>${message}</p></div>`;
+        document.body.appendChild(popup);
+        setTimeout(()=>popup.classList.add("show"),50);
+        setTimeout(()=>{
+            popup.classList.remove("show");
+            setTimeout(()=>popup.remove(),500);
+        },6000);
+    }
+
+    function maybeShowSystemAlert(){
+        const desktop = $("desktopArea");
+        if(!desktop || desktop.classList.contains("hidden")) return;
+        if(Math.random() > 0.28) return;
+        showSystemAlert(Math.random() < 0.5 ? "error" : "warning");
+    }
+    window.addEventListener("load",()=>{
+        window.LizzyPerf?.add?.("personalitySystemAlerts", 30000, maybeShowSystemAlert);
+    });
 
     function applyPersonality(){
         const p=persona();
         document.body.dataset.personality=p;
         if($("personalitySample")) $("personalitySample").textContent=text().sample;
+        if($("personalityConsolePhoto")) $("personalityConsolePhoto").src=PERSONA_PHOTOS[p]||PERSONA_PHOTOS["Little Miss Attitude"];
+        qsa("[data-v5-persona]").forEach(btn=>btn.classList.toggle("activePersona",btn.dataset.v5Persona===p));
+        updateAboutLizzy(p);
+        applyPersonaFolderLabels(p);
 
         // Existing game intros.
+        const HEART_INTRO = {
+            "Lizzy": "Catch as many hearts as you can before the timer runs out 💗",
+            "Princess Four Eyes": "No pressure at all, Princess — every heart you catch is just a bonus. 👓💗",
+            "Little Miss Attitude": "Catch the hearts. Try not to act too impressed with yourself 😏",
+            "Agent Yelizaveta": "MISSION OBJECTIVE: acquire maximum heart units before countdown expiry."
+        };
         const heartIntro=document.querySelector("#heartCatchWindow .memoryMessage");
-        if(heartIntro) heartIntro.textContent =
-            p==="Lizzy" ? "Catch as many hearts as you can before the timer runs out 💗" :
-            p==="Little Miss Attitude" ? "Catch the hearts. Try not to act too impressed with yourself 😏" :
-            "MISSION OBJECTIVE: acquire maximum heart units before countdown expiry.";
+        if(heartIntro) heartIntro.textContent = HEART_INTRO[p] || HEART_INTRO["Agent Yelizaveta"];
 
+        const QUIZ_INTRO = {
+            "Lizzy": "A very cute and extremely scientific test of your LizzyOS knowledge. 💗",
+            "Princess Four Eyes": "A gentle little quiz, made with extra love for the sweetest one. 👓💕",
+            "Little Miss Attitude": "Five questions. Let's see if the attitude comes with answers. 😏",
+            "Agent Yelizaveta": "INTELLIGENCE ASSESSMENT: five questions. Clearance score pending."
+        };
         const quizIntro=document.querySelector("#funQuizWindow .memoryMessage");
-        if(quizIntro) quizIntro.textContent =
-            p==="Lizzy" ? "A very cute and extremely scientific test of your LizzyOS knowledge. 💗" :
-            p==="Little Miss Attitude" ? "Five questions. Let's see if the attitude comes with answers. 😏" :
-            "INTELLIGENCE ASSESSMENT: five questions. Clearance score pending.";
+        if(quizIntro) quizIntro.textContent = QUIZ_INTRO[p] || QUIZ_INTRO["Agent Yelizaveta"];
     }
 
     function selectPersona(name){
         store.setItem("lizzyPersona",name);
         applyPersonality();
 
-        const message = name==="Lizzy" ? "Lizzy Mode activated 💗 Everything just got softer." :
-            name==="Little Miss Attitude" ? "Little Miss Attitude Mode activated 😏 Mikael has been warned." :
-            "AGENT YELIZAVETA MODE ACTIVE 🕵️ Secure systems engaged.";
+        const SELECT_MESSAGE = {
+            "Lizzy": "Lizzy Mode activated 💗 Everything just got softer.",
+            "Princess Four Eyes": "Princess Four Eyes Mode activated 👓💗 Mikael's favourite is online.",
+            "Little Miss Attitude": "Little Miss Attitude Mode activated 😏 Mikael has been warned.",
+            "Agent Yelizaveta": "AGENT YELIZAVETA MODE ACTIVE 🕵️ Secure systems engaged."
+        };
+        const message = SELECT_MESSAGE[name] || SELECT_MESSAGE["Agent Yelizaveta"];
 
         if(typeof window.showToast==="function") window.showToast(message);
         else {
@@ -4252,10 +4734,40 @@ if (typeof lizzyTelegramNotify === "function") window.lizzyTelegramNotify = lizz
         }
     }
 
-    $("personalityIcon")?.addEventListener("click",()=>{
+    // ---- Password gate ----
+    const PERSONALITY_ACCESS="LIZZYOS";
+    const PERSONALITY_SESSION="lizzyPersonalityUnlockedV1";
+
+    function showPersonalityLogin(){
+        $("personalityLogin")?.classList.remove("hidden");
+        $("personalityDashboard")?.classList.add("hidden");
+        if($("personalityPassword")) $("personalityPassword").value="";
+        if($("personalityLoginStatus")) $("personalityLoginStatus").textContent="";
+        setTimeout(()=>$("personalityPassword")?.focus(),80);
+    }
+    function showPersonalityDashboard(){
+        $("personalityLogin")?.classList.add("hidden");
+        $("personalityDashboard")?.classList.remove("hidden");
         applyPersonality();
+    }
+    function attemptPersonalityLogin(){
+        const attempt=($("personalityPassword")?.value||"").trim().toUpperCase().replace(/\s+/g,"");
+        if(attempt!==PERSONALITY_ACCESS){
+            if($("personalityLoginStatus")) $("personalityLoginStatus").textContent="❌ Incorrect password.";
+            if($("personalityPassword")) $("personalityPassword").value="";
+            return;
+        }
+        sessionStorage.setItem(PERSONALITY_SESSION,"yes");
+        showPersonalityDashboard();
+    }
+
+    $("personalityIcon")?.addEventListener("click",()=>{
         $("personalityWindow")?.classList.remove("hidden");
+        if(sessionStorage.getItem(PERSONALITY_SESSION)==="yes") showPersonalityDashboard();
+        else showPersonalityLogin();
     });
+    $("personalityLoginBtn")?.addEventListener("click",attemptPersonalityLogin);
+    $("personalityPassword")?.addEventListener("keydown",e=>{if(e.key==="Enter")attemptPersonalityLogin()});
     ["closePersonality","personalityRedClose"].forEach(id =>
         $(id)?.addEventListener("click",()=>$("personalityWindow")?.classList.add("hidden"))
     );

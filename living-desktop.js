@@ -28,6 +28,7 @@ const LizzyPerf=(()=>{
  document.addEventListener("visibilitychange",()=>{if(!document.hidden)tick()});
  return {add,remove,tick};
 })();
+window.LizzyPerf=LizzyPerf;
 const $=id=>document.getElementById(id);
 const read=(k,f)=>{try{const v=localStorage.getItem(k);return v===null?f:JSON.parse(v)}catch{return f}};
 const write=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
@@ -134,7 +135,7 @@ function dynamicSticky(){
  if($("stickyMessage"))$("stickyMessage").textContent=msg;
 }
 bind("stickyNext","click",()=>setTimeout(dynamicSticky,0));
-LizzyPerf.add("legacyJob1",1000,()=>{renderDynamicTime();updateAmbient()});
+window.LizzyPerf?.add?.("legacyJob1",1000,()=>{renderDynamicTime();updateAmbient()});
 setInterval(dynamicActivity,18000);
 setTimeout(()=>{renderDynamicTime();dynamicActivity();updateAmbient()},0);
 
@@ -281,6 +282,7 @@ function renderProfile(){
    :"Activate Mikael Takeover";
  $("mikaelTakeoverBanner")?.classList.toggle("hidden",!on);
  applyTakeoverLabels(on);
+ if(!on) setTimeout(()=>window.applyPersonaFolderLabels?.(),0);
  if(on){
    takeoverSticky();
    scheduleTakeoverMessage();
@@ -324,7 +326,7 @@ document.addEventListener("dblclick",e=>{
 });
 
 // Random tiny desktop glitches while takeover is active.
-LizzyPerf.add("legacyJob2",45000,()=>{if(!takeoverOn()||takeoverBooting||Math.random()>.28)return;
+window.LizzyPerf?.add?.("legacyJob2",45000,()=>{if(!takeoverOn()||takeoverBooting||Math.random()>.28)return;
  document.body.classList.add("mikaelMicroGlitch");
  setTimeout(()=>document.body.classList.remove("mikaelMicroGlitch"),260);});
 
@@ -661,7 +663,7 @@ console.log("Lizzy Mail Daily Messages: ONLINE", MESSAGES.length, "messages");
    if(s.day!==day()){render()}
  }
  window.addEventListener("load",()=>setTimeout(render,350));
- LizzyPerf.add("stickyDayCheck",60000,refreshForNewDay);
+ window.LizzyPerf?.add?.("stickyDayCheck",60000,refreshForNewDay);
 })();
 
 
@@ -699,7 +701,7 @@ function applyPhase(){
  badge.title=p.greet;
 }
 applyPhase();
-LizzyPerf.add("timeMoodRefresh",60000,applyPhase);
+window.LizzyPerf?.add?.("timeMoodRefresh",60000,applyPhase);
 
 /* ---------- SYSTEM ACTIVITY ---------- */
 const normalActivity=[
@@ -791,7 +793,7 @@ function pushActivity(){
 }
 ensureActivity();
 pushActivity();
-LizzyPerf.add("systemActivityFeed",18000,pushActivity);
+window.LizzyPerf?.add?.("systemActivityFeed",18000,pushActivity);
 
 /* ---------- RARE MIKAEL APPEARANCES ---------- */
 const APPEAR_KEY="lizzyRareMikaelV45";
@@ -829,7 +831,7 @@ function dismissMikael(el){
  el.classList.remove("show");setTimeout(()=>el.remove(),450);
 }
 // One check every ~12 minutes; 10% roll + max 2/day + 90m cooldown.
-LizzyPerf.add("rareMikaelCheck",720000,maybeMikael);
+window.LizzyPerf?.add?.("rareMikaelCheck",720000,maybeMikael);
 })();
 
 
@@ -892,7 +894,7 @@ window.LizzyFunApps={openCourt,openRps,openAssistant,openDay};
 function phase(){const h=new Date().getHours();return h<5?"late":h<12?"morning":h<17?"afternoon":h<21?"evening":"night"}
 function takeover(){return document.body.classList.contains("mikaelTakeoverActive")}
 function wallpaper(){document.documentElement.dataset.dynamicWallpaper=phase();let s=$("mikaelBatSignal");if(!s){s=document.createElement("div");s.id="mikaelBatSignal";s.innerHTML='<div class="batBeam"></div><div class="batMark">🦇</div><small>MIKAEL TAKEOVER</small>';desk().appendChild(s)}s.classList.toggle("active",takeover())}
-wallpaper();LizzyPerf.add("dynamicWallpaper",30000,wallpaper);window.addEventListener("mikaelTakeoverChanged",wallpaper);
+wallpaper();window.LizzyPerf?.add?.("dynamicWallpaper",30000,wallpaper);window.addEventListener("mikaelTakeoverChanged",wallpaper);
 window.LizzyFunApps={openCourt,openRps,openAssistant,openDay};
 })();
 
