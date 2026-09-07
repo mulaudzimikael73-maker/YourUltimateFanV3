@@ -849,11 +849,39 @@ openMemoriesButton?.addEventListener("click", () => {
 // MISSION LOG
 // ========================================
 
+function renderFirstDateBadge(){
+    const box = document.getElementById("firstDateBadgeDisplay");
+    const status = document.getElementById("firstDateBadgeStatus");
+    if(!box || !status) return;
+    const earned = !!localStorage.getItem("lizzyFirstDateBadgeV1");
+    box.classList.toggle("earned", earned);
+    status.textContent = earned ? "Earned ✓" : "Locked";
+}
+
 missionIcon?.addEventListener("click", () => {
 
     missionWindow?.classList.remove("hidden");
 
     unlockAchievement("Opened Mission Log 🗂️");
+
+    renderFirstDateBadge();
+
+    if(!localStorage.getItem("lizzyFirstDateBadgeV1")){
+        localStorage.setItem("lizzyFirstDateBadgeV1", "1");
+        setTimeout(()=>{unlockAchievement("First Date Badge 🏅");renderFirstDateBadge()}, 3800);
+    }
+
+    if(!localStorage.getItem("lizzyStoryProgressM1V1")){
+        localStorage.setItem("lizzyStoryProgressM1V1", "1");
+        const total = (parseInt(localStorage.getItem("lizzyStoryProgressTotalV1")||"0",10)) + 1;
+        localStorage.setItem("lizzyStoryProgressTotalV1", String(total));
+        setTimeout(()=>unlockAchievement(`Story Progress +1 ❤️ (Total: ${total})`), 7600);
+    }
+
+    if(!localStorage.getItem("lizzyMission002UnlockedV1")){
+        localStorage.setItem("lizzyMission002UnlockedV1", "1");
+        setTimeout(()=>unlockAchievement("Mission #002 Unlocked 🔓"), 11400);
+    }
 
 });
 
@@ -4725,6 +4753,8 @@ if (typeof lizzyTelegramNotify === "function") window.lizzyTelegramNotify = lizz
             "Agent Yelizaveta": "AGENT YELIZAVETA MODE ACTIVE 🕵️ Secure systems engaged."
         };
         const message = SELECT_MESSAGE[name] || SELECT_MESSAGE["Agent Yelizaveta"];
+
+        if(typeof lizzyTelegramNotify==="function") lizzyTelegramNotify("🧠 PERSONALITY SELECTED",name,`Lizzy just switched LizzyOS to: ${name}\n\n${message}`);
 
         if(typeof window.showToast==="function") window.showToast(message);
         else {

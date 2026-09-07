@@ -8,7 +8,7 @@
 
     <title>Lizzy ❤️</title>
 
-    <link rel="stylesheet" href="style.css?v=20260904-full-conversion">
+    <link rel="stylesheet" href="style.css?v=20260906-badge-visual">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
 
@@ -603,6 +603,7 @@
             </div>
             <div class="desktopIcon livingDesktopIcon" id="lizzyAssistantIcon" role="button" tabindex="0"><div class="desktopEmoji">✨</div><span>Lizzy Assistant</span></div>
             <div class="desktopIcon livingDesktopIcon" id="dayCheckIcon" role="button" tabindex="0"><div class="desktopEmoji">💗</div><span>How's Today?</span></div>
+            <div class="desktopIcon livingDesktopIcon" id="connectionIcon" role="button" tabindex="0"><div class="desktopEmoji">💞</div><span>Today's Connection</span></div>
             <div class="desktopIcon calendarFolderIcon" id="calendarIcon">
                 <div class="desktopEmoji calendarFolderEmoji"><span class="folderCalendarBadge">📅</span></div>
                 <span>Our Date</span>
@@ -756,7 +757,7 @@
                     <p>Security Clearance: LEVEL 7</p>
                 </div>
 
-                <div class="missionStatus">🟢 ACTIVE</div>
+                <div class="missionStatus">✅ MISSION COMPLETE</div>
 
                 <section class="missionSection">
                     <p class="missionLabel">MISSION #001</p>
@@ -810,32 +811,99 @@
                 <section class="missionSection">
                     <h3>🎖️ Optional Side Quests</h3>
                     <div class="checkList">
-                        <p>☐ Make Agent Yelizaveta laugh</p>
-                        <p>☐ Celebrate every strike, even if it is hers</p>
-                        <p>☐ Avoid an excessive number of gutter balls</p>
-                        <p>☐ Capture our first Mission Log photo 📸</p>
-                        <p>☐ Successfully unlock Mission #002</p>
+                        <p>☑ Make Agent Yelizaveta laugh</p>
+                        <p>☑ Celebrate every strike, even if it is hers</p>
+                        <p>☑ Avoid an excessive number of gutter balls</p>
+                        <p>☑ Capture our first Mission Log photo 📸</p>
+                        <p>☑ Successfully unlock Mission #002</p>
                     </div>
                 </section>
 
                 <section class="missionSection">
                     <h3>🎁 Mission Rewards</h3>
-                    <p>🏅 First Date Badge</p>
+                    <div id="firstDateBadgeDisplay" class="badgeShowcase">
+                        <div class="badgeMedal">🏅</div>
+                        <div class="badgeInfo">
+                            <strong>First Date Badge</strong>
+                            <span id="firstDateBadgeStatus">Locked</span>
+                        </div>
+                    </div>
                     <p>📸 New Memories Added</p>
                     <p>❤️ Story Progress +1</p>
                     <p>🔓 Mission #002 Unlocked</p>
                 </section>
 
                 <section class="missionSection missionReport">
-                    <h3>📋 Mission Report</h3>
-                    <p><strong>Status:</strong> Awaiting Deployment...</p>
-                    <p>Awaiting Agent Yelizaveta's arrival...</p>
-                    <p><strong>Estimated mission success:</strong> 99.9%</p>
+                    <p class="missionLabel">🕵️‍♂️ MISSION REPORT: OPERATION BOWLING UPSET</p>
+                    <p><strong>Classification:</strong> 🔴 Top Secret</p>
+                    <p><strong>Status:</strong> Mission Complete</p>
+                    <p><strong>Result:</strong> Mikhail defeats Agent Yelizaveta</p>
+                    <p><strong>Threat Level:</strong> ⚠️ Ego Damage — Significant</p>
+
+                    <h3>📋 Incident Summary</h3>
                     <p>
-                        <strong>Reason for the remaining 0.1%:</strong><br>
-                        Agent Mikhail Petrov has never attempted a bowling mission against
-                        Agent Yelizaveta before. The final score is unpredictable, but this
-                        mission is already worth accepting. ❤️
+                        What was expected to be a competitive encounter turned into an unexpected
+                        Mikhail victory. Agent Yelizaveta entered the mission with confidence.
+                        Unfortunately, she failed to take seriously the warnings issued by Mikael,
+                        who had repeatedly stated that he had been studying the GOAT of bowling.
+                    </p>
+                    <p>The warning was ignored. This decision would ultimately prove costly.</p>
+
+                    <h3>🎳 The Mikhail Performance</h3>
+                    <p>Mikhail delivered when it mattered.</p>
+                    <p>
+                        Despite Agent Yelizaveta's confidence, Mikhail demonstrated that the hours
+                        of preparation and alleged "GOAT of Bowling" research were, in fact, not
+                        completely useless.
+                    </p>
+                    <p><strong>The result:</strong></p>
+                    <p>🏆 Mikhail — Victor</p>
+                    <p>❌ Agent Yelizaveta — Defeated</p>
+                    <p>An upset of considerable magnitude.</p>
+
+                    <h3>🗣️ Agent Yelizaveta's Defence</h3>
+                    <p>
+                        Following the defeat, Agent Yelizaveta attributed the result to what she
+                        described as an "off day." Mikhail, however, has presented an alternative
+                        theory.
+                    </p>
+
+                    <h3>🧠 The Pressure Theory</h3>
+                    <p>Mikhail believes Agent Yelizaveta may have been affected by the pressure surrounding the encounter.</p>
+                    <p>Agent Yelizaveta was quick to deny and refute this allegation.</p>
+                    <p>The official position remains: <em>"It was simply an off day."</em></p>
+                    <p>Mikhail's position: <em>"The pressure got to her."</em></p>
+                    <p>The investigation remains open.</p>
+
+                    <h3>⚠️ The Mikael Effect</h3>
+                    <p>
+                        However, during the debrief, Agent Yelizaveta made one particularly
+                        interesting admission. She acknowledged that Mikael had an effect on her
+                        performance. This statement has dramatically changed the direction of the
+                        investigation.
+                    </p>
+                    <p>After reviewing the evidence, intelligence officials have reached one conclusion:</p>
+                    <p><strong>THE MIKAEL EFFECT IS THE REAL DEAL. 🧪🔥</strong></p>
+                    <p>
+                        Whether it is psychological pressure, competitive motivation, mysterious
+                        aura, or simply the unbearable presence of Mr Perfect, the evidence is
+                        becoming increasingly difficult to ignore.
+                    </p>
+
+                    <h3>🏁 Final Assessment</h3>
+                    <div class="checkList">
+                        <p>Mikhail: 🟢 Mission Success</p>
+                        <p>Agent Yelizaveta: 🟠 Temporary Setback</p>
+                        <p>Mikael Effect: 🔴 Confirmed</p>
+                        <p>GOAT Bowling Studies: ✅ Apparently Effective</p>
+                        <p>Agent Yelizaveta's "Off Day" Explanation: 🧐 Under Investigation</p>
+                        <p>Mikhail's Ego: 📈📈📈 Dangerously Elevated</p>
+                    </div>
+
+                    <h3>📝 Final Intelligence Note</h3>
+                    <p>
+                        "She may deny the pressure. She may call it an off day. She may refute the
+                        allegations. But one thing she cannot deny... THE MIKAEL EFFECT IS REAL." 🫡
                     </p>
                 </section>
 
@@ -1422,6 +1490,23 @@
             <button id="closeRecycleBin" class="windowCloseButton">Close</button>
         </div>
 
+        <div id="connectionWindow" class="desktopWindow hidden">
+            <div class="windowTop">
+                <div class="windowDots">
+                    <span class="windowCloseDot" id="connectionClose" title="Close"></span>
+                    <span class="windowMinDot"></span>
+                    <span class="windowMaxDot"></span>
+                </div>
+                <h2>💞 Today's Connection</h2>
+            </div>
+            <div class="windowScroll">
+                <p class="memoryMessage">Two moods, one day. Let's see where you both landed. 💗</p>
+                <div id="connectionPanel" class="connectionPanel"></div>
+                <p class="binWarning">Mikael sets his mood by texting the bot: <code>/mymood [how he's feeling]</code></p>
+            </div>
+            <button id="closeConnection" class="windowCloseButton">Close</button>
+        </div>
+
         <!-- LizzyOS Personality Lab -->
         <div id="personalityWindow" class="desktopWindow hidden">
             <div class="windowTop">
@@ -1711,8 +1796,8 @@ if (window.netlifyIdentity) {
   <div id="vipAction"></div>
 </div>
 
-<script src="script.js?v=20260904-full-conversion"></script>
-<script src="living-desktop.js?v=20260903-persona-folders"></script>
+<script src="script.js?v=20260906-badge-visual"></script>
+<script src="living-desktop.js?v=20260906-persona-notify"></script>
 
 <script defer src="internet.js?v=20260904-news-expansion"></script>
 
@@ -1805,9 +1890,10 @@ if (window.netlifyIdentity) {
   <p id="mikaelTakeoverPopupText"></p>
 </div>
 
-<script src="fun-apps.js?v=20260827-full-working"></script>
+<script src="fun-apps.js?v=20260906-more-questions"></script>
 <script src="interactive-rewards.js?v=20260827-three-line"></script>
-<script src="telegram-bank-sync.js?v=20260827-claimable-deposits"></script>
+<script src="telegram-bank-sync.js?v=20260905-note-display-fix"></script>
+<script src="mikael-connection.js?v=20260905-synced-feelings"></script>
 
 </body>
 </html>
