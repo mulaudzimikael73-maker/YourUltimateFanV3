@@ -1064,5 +1064,17 @@ $("mikaelRedeemLogout")?.addEventListener("click",()=>{sessionStorage.removeItem
 setTimeout(async()=>{try{await migrate()}catch(e){}await renderPublic();await checkPending()},900);
 setInterval(checkPending,15000);
 window.MikaelCloudTokens={openPrivate,renderPublic,renderPrivate,checkPending};
+
+// Same reasoning as the reverse-token poller above: if this tab sits
+// backgrounded, suspended, or gets restored from the browser's
+// back-forward cache across midnight, the Micky Bucs job board would
+// otherwise keep showing yesterday's already-rendered 5 jobs until the
+// Seed Store window happens to be reopened. dailyJobs() is already safe
+// to call repeatedly — it only regenerates the list when the stored
+// date no longer matches today() — so it's cheap to just recheck on
+// every resume.
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")render()});
+window.addEventListener("pageshow",()=>render());
+window.addEventListener("focus",()=>render());
 })();
 
