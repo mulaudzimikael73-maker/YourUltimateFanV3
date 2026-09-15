@@ -150,7 +150,7 @@ async function vote(kind){
 }
 
 const NEWS_STORAGE_KEY="lizzyMickyDailyNewsV1";
-const NEWS_ROTATION_VERSION="v3";
+const NEWS_ROTATION_VERSION="v4";
 
 const NEWS_BREAKING=[
  {h:"Major Announcement Expected from the President",p:"The President has confirmed that savings across LizzyOS are at an all-time high, and that the weekly +5 MB bonus will continue for every citizen who keeps at least 15 MB banked for seven days."},
