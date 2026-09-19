@@ -344,6 +344,29 @@ async function hqLetters(env){const xs=await arrKV(env,HQ_LETTER_INDEX);return x
 async function hqMessages(env){const xs=await arrKV(env,HQ_MESSAGE_INDEX);return xs.sort((a,b)=>String(a.createdAt).localeCompare(String(b.createdAt)));}
 const defaultChess=()=>({id:"chess-main",fen:"start",pgn:"",turn:"w",status:"active",lastMove:null,updatedAt:new Date().toISOString()});
 
+/* ===== 😈 MIKAEL HQ REMOTE ANNOYANCE =====
+   One pending effect at a time (a queue would just mean Lizzy gets
+   buried instantly — not the goal). Lizzy's "STOP ANNOYING ME" button
+   clears whatever's pending AND starts a real cooldown that HQ can see
+   and honours, so it isn't a fake button. */
+const ANNOY_PENDING_KEY="annoy:pending:v1";
+const ANNOY_COOLDOWN_KEY="annoy:cooldown:v1";
+const ANNOY_COOLDOWN_MINUTES=20;
+const ANNOY_EFFECTS=[
+  "button_move","infinite_loading","keyboard_chaos","mikael_appears",
+  "attitude_meter","upside_down","screen_wobble","unskippable_ad",
+  "did_you_know","petty_tax","airhorn","captcha_joke","eyes_follow",
+  "balloon_pop","fake_update"
+];
+async function getAnnoyPending(env){
+  return env.LIZZY_CLAIMS.get(ANNOY_PENDING_KEY,{type:"json"});
+}
+async function getAnnoyCooldown(env){
+  const c=await env.LIZZY_CLAIMS.get(ANNOY_COOLDOWN_KEY,{type:"json"});
+  if(c&&c.until&&new Date(c.until).getTime()>Date.now())return c;
+  return null;
+}
+
 export default{async fetch(req,env){
  if(req.method==="OPTIONS")return json({ok:true});
  const u=new URL(req.url);
@@ -351,6 +374,11 @@ export default{async fetch(req,env){
  if(req.method==="GET"){
    if(u.searchParams.get("action")==="coop_chess"){const state=await env.LIZZY_CLAIMS.get(HQ_CHESS_KEY,{type:"json"})||defaultChess();return json({success:true,state});}
    if(u.searchParams.get("action")==="lizzy_messages"){const messages=await hqMessages(env);return json({success:true,messages:messages.filter(x=>x.status!=="handled").slice(-50)});}
+   if(u.searchParams.get("action")==="annoy_state"){
+     const pending=await getAnnoyPending(env);
+     const cooldown=await getAnnoyCooldown(env);
+     return json({success:true,pending:pending&&!pending.consumed?pending:null,cooldownUntil:cooldown?cooldown.until:null});
+   }
    if(u.searchParams.get("mikaelTokens")==="1"){
      const state=await getMikaelTokenState(env);
      return json({success:true,state});
@@ -628,6 +656,37 @@ if(b.action==="send_chess_hint"){
   const xs=await hqMessages(env);xs.push(m);await saveArr(env,HQ_MESSAGE_INDEX,xs);
   await hqActivity(env,"🎓 Chess Hint","Mikael sent Lizzy a chess tip.");
   return json({success:true});
+}
+
+/* =========================================================
+   😈 MIKAEL HQ REMOTE ANNOYANCE
+   ========================================================= */
+if((b.action||b.type)==="annoy_trigger"){
+  if(!hqOnly(req,env,b))return json({success:false,error:"Unauthorized"},401);
+  const cooldown=await getAnnoyCooldown(env);
+  if(cooldown)return json({success:false,cooldown:true,until:cooldown.until});
+  let effect=String(b.effect||"").trim();
+  if(!effect||effect==="random")effect=ANNOY_EFFECTS[Math.floor(Math.random()*ANNOY_EFFECTS.length)];
+  if(!ANNOY_EFFECTS.includes(effect))return json({success:false,error:"Unknown effect"},400);
+  const pending={effect,createdAt:new Date().toISOString(),consumed:false};
+  await env.LIZZY_CLAIMS.put(ANNOY_PENDING_KEY,JSON.stringify(pending));
+  await tg(env,"sendMessage",{chat_id:env.TELEGRAM_CHAT_ID,text:`😈 SENT LIZZY: ${effect.replace(/_/g," ")}`}).catch(()=>{});
+  return json({success:true,effect});
+}
+if((b.action||b.type)==="annoy_consume"){
+  const pending=await getAnnoyPending(env);
+  if(pending&&!pending.consumed){
+    pending.consumed=true;
+    await env.LIZZY_CLAIMS.put(ANNOY_PENDING_KEY,JSON.stringify(pending));
+  }
+  return json({success:true});
+}
+if((b.action||b.type)==="annoy_stop"){
+  await env.LIZZY_CLAIMS.delete(ANNOY_PENDING_KEY);
+  const until=new Date(Date.now()+ANNOY_COOLDOWN_MINUTES*60000).toISOString();
+  await env.LIZZY_CLAIMS.put(ANNOY_COOLDOWN_KEY,JSON.stringify({until}));
+  await tg(env,"sendMessage",{chat_id:env.TELEGRAM_CHAT_ID,text:`😤 LIZZY HIT "STOP ANNOYING ME"\n\nNo more annoyances until ${until}.`}).catch(()=>{});
+  return json({success:true,cooldownUntil:until});
 }
 
 async function notifyTelegram(text,type=eventType,reply_markup=null){

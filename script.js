@@ -4985,3 +4985,417 @@ if (typeof lizzyTelegramNotify === "function") window.lizzyTelegramNotify = lizz
 
     applyPersonality();
 })();
+
+// =====================================================
+// 😈 MIKAEL HQ REMOTE ANNOYANCE — delivery + effects
+// Polls the Worker for a pending annoyance and fires it locally.
+// The "STOP ANNOYING ME" button is real: it clears whatever's queued
+// and starts a genuine cooldown on the server, honoured by HQ too.
+// =====================================================
+(() => {
+"use strict";
+
+async function annoyApi(action, body) {
+  const url = LIZZY_TELEGRAM_WORKER_URL + "?action=" + encodeURIComponent(action);
+  if (!body) {
+    const r = await fetch(url);
+    return r.json();
+  }
+  const r = await fetch(LIZZY_TELEGRAM_WORKER_URL, {
+    method: "POST",
+    headers: { "Content-Type": "text/plain;charset=UTF-8" },
+    body: JSON.stringify({ action, ...body })
+  });
+  return r.json();
+}
+
+// ---- real photos used by annoy effects ----
+const MIKAEL_PHOTOS = [
+  "assets/captcha/mikael-1.jpg", "assets/captcha/mikael-2.jpg", "assets/captcha/mikael-3.jpg",
+  "assets/captcha/mikael-4.jpg", "assets/captcha/mikael-5.jpg", "assets/captcha/mikael-6.jpg",
+  "assets/captcha/mikael-7.jpg"
+];
+const LIZZY_PHOTOS = [
+  "assets/captcha/lizzy-1.jpg", "assets/captcha/lizzy-2.jpg", "assets/captcha/lizzy-3.jpg",
+  "assets/captcha/lizzy-4.jpg", "assets/captcha/lizzy-5.jpg", "assets/captcha/lizzy-6.jpg",
+  "assets/captcha/lizzy-7.jpg", "assets/captcha/lizzy-8.jpg", "assets/captcha/lizzy-9.jpg",
+  "assets/captcha/lizzy-10.jpg"
+];
+const DECOY_PHOTOS = ["assets/captcha/decoy-1.jpg", "assets/captcha/decoy-2.jpg"];
+const MIKAEL_APPEARS_PHOTOS = [
+  "assets/mikael-appears/mikael-1.jpg", "assets/mikael-appears/mikael-2.jpg",
+  "assets/mikael-appears/mikael-3.jpg", "assets/mikael-appears/mikael-4.jpg",
+  "assets/mikael-appears/mikael-5.jpg", "assets/mikael-appears/mikael-6.jpg",
+  "assets/mikael-appears/mikael-7.jpg"
+];
+function shuffleCopy(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function ensureAnnoyStyles() {
+  if (document.getElementById("annoyStyles")) return;
+  const s = document.createElement("style");
+  s.id = "annoyStyles";
+  s.textContent = `
+    #stopAnnoyBtn{position:fixed;right:16px;bottom:16px;z-index:999990;background:#ff5c5c;color:#fff;
+      border:none;border-radius:999px;padding:10px 16px;font-weight:800;font-size:12px;cursor:pointer;
+      box-shadow:0 8px 24px rgba(0,0,0,.35);opacity:.55;transition:opacity .2s,transform .2s}
+    #stopAnnoyBtn:hover{opacity:1;transform:scale(1.05)}
+    .annoyOverlay{position:fixed;inset:0;z-index:999980;display:flex;align-items:center;justify-content:center;
+      background:rgba(10,5,20,.65);backdrop-filter:blur(3px);animation:annoyFadeIn .25s ease}
+    @keyframes annoyFadeIn{from{opacity:0}to{opacity:1}}
+    .annoyCard{background:linear-gradient(150deg,#2a1f3d,#1c1530);color:#fff;padding:26px 24px;border-radius:20px;
+      max-width:340px;text-align:center;box-shadow:0 24px 70px rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.15)}
+    .annoyCard h3{margin:0 0 10px;font-size:16px}
+    .annoyCard p{margin:0 0 14px;font-size:13px;line-height:1.5;opacity:.9}
+    .annoyCard button{background:#e6785a;border:none;color:#1a0f0a;font-weight:800;padding:9px 18px;border-radius:12px;cursor:pointer}
+    .annoyToast{position:fixed;left:50%;top:24px;transform:translateX(-50%);z-index:999995;background:#221e3a;
+      color:#fff;padding:10px 18px;border-radius:999px;font-size:13px;font-weight:700;box-shadow:0 10px 30px rgba(0,0,0,.4);
+      animation:annoyToastIn .3s ease}
+    @keyframes annoyToastIn{from{opacity:0;transform:translate(-50%,-10px)}to{opacity:1;transform:translate(-50%,0)}}
+    @keyframes annoyWobble{0%,100%{transform:rotate(0)}25%{transform:rotate(1.2deg)}75%{transform:rotate(-1.2deg)}}
+    .annoyEyes{position:fixed;right:20px;top:20px;z-index:999985;display:flex;gap:8px}
+    .annoyEye{width:34px;height:34px;background:#fff;border-radius:50%;position:relative;box-shadow:0 4px 10px rgba(0,0,0,.3)}
+    .annoyPupil{width:12px;height:12px;background:#222;border-radius:50%;position:absolute;top:11px;left:11px}
+    .annoyBalloon{position:absolute;font-size:40px;cursor:pointer;user-select:none;transition:transform .15s}
+    .captchaCard{max-width:320px}
+    .captchaGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:4px 0 12px}
+    .captchaTile{position:relative;aspect-ratio:1/1;border-radius:8px;overflow:hidden;cursor:pointer;
+      border:3px solid transparent;transition:border-color .15s}
+    .captchaTile img{width:100%;height:100%;object-fit:cover;display:block}
+    .captchaTile.captchaSelected{border-color:#e6785a}
+    .captchaTile.captchaSelected::after{content:"✓";position:absolute;top:4px;right:4px;background:#e6785a;
+      color:#1a0f0a;font-weight:800;border-radius:50%;width:18px;height:18px;font-size:12px;
+      display:flex;align-items:center;justify-content:center}
+    .mikaelAppearsPhoto{width:140px;height:140px;object-fit:cover;border-radius:50%;margin:6px auto 12px;
+      display:block;border:3px solid #e6785a}
+  `;
+  document.head.appendChild(s);
+}
+
+function annoyToast(msg, ms) {
+  ensureAnnoyStyles();
+  const t = document.createElement("div");
+  t.className = "annoyToast";
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), ms || 3000);
+}
+
+function annoyOverlay(title, body, btnLabel, onClose) {
+  ensureAnnoyStyles();
+  const wrap = document.createElement("div");
+  wrap.className = "annoyOverlay";
+  wrap.innerHTML = `<div class="annoyCard"><h3>${title}</h3><p>${body}</p><button>${btnLabel || "Okay 🙄"}</button></div>`;
+  wrap.querySelector("button").onclick = () => { wrap.remove(); if (onClose) onClose(); };
+  document.body.appendChild(wrap);
+  return wrap;
+}
+
+// ---- 15 effects ----
+const ANNOY_EFFECTS = {
+  button_move() {
+    ensureAnnoyStyles();
+    const b = document.createElement("button");
+    b.textContent = "Close This 🙄";
+    b.style.cssText = "position:fixed;left:50%;top:50%;z-index:999990;padding:12px 20px;border-radius:12px;border:none;background:#e6785a;color:#1a0f0a;font-weight:800;cursor:pointer;transition:transform .12s";
+    document.body.appendChild(b);
+    const dodge = () => {
+      const x = 40 + Math.random() * (window.innerWidth - 200);
+      const y = 40 + Math.random() * (window.innerHeight - 100);
+      b.style.left = x + "px"; b.style.top = y + "px"; b.style.transform = "none";
+    };
+    dodge();
+    b.addEventListener("mouseenter", dodge);
+    let clicks = 0;
+    b.onclick = () => { clicks++; if (clicks > 4) { b.remove(); annoyToast("Fine, you win. 😤", 2000); } else dodge(); };
+    setTimeout(() => b.remove(), 8000);
+  },
+  infinite_loading() {
+    const w = annoyOverlay("⏳ Loading Lizzy's patience…", "3%", "");
+    const p = w.querySelector("p");
+    const w2 = w.querySelector("button"); w2.style.display = "none";
+    const vals = [3, 3, 4, 4, 4, 6, 6, 9, 9, 11, 11, 11];
+    let i = 0;
+    const iv = setInterval(() => { p.textContent = (vals[i % vals.length]) + "%"; i++; }, 500);
+    setTimeout(() => { clearInterval(iv); w.remove(); annoyToast("Patience fully loaded. Kidding, reload not required. 😌", 2500); }, 6000);
+  },
+  keyboard_chaos() {
+    const buttons = Array.from(document.querySelectorAll("button")).slice(0, 12);
+    const swap = ["NOPE.", "Try Again", "Nice Try", "Not Today", "Guess Again"];
+    const original = buttons.map(b => b.textContent);
+    buttons.forEach((b, idx) => { if (b.textContent.trim()) b.textContent = swap[idx % swap.length]; });
+    annoyToast("😈 button chaos activated", 1800);
+    setTimeout(() => buttons.forEach((b, idx) => { b.textContent = original[idx]; }), 7000);
+  },
+  mikael_appears() {
+    ensureAnnoyStyles();
+    const lines = [
+      "Did you miss me? 😌", "Thinking about you. Mostly about snacks too, but mostly you.",
+      "Just checking you're still there. 👀", "10/10, would annoy again.",
+      "This is your official reminder that I exist."
+    ];
+    const photo = MIKAEL_APPEARS_PHOTOS[Math.floor(Math.random() * MIKAEL_APPEARS_PHOTOS.length)];
+    const body = `<img class="mikaelAppearsPhoto" src="${photo}" alt="Mikael">` +
+      lines[Math.floor(Math.random() * lines.length)];
+    annoyOverlay("🖤 Mikael Appears", body, "Okay 🙄");
+  },
+  attitude_meter() {
+    const w = annoyOverlay("📊 Attitude Meter", `<span id="attMeterText">Lizzy Attitude: 0%</span><br><div style="height:10px;background:#ffffff22;border-radius:8px;margin-top:8px;overflow:hidden"><div id="attMeterBar" style="height:100%;width:0%;background:#e6785a;transition:width .3s"></div></div>`, "");
+    w.querySelector("button").style.display = "none";
+    let pct = 0;
+    const iv = setInterval(() => {
+      pct = Math.min(100, pct + Math.floor(Math.random() * 20) + 5);
+      w.querySelector("#attMeterBar").style.width = pct + "%";
+      w.querySelector("#attMeterText").textContent = "Lizzy Attitude: " + pct + "%";
+      if (pct >= 100) clearInterval(iv);
+    }, 300);
+    setTimeout(() => w.remove(), 4500);
+  },
+  upside_down() {
+    document.body.style.transition = "transform .6s ease";
+    document.body.style.transform = "rotate(180deg)";
+    setTimeout(() => {
+      document.body.style.transform = "rotate(0deg)";
+      annoyToast("made you look 🙃", 2200);
+    }, 1800);
+  },
+  screen_wobble() {
+    document.body.style.animation = "annoyWobble .18s ease 6";
+    setTimeout(() => { document.body.style.animation = ""; }, 1200);
+  },
+  unskippable_ad() {
+    ensureAnnoyStyles();
+    const compliments = [
+      "you have great taste in apps you didn't ask for",
+      "your patience is legendary",
+      "you're doing amazing, actually",
+      "you make questionable decisions look effortless",
+      "your hair looks good today. Statistically likely",
+      "you're the main character and everyone else is just background noise",
+      "your reaction to this ad has been rated 10/10 by unseen judges",
+      "you have impeccable timing for absolutely nothing",
+      "you're clearly built different, in a good way",
+      "you deserve a snack right now. This message is legally binding"
+    ];
+    const line = compliments[Math.floor(Math.random() * compliments.length)];
+    const w = document.createElement("div");
+    w.className = "annoyOverlay";
+    w.innerHTML = `<div class="annoyCard"><h3>📺 A Message From Mikael</h3><p id="adCountdown">This message cannot be skipped in 5...</p></div>`;
+    document.body.appendChild(w);
+    let n = 5;
+    const iv = setInterval(() => {
+      n--;
+      if (n > 0) w.querySelector("#adCountdown").textContent = "This message cannot be skipped in " + n + "...";
+      else {
+        clearInterval(iv);
+        w.querySelector(".annoyCard").innerHTML = `<h3>📺 A Message From Mikael</h3><p>${line}.</p><button>Close</button>`;
+        w.querySelector("button").onclick = () => w.remove();
+      }
+    }, 1000);
+  },
+  did_you_know() {
+    const facts = [
+      "Did you know? Honey never spoils. Neither does Mikael's crush on you.",
+      "Did you know? A group of flamingos is called a flamboyance. A group of Mikael's excuses is called a lot.",
+      "Did you know? Bananas are berries. This has nothing to do with anything.",
+      "Did you know? Octopuses have three hearts. Mikael has one, and it's currently very invested in whether there's food in the fridge.",
+      "Did you know? Sharks existed before trees. Mikael's crush on you feels almost as old.",
+      "Did you know? A shrimp's heart is located in its head. Mikael's heart, meanwhile, remains a mystery even to him.",
+      "Did you know? Wombats produce cube-shaped poop. Completely useless fact, but so is skipping this popup.",
+      "Did you know? Cows form best friendships and get stressed when separated. Relatable, according to Mikael.",
+      "Did you know? It's physically impossible to hum while holding your nose. You just tried it, didn't you.",
+      "Did you know? A group of pandas is called an embarrassment. A group of Lizzy's pillows is called a hazard."
+    ];
+    annoyOverlay("💡 Did You Know?", facts[Math.floor(Math.random() * facts.length)], "Fascinating.");
+  },
+  petty_tax() {
+    const reasons = ["for taking too long to text back", "for existing so likeably", "just because", "for winning the last argument"];
+    const reason = reasons[Math.floor(Math.random() * reasons.length)];
+    try {
+      const bal = Math.max(0, Number(localStorage.getItem("lizzyMickyBucsV1") || 0) - 1);
+      localStorage.setItem("lizzyMickyBucsV1", String(bal));
+    } catch (e) {}
+    annoyToast("💸 Petty Tax: -1 MB (" + reason + ")", 3000);
+  },
+  airhorn() {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      o.type = "sawtooth"; o.frequency.value = 340;
+      o.connect(g); g.connect(ctx.destination);
+      g.gain.setValueAtTime(0.15, ctx.currentTime);
+      o.start();
+      o.frequency.exponentialRampToValueAtTime(220, ctx.currentTime + 0.6);
+      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.7);
+      o.stop(ctx.currentTime + 0.7);
+    } catch (e) {}
+    annoyToast("📯 HONK", 1500);
+  },
+  captcha_joke() {
+    ensureAnnoyStyles();
+    const prompts = [
+      { text: "Prove you're not a stalker. Select all images of Mikael being right.", btn: "I am not a stalker", target: "mikael" },
+      { text: "Verify you're human. Select all images of Mikael's questionable fashion choices.", btn: "Verified ✅", target: "mikael" },
+      { text: "Security check: select all images where Mikael is definitely not stalking anyone. (He's Batman. It's different.)", btn: "Understood", target: "mikael" },
+      { text: "Confirm you're not a robot. Select all images of Mikael pretending he wasn't just staring at his phone.", btn: "I confirm", target: "mikael" },
+      { text: "Prove you're paying attention. Select all images of Mikael being 'busy' when it's actually just snack time.", btn: "Fair enough", target: "mikael" },
+      { text: "Prove you're not a robot. Select all images of Lizzy pretending she's not tired.", btn: "I plead the fifth", target: "lizzy" },
+      { text: "Verify you're human. Select all images of Lizzy defending Cody for absolutely no reason.", btn: "No comment", target: "lizzy" },
+      { text: "Security check: select all images of Lizzy claiming she can see fine without her glasses.", btn: "I can see fine", target: "lizzy" },
+      { text: "Confirm you're not a bot. Select all images of Lizzy taking way too long to reply to a text.", btn: "It was one time", target: "lizzy" },
+      { text: "Prove you're human. Select all images of Lizzy's pillow collection that has clearly become a hazard.", btn: "They're all essential", target: "lizzy" }
+    ];
+    const p = prompts[Math.floor(Math.random() * prompts.length)];
+    const targetPhotos = p.target === "mikael" ? MIKAEL_PHOTOS : LIZZY_PHOTOS;
+    const otherPhotos = p.target === "mikael" ? LIZZY_PHOTOS : MIKAEL_PHOTOS;
+
+    const correctCount = 3;
+    const correct = shuffleCopy(targetPhotos).slice(0, correctCount);
+    const decoyPool = shuffleCopy([...otherPhotos, ...DECOY_PHOTOS]);
+    const decoys = decoyPool.slice(0, 6 - correct.length);
+    const tiles = shuffleCopy([
+      ...correct.map(src => ({ src, correct: true })),
+      ...decoys.map(src => ({ src, correct: false }))
+    ]);
+
+    const gridHtml = `<div class="captchaGrid">` +
+      tiles.map((t, i) => `<div class="captchaTile" data-correct="${t.correct}"><img src="${t.src}" alt=""></div>`).join("") +
+      `</div>`;
+
+    const wrap = document.createElement("div");
+    wrap.className = "annoyOverlay";
+    wrap.innerHTML = `<div class="annoyCard captchaCard"><h3>🤖 Quick Verification</h3><p>${p.text}</p>${gridHtml}<button>${p.btn}</button></div>`;
+    document.body.appendChild(wrap);
+
+    wrap.querySelectorAll(".captchaTile").forEach(tile => {
+      tile.onclick = () => tile.classList.toggle("captchaSelected");
+    });
+
+    wrap.querySelector("button").onclick = () => {
+      const allTiles = wrap.querySelectorAll(".captchaTile");
+      let allMatch = true;
+      allTiles.forEach(t => {
+        const isCorrect = t.dataset.correct === "true";
+        const isSelected = t.classList.contains("captchaSelected");
+        if (isCorrect !== isSelected) allMatch = false;
+      });
+      if (allMatch) {
+        wrap.remove();
+        annoyToast("✅ Verified. Somehow.", 2200);
+      } else {
+        const card = wrap.querySelector(".annoyCard");
+        card.style.animation = "annoyWobble .18s ease 3";
+        setTimeout(() => { card.style.animation = ""; }, 700);
+        annoyToast("❌ Nope. Try again, detective.", 1800);
+      }
+    };
+    return wrap;
+  },
+  eyes_follow() {
+    ensureAnnoyStyles();
+    const wrap = document.createElement("div");
+    wrap.className = "annoyEyes";
+    wrap.innerHTML = `<div class="annoyEye"><div class="annoyPupil"></div></div><div class="annoyEye"><div class="annoyPupil"></div></div>`;
+    document.body.appendChild(wrap);
+    const move = (e) => {
+      wrap.querySelectorAll(".annoyPupil").forEach(p => {
+        const rect = p.parentElement.getBoundingClientRect();
+        const dx = (e.clientX - (rect.left + rect.width / 2)) / 40;
+        const dy = (e.clientY - (rect.top + rect.height / 2)) / 40;
+        p.style.transform = `translate(${Math.max(-6, Math.min(6, dx))}px, ${Math.max(-6, Math.min(6, dy))}px)`;
+      });
+    };
+    document.addEventListener("mousemove", move);
+    setTimeout(() => { document.removeEventListener("mousemove", move); wrap.remove(); }, 9000);
+  },
+  balloon_pop() {
+    ensureAnnoyStyles();
+    const overlay = document.createElement("div");
+    overlay.className = "annoyOverlay";
+    overlay.style.background = "rgba(10,5,20,.35)";
+    overlay.innerHTML = `<div style="position:absolute;top:16px;left:50%;transform:translateX(-50%);color:#fff;font-weight:800;background:#221e3a;padding:8px 16px;border-radius:999px">Pop them all to continue 🎈</div>`;
+    const colors = ["🎈", "🎈", "🎈", "🎈"];
+    const messages = ["Hi 👋", "You're doing great", "Almost done", "Last one! 😤"];
+    let remaining = 6;
+    for (let i = 0; i < remaining; i++) {
+      const b = document.createElement("div");
+      b.className = "annoyBalloon";
+      b.textContent = colors[0];
+      b.style.left = (10 + Math.random() * 80) + "%";
+      b.style.top = (20 + Math.random() * 60) + "%";
+      const hasMsg = i === remaining - 1;
+      b.onclick = () => {
+        b.style.transform = "scale(2)"; b.style.opacity = "0";
+        if (hasMsg) annoyToast("🎈 " + messages[messages.length - 1], 2500);
+        setTimeout(() => b.remove(), 150);
+        remaining--;
+        if (remaining <= 0) overlay.remove();
+      };
+      overlay.appendChild(b);
+    }
+    document.body.appendChild(overlay);
+  },
+  fake_update() {
+    ensureAnnoyStyles();
+    const w = document.createElement("div");
+    w.className = "annoyOverlay";
+    w.innerHTML = `<div class="annoyCard"><h3>🔄 LizzyOS Update</h3><p>Installing a critical update…</p><div style="height:10px;background:#ffffff22;border-radius:8px;overflow:hidden;margin-top:6px"><div id="updBar" style="height:100%;width:0%;background:#e6785a;transition:width .4s"></div></div></div>`;
+    document.body.appendChild(w);
+    let pct = 0;
+    const iv = setInterval(() => {
+      pct = Math.min(100, pct + Math.floor(Math.random() * 15) + 3);
+      w.querySelector("#updBar").style.width = pct + "%";
+      if (pct >= 100) {
+        clearInterval(iv);
+        w.querySelector(".annoyCard").innerHTML = `<h3>🔄 LizzyOS Update</h3><p>Update complete. You're stuck with Mikael forever now. 😌</p><button>Okay</button>`;
+        w.querySelector("button").onclick = () => w.remove();
+      }
+    }, 400);
+  }
+};
+
+// ---- delivery loop ----
+let lastFiredAt = null;
+async function checkAnnoy() {
+  try {
+    const d = await annoyApi("annoy_state");
+    if (d.pending && d.pending.createdAt !== lastFiredAt && ANNOY_EFFECTS[d.pending.effect]) {
+      lastFiredAt = d.pending.createdAt;
+      ANNOY_EFFECTS[d.pending.effect]();
+      annoyApi("annoy_consume", { effect: d.pending.effect }).catch(() => {});
+    }
+  } catch (e) {}
+}
+
+// ---- the real stop button ----
+function injectStopButton() {
+  ensureAnnoyStyles();
+  if (document.getElementById("stopAnnoyBtn")) return;
+  const btn = document.createElement("button");
+  btn.id = "stopAnnoyBtn";
+  btn.textContent = "🛑 STOP ANNOYING ME";
+  btn.onclick = async () => {
+    btn.disabled = true;
+    try {
+      const d = await annoyApi("annoy_stop", {});
+      annoyToast("Okay okay, taking a break 😅", 2500);
+    } catch (e) {
+      annoyToast("Couldn't reach the server, try again.", 2500);
+    }
+    btn.disabled = false;
+  };
+  document.body.appendChild(btn);
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  injectStopButton();
+  checkAnnoy();
+  setInterval(checkAnnoy, 6000);
+});
+})();
