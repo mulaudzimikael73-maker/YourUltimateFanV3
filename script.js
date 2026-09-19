@@ -1022,6 +1022,54 @@ openWhenLetters.laugh = {
     `
 };
 
+openWhenLetters.butterflies = {
+    title: "🦋 Open When You Need Butterflies",
+    body: `
+        <p>💌 A LITTLE LETTER FOR LIZZY</p>
+        <p>Dear Lizzy,</p>
+        <p>I was thinking about our date a few weeks ago, and honestly, I still think it was pretty amazing. 🥹❤️</p>
+        <p>There's something about spending time with you that just feels different. Even when we're being ridiculous, arguing about something completely unnecessary, or you're busy proving that you're definitely not bossy while telling me exactly what I should be doing… I genuinely enjoy it.</p>
+        <p>And yes, before you say anything — you are <strong>NOT</strong> allowed to use this letter against me forever. 😭</p>
+        <p>You may bring it up occasionally.</p>
+        <p>Maybe once in a while.</p>
+        <p>Possibly when you're trying to prove that I secretly like you a lot.</p>
+        <p>But if you start bringing this letter up every single time we disagree, I will be forced to deny everything and claim this document was fabricated by foreign intelligence agencies. 🇷🇺</p>
+        <p>But seriously, I really am looking forward to seeing you again.</p>
+        <p>I think that's one of the things I like most about you. There's always this little feeling of "I wonder what we're going to get up to next" whenever I think about seeing you. And sometimes, which is slightly embarrassing to admit, I'll just see your name pop up or think about you randomly and Mikael gets this weird little funky feeling inside. 😭❤️</p>
+        <p>I don't even know how to properly explain it.</p>
+        <p>It's like my brain goes:</p>
+        <p><strong>"Oh, Lizzy."</strong></p>
+        <p>And suddenly everything feels a little lighter and a little more exciting.</p>
+        <p>Very suspicious behaviour from my internal organs, if you ask me.</p>
+        <p>And honestly, if I ever became your annoying man, I already know exactly what kind of nonsense I'd get myself into.</p>
+        <p>I'd probably be the idiot walking around with you, buying you a lollipop from Abo My Friend because apparently that's what you've decided you need. 🍭😂</p>
+        <p>I'd probably also willingly risk getting yelled at by someone's mother because I'm walking around with her daughter, trying to shela her like I have absolutely no survival instincts.</p>
+        <p>I'd be standing there like:</p>
+        <p><strong>"Ma'am, I can explain."</strong></p>
+        <p>While simultaneously having absolutely no explanation.</p>
+        <p>And somehow I'd still be there the next day.</p>
+        <p>Because that's the thing.</p>
+        <p>You might be a weird soul.</p>
+        <p>You might be bossy while insisting you're not bossy.</p>
+        <p>You might declare that you hate men while staying up late talking to one.</p>
+        <p>You might demand a bowling rematch because apparently losing once wasn't enough.</p>
+        <p>And you might continue pretending that the Mikael Effect doesn't exist.</p>
+        <p>But you're also someone who makes me smile.</p>
+        <p>Someone I genuinely enjoy talking to.</p>
+        <p>Someone who can make an ordinary moment feel special.</p>
+        <p>And someone I'm very happy I got to spend that date with.</p>
+        <p>So yes, Lizzy...</p>
+        <p>I am definitely looking forward to seeing you again.</p>
+        <p>And perhaps, if you're lucky, there might even be a lollipop involved. 🍭</p>
+        <p>Just remember:</p>
+        <p>You can use this letter against me.</p>
+        <p>But only occasionally.</p>
+        <p>I have a reputation to protect. 😭</p>
+        <p class="letterSignature">Mr Perfect<br>a.k.a Your Standard<br>Mikael ❤️</p>
+        <p><strong>P.S.</strong> Please don't start crying after reading this. We already have enough evidence that you're emotionally dangerous. 😭😂</p>
+    `
+};
+
 
 
 function showOpenWhenLetter(letterKey) {
