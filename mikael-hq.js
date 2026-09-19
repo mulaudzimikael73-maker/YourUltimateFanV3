@@ -1,6 +1,6 @@
 (()=>{"use strict";const W="https://lizzyos-notifications.mulaudzimikael73.workers.dev/",$=id=>document.getElementById(id),esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));let key="",game=null,selected=null;
 const api=async(action,body={})=>{const r=await fetch(W+"?action="+encodeURIComponent(action),{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action,...body,hqKey:key}),cache:"no-store"});const d=await r.json().catch(()=>({}));if(!r.ok||d.success===false)throw new Error(d.error||`Request failed (${r.status})`);return d};
-function show(v){document.querySelectorAll(".view").forEach(x=>x.classList.add("hidden"));$(v).classList.remove("hidden");$("viewTitle").textContent=v==="letters"?"Letters from Lizzy":v==="annoy"?"😈 Annoy Lizzy":"Mikael × Lizzy Chess";if(v==="letters")loadLetters();else if(v==="annoy")loadAnnoy();else loadChess()}
+function show(v){document.querySelectorAll(".view").forEach(x=>x.classList.add("hidden"));$(v).classList.remove("hidden");$("viewTitle").textContent=v==="letters"?"Letters from Lizzy":v==="annoy"?"😈 Annoy Lizzy":v==="mood"?"💗 My Mood":"Mikael × Lizzy Chess";if(v==="letters")loadLetters();else if(v==="annoy")loadAnnoy();else if(v==="mood")loadMood();else loadChess()}
 document.querySelectorAll("[data-view]").forEach(b=>b.onclick=()=>{document.querySelectorAll("nav button").forEach(x=>x.classList.remove("active"));b.classList.add("active");show(b.dataset.view)});document.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>show(b.dataset.go));
 $("loginBtn").onclick=async()=>{key=$("hqKey").value.trim();if(!key)return;$("loginStatus").textContent="Checking…";try{await api("hq_letters");$("login").classList.add("hidden");$("app").classList.remove("hidden");loadLetters();loadChess()}catch(e){$("loginStatus").textContent=e.message;key=""}};$("hqKey").onkeydown=e=>{if(e.key==="Enter")$("loginBtn").click()};$("logoutBtn").onclick=()=>{key="";$("app").classList.add("hidden");$("login").classList.remove("hidden");$("hqKey").value=""};
 async function loadLetters(){try{const d=await api("hq_letters");$("lettersList").innerHTML=d.letters?.length?d.letters.slice().reverse().map(l=>`<article class="letter ${l.status==="unread"?"unread":""}"><h3>💌 ${esc(l.subject||"A letter from Lizzy")}</h3><div class="meta">${esc(l.from||"Lizzy")} · ${new Date(l.createdAt).toLocaleString()}</div><div class="letter-body">${esc(l.text)}</div>${l.reply?`<div class="reply"><b>🖤 Your reply</b><br>${esc(l.reply)}</div>`:`<div class="replyBox"><textarea data-reply="${esc(l.id)}" placeholder="Reply to Lizzy…"></textarea><button class="primary" data-reply-btn="${esc(l.id)}">Send Reply ❤️</button></div>`}</article>`).join(""):`<div class="card empty">No letters yet. When Lizzy writes, her letter will appear here.</div>`;document.querySelectorAll("[data-reply-btn]").forEach(b=>b.onclick=()=>reply(b.dataset.reply));}catch(e){$("lettersList").innerHTML=`<div class="card err">${esc(e.message)}</div>`}}
@@ -31,9 +31,58 @@ document.querySelectorAll(".annoy-btn").forEach(b=>b.onclick=async()=>{
   }catch(e){$("annoyResult").textContent=e.message}
 });
 $("annoyRefreshBtn").onclick=loadAnnoy;
-$("annoyResetBtn").onclick=async()=>{
+const annoyResetBtn=$("annoyResetBtn");
+if(annoyResetBtn)annoyResetBtn.onclick=async()=>{
   if(!confirm("Clear the cooldown Lizzy set with STOP ANNOYING ME?"))return;
   try{await api("annoy_reset");$("annoyResult").textContent="⏱️ Cooldown cleared.";loadAnnoy()}
   catch(e){$("annoyResult").textContent=e.message}
 };
+
+// My Mood
+/* Keep in sync with MIKAEL_MOOD_OPTIONS in cloudflare-worker.js so the
+   quick-pick buttons here match the /mood Telegram buttons. */
+const MOOD_OPTIONS=[
+  ["happy","😊 Happy","Feeling happy today 😊"],
+  ["tired","🥱 Tired","Feeling tired 🥱"],
+  ["dramatic","🎭 Dramatic","Feeling dramatic 🎭"],
+  ["soft","🥹 Soft","Feeling soft today 🥹"],
+  ["annoyed","🙄 Annoyed","Feeling a bit annoyed 🙄"],
+  ["missing","🥺 Missing Lizzy","Missing Lizzy 🥺"],
+  ["sad","😢 Sad","Feeling sad 😢"],
+  ["indifferent","😐 Indifferent","Feeling indifferent 😐"],
+  ["emotional","🥹 Emotional","Feeling emotional 🥹"],
+  ["bored","🥱 Bored","Feeling bored 🥱"],
+  ["batman","🦇 Feeling Like Batman","Feeling like Batman 🦇"],
+  ["excited","🤩 Excited","Feeling excited 🤩"],
+  ["funky","💃 Funky","Feeling funky 💃"]
+];
+if($("moodGrid"))$("moodGrid").innerHTML=MOOD_OPTIONS.map(([id,label])=>`<button class="annoy-btn" data-mood="${id}">${label}</button>`).join("");
+async function postMood(text){
+  const r=await fetch(W,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({type:"mikael_mood_set",text,source:"hq"}),cache:"no-store"});
+  const d=await r.json().catch(()=>({}));
+  if(!r.ok||d.success===false)throw new Error(d.error||`Request failed (${r.status})`);
+  return d;
+}
+async function loadMood(){
+  try{
+    const r=await fetch(W+"?mikaelMood=1",{cache:"no-store"});
+    const d=await r.json();
+    const mood=d?.success?d.mood:null;
+    $("moodCurrent").textContent=mood?`Current mood: ${mood.text}`:"No mood set yet.";
+  }catch(e){$("moodCurrent").textContent=e.message}
+}
+document.querySelectorAll("[data-mood]").forEach(b=>b.onclick=async()=>{
+  const opt=MOOD_OPTIONS.find(([id])=>id===b.dataset.mood);
+  if(!opt)return;
+  $("moodResult").textContent="Setting…";
+  try{await postMood(opt[2]);$("moodResult").textContent=`💗 Mood set: ${opt[1]}`;loadMood()}
+  catch(e){$("moodResult").textContent=e.message}
+});
+$("moodSendBtn")?.addEventListener("click",async()=>{
+  const text=$("moodText").value.trim();
+  if(!text)return;
+  $("moodResult").textContent="Setting…";
+  try{await postMood(text);$("moodText").value="";$("moodResult").textContent="💗 Mood set.";loadMood()}
+  catch(e){$("moodResult").textContent=e.message}
+});
 })();

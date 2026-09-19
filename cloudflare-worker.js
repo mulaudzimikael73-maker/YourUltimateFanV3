@@ -218,6 +218,24 @@ async function createMessage(env,text,source){
 /* ===== 💗 SYNCED FEELINGS — MIKAEL'S MOOD =====
    A single current value, not a queue — always just "what Mikael feels right now". */
 const MIKAEL_MOOD_KEY="mikael_mood:current:v1";
+/* Quick-pick moods for the /mood button menu + Mikael HQ buttons.
+   Text is written so it lines up with MOOD_MATCH_KEYWORDS on the
+   front end (e.g. "batman" text matches Lizzy's "catwoman" mood). */
+const MIKAEL_MOOD_OPTIONS=[
+  ["happy","😊 Happy","Feeling happy today 😊"],
+  ["tired","🥱 Tired","Feeling tired 🥱"],
+  ["dramatic","🎭 Dramatic","Feeling dramatic 🎭"],
+  ["soft","🥹 Soft","Feeling soft today 🥹"],
+  ["annoyed","🙄 Annoyed","Feeling a bit annoyed 🙄"],
+  ["missing","🥺 Missing Lizzy","Missing Lizzy 🥺"],
+  ["sad","😢 Sad","Feeling sad 😢"],
+  ["indifferent","😐 Indifferent","Feeling indifferent 😐"],
+  ["emotional","🥹 Emotional","Feeling emotional 🥹"],
+  ["bored","🥱 Bored","Feeling bored 🥱"],
+  ["batman","🦇 Feeling Like Batman","Feeling like Batman 🦇"],
+  ["excited","🤩 Excited","Feeling excited 🤩"],
+  ["funky","💃 Funky","Feeling funky 💃"]
+];
 async function getMikaelMood(env){
   return env.LIZZY_CLAIMS.get(MIKAEL_MOOD_KEY,{type:"json"});
 }
@@ -351,7 +369,7 @@ const defaultChess=()=>({id:"chess-main",fen:"start",pgn:"",turn:"w",status:"act
    and honours, so it isn't a fake button. */
 const ANNOY_PENDING_KEY="annoy:pending:v1";
 const ANNOY_COOLDOWN_KEY="annoy:cooldown:v1";
-const ANNOY_COOLDOWN_MINUTES=20;
+const ANNOY_COOLDOWN_MINUTES=5;
 const ANNOY_EFFECTS=[
   "button_move","infinite_loading","keyboard_chaos","mikael_appears",
   "attitude_meter","upside_down","screen_wobble","unskippable_ad",
@@ -426,8 +444,17 @@ export default{async fetch(req,env){
    if(update.callback_query){
      const q=update.callback_query,data=q.data||"",sep=data.indexOf(":");
      if(sep<0)return json({ok:true});
-     const action=data.slice(0,sep),claimId=data.slice(sep+1),c=await getClaim(env,claimId);
+     const action=data.slice(0,sep),payload=data.slice(sep+1);
      await tg(env,"answerCallbackQuery",{callback_query_id:q.id});
+     if(action==="moodset"){
+       const opt=MIKAEL_MOOD_OPTIONS.find(([id])=>id===payload);
+       if(opt){
+         await setMikaelMood(env,opt[2],"telegram");
+         await tg(env,"editMessageText",{chat_id:q.message.chat.id,message_id:q.message.message_id,text:`💗 Mood set: ${opt[1]}\n\nLizzy's Today's Connection screen will show this.`});
+       }
+       return json({ok:true});
+     }
+     const claimId=payload,c=await getClaim(env,claimId);
      if(!c)return json({ok:true});
      if(action==="accept"){
        c.status="accepted";c.acceptedPrice=Number(c.offer||0);c.decidedAt=new Date().toISOString();await putClaim(env,c);await putShelfState(env,c);
@@ -469,6 +496,15 @@ export default{async fetch(req,env){
      // /miss — quick one-tap "missing you" message, no typing required.
      if(/^\/miss(?:@\w+)?$/i.test(txt)){
        await createMessage(env,"Mikael is missing you right now 💗","telegram");
+       return json({ok:true});
+     }
+     // /mood — button menu of quick moods. /mymood <text> still works for freeform.
+     if(/^\/mood(?:@\w+)?$/i.test(txt)){
+       const rows=[];
+       for(let i=0;i<MIKAEL_MOOD_OPTIONS.length;i+=2){
+         rows.push(MIKAEL_MOOD_OPTIONS.slice(i,i+2).map(([id,label])=>({text:label,callback_data:`moodset:${id}`})));
+       }
+       await tg(env,"sendMessage",{chat_id:chat,text:"💗 Pick your mood, or use /mymood <text> to write your own:",reply_markup:{inline_keyboard:rows}});
        return json({ok:true});
      }
      // /mymood <text> — set Mikael's current mood for the Today's Connection screen.
@@ -680,6 +716,12 @@ if((b.action||b.type)==="annoy_consume"){
     await env.LIZZY_CLAIMS.put(ANNOY_PENDING_KEY,JSON.stringify(pending));
   }
   return json({success:true});
+}
+if((b.action||b.type)==="annoy_reset"){
+  if(!hqOnly(req,env,b))return json({success:false,error:"Unauthorized"},401);
+  await env.LIZZY_CLAIMS.delete(ANNOY_COOLDOWN_KEY);
+  await env.LIZZY_CLAIMS.delete(ANNOY_PENDING_KEY);
+  return json({success:true,cooldownUntil:null});
 }
 if((b.action||b.type)==="annoy_stop"){
   await env.LIZZY_CLAIMS.delete(ANNOY_PENDING_KEY);
