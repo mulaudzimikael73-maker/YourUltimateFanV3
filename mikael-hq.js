@@ -31,4 +31,9 @@ document.querySelectorAll(".annoy-btn").forEach(b=>b.onclick=async()=>{
   }catch(e){$("annoyResult").textContent=e.message}
 });
 $("annoyRefreshBtn").onclick=loadAnnoy;
+$("annoyResetBtn").onclick=async()=>{
+  if(!confirm("Clear the cooldown Lizzy set with STOP ANNOYING ME?"))return;
+  try{await api("annoy_reset");$("annoyResult").textContent="⏱️ Cooldown cleared.";loadAnnoy()}
+  catch(e){$("annoyResult").textContent=e.message}
+};
 })();
