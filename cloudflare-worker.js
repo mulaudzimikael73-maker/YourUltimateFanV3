@@ -344,6 +344,7 @@ const HQ_MESSAGE_INDEX="hq:messages:index:v1";
 const HQ_ACTIVITY_INDEX="hq:activity:index:v1";
 const HQ_CHESS_KEY="hq:chess:v1";
 const HQ_CHESS_HELP_INDEX="hq:chess:help:index:v1";
+const HQ_LESSON_INDEX="hq:lizzylessons:index:v1";
 const arrKV=async(env,key)=>{const x=await env.LIZZY_CLAIMS.get(key,{type:"json"});return Array.isArray(x)?x:[]};
 const saveArr=async(env,key,x)=>env.LIZZY_CLAIMS.put(key,JSON.stringify(x.slice(-300)));
 const hqAuth=(req,env,body=null)=>{
@@ -360,6 +361,7 @@ async function hqActivity(env,type,text,meta={}){
 }
 async function hqLetters(env){const xs=await arrKV(env,HQ_LETTER_INDEX);return xs.sort((a,b)=>String(b.createdAt).localeCompare(String(a.createdAt)));}
 async function hqMessages(env){const xs=await arrKV(env,HQ_MESSAGE_INDEX);return xs.sort((a,b)=>String(a.createdAt).localeCompare(String(b.createdAt)));}
+async function hqLessons(env){const xs=await arrKV(env,HQ_LESSON_INDEX);return xs.sort((a,b)=>String(b.createdAt).localeCompare(String(a.createdAt)));}
 const defaultChess=()=>({id:"chess-main",fen:"start",pgn:"",turn:"w",status:"active",lastMove:null,updatedAt:new Date().toISOString()});
 
 /* ===== 😈 MIKAEL HQ REMOTE ANNOYANCE =====
@@ -420,6 +422,10 @@ export default{async fetch(req,env){
    if(u.searchParams.get("thoughtBoard")==="1"){
      const thoughts=await listThoughts(env,50);
      return json({success:true,thoughts});
+   }
+   if(u.searchParams.get("lizzyLessons")==="1"){
+     const lessons=await hqLessons(env);
+     return json({success:true,lessons});
    }
    if(u.searchParams.get("pendingReverseRedemptions")==="1"){
      const ids=await getRedemptionIndex(env),items=[];
@@ -631,6 +637,40 @@ if(b.action==="reply_letter"){
   await saveArr(env,HQ_MESSAGE_INDEX,msgs);
   await hqActivity(env,"🖤 Letter Reply",`Mikael replied to ${l.subject}`,{letterId:lid});
   return json({success:true,letter:l});
+}
+if(b.action==="submit_lizzy_lesson"){
+  const text=S(b.text,600);
+  if(!text)return json({success:false,error:"Lesson is empty"},400);
+  const lesson={id:hqId("lesson"),text,rating:null,note:null,status:"unrated",createdAt:new Date().toISOString(),ratedAt:null};
+  const xs=await hqLessons(env);xs.push(lesson);await saveArr(env,HQ_LESSON_INDEX,xs);
+  await hqActivity(env,"🧠 New Lizzy Life Lesson",text,{lessonId:lesson.id});
+  await tg(env,"sendMessage",{chat_id:env.TELEGRAM_CHAT_ID,text:`🧠 NEW LIFE LESSON FROM LIZZY\n\n"${text}"\n\nOpen Mikael HQ to rate it.`}).catch(()=>{});
+  return json({success:true,lesson});
+}
+if(b.action==="hq_lizzy_lessons"){
+  if(!hqOnly(req,env,b))return json({success:false,error:"Unauthorized"},401);
+  return json({success:true,lessons:await hqLessons(env)});
+}
+if(b.action==="rate_lizzy_lesson"){
+  if(!hqOnly(req,env,b))return json({success:false,error:"Unauthorized"},401);
+  const lid=S(b.id,120),rating=S(b.rating,20),note=S(b.note||"",400);
+  if(!["helpful","useless"].includes(rating))return json({success:false,error:"Invalid rating"},400);
+  const xs=await hqLessons(env),l=xs.find(x=>x.id===lid);
+  if(!l)return json({success:false,error:"Lesson not found"},404);
+  l.rating=rating;l.note=note||null;l.status="rated";l.ratedAt=new Date().toISOString();
+  await saveArr(env,HQ_LESSON_INDEX,xs);
+  const label=rating==="helpful"?"👍 Helpful":"👎 Absolutely Useless";
+  const msgs=await hqMessages(env);
+  msgs.push({id:hqId("message"),kind:"lesson_rating",text:`🧠 Mikael rated your life lesson "${l.text}":\n\n${label}${note?`\n"${note}"`:""}`,status:"pending",createdAt:new Date().toISOString(),lessonId:lid});
+  await saveArr(env,HQ_MESSAGE_INDEX,msgs);
+  await hqActivity(env,"🧠 Lesson Rated",`Mikael rated "${l.text}" — ${label}`,{lessonId:lid});
+  return json({success:true,lesson:l});
+}
+if(b.action==="clear_lizzy_lessons"){
+  if(!hqOnly(req,env,b))return json({success:false,error:"Unauthorized"},401);
+  await saveArr(env,HQ_LESSON_INDEX,[]);
+  await hqActivity(env,"🧹 Lessons Cleared","All Lizzy Life Lessons were cleared from HQ.");
+  return json({success:true});
 }
 if(b.action==="clear_letters"){
   if(!hqOnly(req,env,b))return json({success:false,error:"Unauthorized"},401);

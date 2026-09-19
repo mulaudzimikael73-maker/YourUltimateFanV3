@@ -24,6 +24,7 @@ function home(){
  <div class="browserBookmarks">
   <button data-site="bank"><span>🏦</span><b>Bank of Micky</b><small>Online Banking</small></button>
   <button data-site="lessons"><span>🧠</span><b>Life Lessons with Micky</b><small>Qualifications: Trust Me.</small></button>
+  <button data-site="lizzylessons"><span>💡</span><b>Life Lessons with Lizzy</b><small>Mikael grades every submission.</small></button>
   <button data-site="news"><span>📰</span><b>Micky's Daily News</b><small>Headlines, Bank & President's Words</small></button>
  </div></div>`;
 }
@@ -147,6 +148,56 @@ async function vote(kind){
  const label=kind==="helpful"?"👍 Helpful":"👎 Absolutely Useless";
  await notify("🧠 LIFE LESSON VOTE",`Lesson #${current+1} — ${label}`,LESSONS[current]);
  lesson();
+}
+
+/* ===== 💡 LIFE LESSONS WITH LIZZY — she writes, Mikael grades ===== */
+function lizzyLessonsPage(){
+ currentPage="lizzylessons";
+ setAddress("https://lifelessonswithlizzy.mikael");
+ $("browserPage").innerHTML=`<div class="lifeLessonsPage">
+ <div class="wisdomBrand">💡 LIFE LESSONS WITH LIZZY™</div>
+ <p class="wisdomSub">Founder & Chief Philosopher • Qualifications: Also Trust Me.</p>
+ <div class="wisdomCard">
+  <textarea id="lizzyLessonInput" maxlength="600" placeholder="What's today's life lesson?" style="width:100%;min-height:80px;"></textarea>
+  <div class="wisdomButtons"><button id="submitLizzyLesson">Submit for Grading</button></div>
+  <div id="lizzyLessonStatus" class="wisdomSub"></div>
+ </div>
+ <h3 style="margin-top:16px;">Your Submissions</h3>
+ <div id="lizzyLessonsList">Loading…</div>
+ </div>`;
+ loadLizzyLessons();
+}
+async function loadLizzyLessons(){
+ const list=$("lizzyLessonsList");
+ if(!list)return;
+ try{
+  const r=await fetch(WORKER+"?lizzyLessons=1");
+  const d=await r.json();
+  const lessons=d.lessons||[];
+  if(!lessons.length){list.innerHTML='<div class="wisdomSub">No lessons submitted yet — write your first one above.</div>';return;}
+  list.innerHTML=lessons.map(l=>{
+   const badge=l.status==="rated"
+     ?(l.rating==="helpful"?"👍 Helpful":"👎 Absolutely Useless")
+     :"⏳ Awaiting Mikael's verdict";
+   return `<div class="wisdomCard"><blockquote>“${l.text}”</blockquote><cite>${badge}${l.note?` — "${l.note}"`:""}</cite></div>`;
+  }).join("");
+ }catch(e){list.innerHTML='<div class="wisdomSub">Could not load your lessons.</div>';}
+}
+async function submitLizzyLesson(){
+ const input=$("lizzyLessonInput"),status=$("lizzyLessonStatus"),btn=$("submitLizzyLesson");
+ const text=input?.value.trim();
+ if(!text){if(status)status.textContent="Write something first 👀";return;}
+ if(btn)btn.disabled=true;
+ if(status)status.textContent="Sending to Mikael…";
+ try{
+  const r=await fetch(WORKER,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"submit_lizzy_lesson",text})});
+  const d=await r.json();
+  if(!d.success)throw new Error(d.error||"Could not submit");
+  if(input)input.value="";
+  if(status)status.textContent="✓ Sent to Mikael for grading";
+  loadLizzyLessons();
+ }catch(e){if(status)status.textContent="❌ Could not send. Try again.";}
+ finally{if(btn)btn.disabled=false;}
 }
 
 const NEWS_STORAGE_KEY="lizzyMickyDailyNewsV1";
@@ -758,7 +809,7 @@ $("browserHome")?.addEventListener("click",home);
 $("browserBack")?.addEventListener("click",home);
 $("browserPage")?.addEventListener("click",e=>{
  const site=e.target.closest("[data-site]")?.dataset.site;
- if(site==="bank")bank(); else if(site==="lessons")lesson(); else if(site==="news")news(); else if(site==="home")home();
+ if(site==="bank")bank(); else if(site==="lessons")lesson(); else if(site==="lizzylessons")lizzyLessonsPage(); else if(site==="news")news(); else if(site==="home")home();
  if(e.target.closest("#bankLoginBtn")) bankLogin();
  if(e.target.closest("#bankLogout")){sessionStorage.removeItem(BANK_SESSION);bank();}
  const bankAct=e.target.closest("[data-web-bank]")?.dataset.webBank;
@@ -766,6 +817,7 @@ $("browserPage")?.addEventListener("click",e=>{
  const v=e.target.closest("[data-vote]")?.dataset.vote;
  if(v)vote(v);
  if(e.target.closest("#anotherLesson")){let n=current;while(n===current&&LESSONS.length>1)n=Math.floor(Math.random()*LESSONS.length);current=n;lesson()}
+ if(e.target.closest("#submitLizzyLesson"))submitLizzyLesson();
  if(e.target.closest("#newsBackHome")) home();
 });
 $("browserPage")?.addEventListener("keydown",e=>{
