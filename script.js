@@ -2906,27 +2906,6 @@ window.LizzyDailyRewardsV4={counts:{basic:BASIC.length,reverse:REVERSE.length,no
         {id:"rainbow",emoji:"🌈",name:"Rainbow Weather",desc:"Rare LizzyOS conditions. Growth gets a magical boost.",decay:0.45,growth:1.55,rare:true}
     ];
 
-    // ---------------------------------------------
-    // 🥀 Neglect stakes — a plant sitting at 0 health isn't stuck there
-    // forever anymore. It gets a forgiving grace window (below) before
-    // it actually wilts away and needs replanting.
-    // ---------------------------------------------
-    const NEGLECT_GRACE_HOURS = 48;
-
-    // ---------------------------------------------
-    // 🐛 Pest events — same pattern as weather, but adversarial. A rare
-    // daily roll picks one plant to get hit; health drains faster until
-    // it's treated, either with a purchased Bug Spray or a free Quick
-    // Fix mini-game.
-    // ---------------------------------------------
-    const PEST_TYPES = [
-        {id:"aphids",emoji:"🐛",name:"Aphids",desc:"Aphids have moved in and are having a feast."},
-        {id:"spiderMites",emoji:"🕷️",name:"Spider Mites",desc:"Tiny mites are quietly wrecking the leaves."},
-        {id:"snails",emoji:"🐌",name:"Snails",desc:"Slow-moving, surprisingly high damage."}
-    ];
-    const PEST_DECAY_MULT = 1.8;   // extra drain multiplier while infested
-    const PEST_DAILY_CHANCE = 35;  // % chance a pest event happens on a given day
-
     const MIKAEL_COMMENTS = {
         healthy:[
             "Look at that. Actual responsible plant ownership. I am shocked. — Mikael",
@@ -3012,9 +2991,6 @@ window.LizzyDailyRewardsV4={counts:{basic:BASIC.length,reverse:REVERSE.length,no
             flowers:{},
             selectedSeed:null,
             lastWeatherApplied:"",
-            lastPestApplied:"",
-            bugSpray:0,
-            graveyard:[],
             createdAt:nowISO()
         };
     }
@@ -3137,9 +3113,7 @@ window.LizzyDailyRewardsV4={counts:{basic:BASIC.length,reverse:REVERSE.length,no
         const w=weatherFor(new Date());
         const h=hoursSince(plant.lastWatered);
         // 100 health, roughly 1.5 points/hour at ordinary conditions.
-        let mult=plantWeatherMultiplier(plant,w);
-        if(plant.pest) mult*=PEST_DECAY_MULT;
-        const loss=h*1.5*mult;
+        const loss=h*1.5*plantWeatherMultiplier(plant,w);
         return Math.max(0,Math.round(100-loss));
     }
     function plantState(health){
@@ -3212,82 +3186,6 @@ window.LizzyDailyRewardsV4={counts:{basic:BASIC.length,reverse:REVERSE.length,no
         saveGarden();
     }
 
-    // Real stakes for neglect: a plant sitting at 0 health gets
-    // NEGLECT_GRACE_HOURS before it actually wilts away and is removed,
-    // requiring a replant. Watering (or the health simply recovering
-    // above 0) clears the countdown.
-    function checkNeglect(){
-        let changed=false;
-        const lost=[];
-        const survivors=garden.plants.filter(p=>{
-            const health=currentHealth(p);
-            if(health<=0){
-                if(!p.criticalSince){p.criticalSince=nowISO();changed=true}
-                if(hoursSince(p.criticalSince)>=NEGLECT_GRACE_HOURS){
-                    lost.push(p);
-                    changed=true;
-                    return false;
-                }
-            }else if(p.criticalSince){
-                delete p.criticalSince;
-                changed=true;
-            }
-            return true;
-        });
-        if(lost.length){
-            garden.plants=survivors;
-            garden.graveyard=Array.isArray(garden.graveyard)?garden.graveyard:[];
-            lost.forEach(p=>{
-                const f=FLOWERS[p.flowerId];
-                garden.graveyard.push({flowerId:p.flowerId,name:f?f.name:"Unknown Plant",diedAt:nowISO()});
-            });
-            garden.graveyard=garden.graveyard.slice(-20);
-            gardenComment(lost.length===1
-                ? `🥀 The ${FLOWERS[lost[0].flowerId]?.name||"plant"} didn't make it — ${NEGLECT_GRACE_HOURS}+ hours bone dry will do that. Replant whenever you're ready.`
-                : `🥀 ${lost.length} plants wilted away from neglect. Replanting is available in the usual spot.`);
-        }
-        if(changed)saveGarden();
-        return lost.length>0;
-    }
-
-    // Random daily pest event — mirrors applyDailyWeather but adversarial.
-    function applyDailyPests(){
-        const today=dayKey();
-        if(garden.lastPestApplied===today) return;
-        garden.lastPestApplied=today;
-        const roll=hash(today+"-garden-pest")%100;
-        if(roll<PEST_DAILY_CHANCE){
-            const eligible=garden.plants.filter(p=>!p.pest && currentHealth(p)>0);
-            if(eligible.length){
-                const target=eligible[hash(today+"-pest-target")%eligible.length];
-                const type=PEST_TYPES[hash(today+"-pest-type")%PEST_TYPES.length];
-                target.pest={type:type.id,startedAt:nowISO()};
-            }
-        }
-        saveGarden();
-    }
-
-    function renderPestBanner(){
-        let el=document.getElementById("gardenPestAlert");
-        if(!el){
-            const anchor=$("gardenWeatherAlert");
-            el=document.createElement("div");
-            el.id="gardenPestAlert";
-            el.className=(anchor?anchor.className:"gardenWeatherAlert")+" hidden";
-            if(anchor&&anchor.parentElement) anchor.insertAdjacentElement("afterend",el);
-            else if($("gardenForecast")?.parentElement) $("gardenForecast").parentElement.appendChild(el);
-        }
-        const infested=garden.plants.filter(p=>p.pest);
-        if(!infested.length){el.classList.add("hidden");return}
-        const p=infested[0];
-        const f=FLOWERS[p.flowerId];
-        const type=PEST_TYPES.find(t=>t.id===p.pest.type)||PEST_TYPES[0];
-        el.classList.remove("hidden");
-        el.textContent=infested.length===1
-            ? `${type.emoji} PEST ALERT: ${type.name} spotted on your ${f?f.name:"plant"}! Health drains faster until it's treated — spray it or try the Quick Fix.`
-            : `${type.emoji} PEST ALERT: ${infested.length} plants are infested. Check the Garden and treat them before it spreads further.`;
-    }
-
     function renderWeather(){
         const w=weatherFor(new Date());
         $("gardenWeatherEmoji").textContent=w.emoji;
@@ -3313,7 +3211,6 @@ window.LizzyDailyRewardsV4={counts:{basic:BASIC.length,reverse:REVERSE.length,no
                 <span>${x.weather.emoji}</span>
                 <b>${x.weather.name}</b>
             </div>`).join("");
-        renderPestBanner();
     }
 
     function renderSeeds(){
@@ -3365,35 +3262,25 @@ window.LizzyDailyRewardsV4={counts:{basic:BASIC.length,reverse:REVERSE.length,no
                 continue;
             }
             const health=currentHealth(p),state=plantState(health),f=FLOWERS[p.flowerId];
-            const pestType=p.pest?(PEST_TYPES.find(t=>t.id===p.pest.type)||PEST_TYPES[0]):null;
-            const dying=health<=0&&p.criticalSince;
-            const hoursLeft=dying?Math.max(0,Math.ceil(NEGLECT_GRACE_HOURS-hoursSince(p.criticalSince))):null;
             cards.push(`<div class="gardenPlot ${f.type==="tree"?"gardenTreePlot":""}" data-plant="${p.id}">
                 <div class="plantVisual ${state}">${stageVisual(p)}</div>
                 <div class="plantMeta">
                     <strong>${p.flowerId==="bananaTree"&&growthStage(p)<4?"UNKNOWN PLANT":f.name}</strong>
                     <small>${["Seed","Sprout","Growing","Budding","Blooming"][growthStage(p)]} · ${state.toUpperCase()}</small>
-                    ${pestType?`<small class="plantPestBadge">${pestType.emoji} ${pestType.name} — draining faster</small>`:""}
-                    ${dying?`<small class="plantDyingWarning">⏳ Wilts away in ~${hoursLeft}h without water</small>`:""}
                     <div class="plantHealthBar"><div class="plantHealthFill" style="width:${health}%"></div></div>
                     <small>💧 Last watered: ${new Date(p.lastWatered).toLocaleString()}</small>
                     <div class="plantActions">
                         <button data-water="${p.id}">💧 Water</button>
                         <button data-boost="${p.id}">✨ Check</button>
-                        ${pestType?`<button data-spray="${p.id}" ${Number(garden.bugSpray||0)<=0?"disabled":""}>🧴 Bug Spray (${Number(garden.bugSpray||0)})</button><button data-quickfix="${p.id}">🎯 Quick Fix</button>`:""}
                     </div>
                 </div>
             </div>`);
         }
-        host.innerHTML=cards.join("")+(Array.isArray(garden.graveyard)&&garden.graveyard.length
-            ?`<div class="gardenGraveyard"><small>🥀 Lost to neglect: ${garden.graveyard.length} · last was ${garden.graveyard[garden.graveyard.length-1].name}, ${new Date(garden.graveyard[garden.graveyard.length-1].diedAt).toLocaleDateString()}</small></div>`
-            :"");
+        host.innerHTML=cards.join("");
 
         host.querySelectorAll("[data-empty-slot]").forEach(el=>el.onclick=()=>plantSelectedSeed(Number(el.dataset.emptySlot)));
         host.querySelectorAll("[data-water]").forEach(b=>b.onclick=e=>{e.stopPropagation();waterPlant(b.dataset.water)});
         host.querySelectorAll("[data-boost]").forEach(b=>b.onclick=e=>{e.stopPropagation();inspectPlant(b.dataset.boost)});
-        host.querySelectorAll("[data-spray]").forEach(b=>b.onclick=e=>{e.stopPropagation();useBugSpray(b.dataset.spray)});
-        host.querySelectorAll("[data-quickfix]").forEach(b=>b.onclick=e=>{e.stopPropagation();openPestMiniGame(b.dataset.quickfix)});
     }
 
     function renderCollection(){
@@ -3407,108 +3294,8 @@ window.LizzyDailyRewardsV4={counts:{basic:BASIC.length,reverse:REVERSE.length,no
     }
 
     function renderGarden(){
-        injectGardenExtraStyle();
         applyDailyWeather();
-        applyDailyPests();
-        const justLost=checkNeglect();
         renderWeather();renderSeeds();renderPlots();renderCollection();
-        return justLost;
-    }
-
-    function injectGardenExtraStyle(){
-        if(document.getElementById("gardenPestNeglectStyle"))return;
-        const s=document.createElement("style");
-        s.id="gardenPestNeglectStyle";
-        s.textContent=`
-            .plantPestBadge{color:#d97706;font-weight:600}
-            .plantDyingWarning{color:#b91c1c;font-weight:600}
-            .gardenGraveyard{grid-column:1/-1;text-align:center;opacity:.65;padding:10px 0;font-size:12px}
-            #gardenPestAlert{background:#fef3c7;color:#92400e;border:1px solid #f59e0b}
-            .pestGameOverlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9998;display:flex;align-items:center;justify-content:center}
-            .pestGameCard{background:#1c2117;border:1px solid #4a5d3a;border-radius:16px;padding:20px;width:min(360px,90vw);text-align:center;color:#eef5e5;font-family:inherit}
-            .pestGameArena{position:relative;height:220px;background:#0f130c;border-radius:12px;margin:14px 0;overflow:hidden}
-            .pestBug{position:absolute;font-size:26px;background:none;border:none;cursor:pointer;transition:transform .1s;padding:0}
-            .pestBug:active{transform:scale(.8)}
-            .pestGameStats{display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px}
-            .pestGameClose{margin-top:10px;background:#3a4a2c;border:none;color:#eef5e5;padding:8px 14px;border-radius:8px;cursor:pointer}
-        `;
-        document.head.appendChild(s);
-    }
-
-    // ---------------------------------------------
-    // Pest treatment: buy-a-fix (Bug Spray, consumed from inventory) or
-    // play-a-fix (free tap mini-game). Either clears the infestation.
-    // ---------------------------------------------
-    function useBugSpray(id){
-        const p=garden.plants.find(x=>x.id===id);if(!p||!p.pest)return;
-        const count=Number(garden.bugSpray||0);
-        if(count<=0){gardenComment("🧴 No Bug Spray in stock. Buy some from the Seed Store, or try the free Quick Fix instead.");return}
-        garden.bugSpray=count-1;
-        delete p.pest;
-        saveGarden();
-        gardenComment("🧴 Bug Spray used — pest cleared. Back to normal draining speed.");
-        renderGarden();
-    }
-
-    function openPestMiniGame(id){
-        const p=garden.plants.find(x=>x.id===id);if(!p||!p.pest)return;
-        if(document.getElementById("pestGameOverlay"))return;
-        injectGardenExtraStyle();
-        const type=PEST_TYPES.find(t=>t.id===p.pest.type)||PEST_TYPES[0];
-        const overlay=document.createElement("div");
-        overlay.className="pestGameOverlay";
-        overlay.id="pestGameOverlay";
-        overlay.innerHTML=`<div class="pestGameCard">
-            <h3>${type.emoji} Quick Fix: ${type.name}</h3>
-            <p style="font-size:12px;opacity:.8">Tap 10 before the timer runs out.</p>
-            <div class="pestGameStats"><span>Caught: <b id="pestGameScore">0</b>/10</span><span>Time: <b id="pestGameTimer">8.0</b>s</span></div>
-            <div class="pestGameArena" id="pestGameArena"></div>
-            <button class="pestGameClose" id="pestGameCancel">Cancel</button>
-        </div>`;
-        document.body.appendChild(overlay);
-        const arena=overlay.querySelector("#pestGameArena");
-        let score=0,timeLeft=8.0,ended=false;
-        function spawnBug(){
-            if(ended)return;
-            const b=document.createElement("button");
-            b.className="pestBug";
-            b.type="button";
-            b.textContent=type.emoji;
-            b.style.left=Math.random()*85+"%";
-            b.style.top=Math.random()*80+"%";
-            b.onclick=()=>{
-                if(ended)return;
-                score++;
-                const scoreEl=overlay.querySelector("#pestGameScore");
-                if(scoreEl)scoreEl.textContent=score;
-                b.remove();
-                if(score>=10)finish(true);
-            };
-            arena.appendChild(b);
-            setTimeout(()=>b.remove(),1400);
-        }
-        const spawnTimer=setInterval(spawnBug,450);
-        const tickTimer=setInterval(()=>{
-            timeLeft-=0.1;
-            const t=overlay.querySelector("#pestGameTimer");
-            if(t)t.textContent=Math.max(0,timeLeft).toFixed(1);
-            if(timeLeft<=0)finish(false);
-        },100);
-        function finish(won){
-            if(ended)return;
-            ended=true;
-            clearInterval(spawnTimer);clearInterval(tickTimer);
-            overlay.remove();
-            if(won){
-                delete p.pest;
-                saveGarden();
-                gardenComment(`${type.emoji} Quick Fix complete — pest cleared without spending a single MB.`);
-                renderGarden();
-            }else{
-                gardenComment(`${type.emoji} Didn't clear it in time. The pest is still there — try again or use Bug Spray.`);
-            }
-        }
-        overlay.querySelector("#pestGameCancel").onclick=()=>{ended=true;clearInterval(spawnTimer);clearInterval(tickTimer);overlay.remove()};
     }
 
     function plantSelectedSeed(slot){
@@ -4160,8 +3947,7 @@ Status: REDEEMED${isArgument?"\n\nMikael's right to appeal: DENIED 😂":""}`;
     // ---------------------------------------------
     function openGarden(){
         $("lizzyGardenWindow").classList.remove("hidden");
-        const justLost=renderGarden();
-        if(justLost)return; // let the "didn't make it" message stand instead of overwriting it
+        renderGarden();
         const stateCounts=garden.plants.reduce((a,p)=>{
             const s=plantState(currentHealth(p));a[s]=(a[s]||0)+1;return a;
         },{});
@@ -4228,7 +4014,6 @@ Status: REDEEMED${isArgument?"\n\nMikael's right to appeal: DENIED 😂":""}`;
     window.LizzyRewards={
         addToken(name,count=1){reloadRewardState();if(!TOKEN_DEFS[name])return false;addToken(name,count);return true},
         addSeed(id,count=1){reloadRewardState();if(!SEEDS[id])return false;addSeed(id,count);return true},
-        addBugSpray(count=1){reloadRewardState();garden.bugSpray=Number(garden.bugSpray||0)+Math.max(1,Math.floor(count));saveGarden();try{if(!$("lizzyGardenWindow")?.classList.contains("hidden"))renderGarden()}catch(e){}return true},
         addRerollCredit(count=1){reloadRewardState();tokens.rerollCredits=Number(tokens.rerollCredits||0)+count;saveTokens();renderTokens();return true},
         tokenNames(){return Object.keys(TOKEN_DEFS)},
         seedIds(){return Object.keys(SEEDS)}
