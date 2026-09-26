@@ -764,6 +764,20 @@ if((b.action||b.type)==="mg_snapshot_get"){
   if(!hqOnly(req,env,b))return json({success:false,error:"Unauthorized"},401);
   return json({success:true,snapshot:await env.LIZZY_CLAIMS.get("mg:snapshot:v1",{type:"json"})});
 }
+if((b.action||b.type)==="mg_media_put"){
+  const postId=S(b.postId,140);if(!postId)return json({success:false,error:"Missing post id"},400);
+  const media=b.media&&typeof b.media==="object"?b.media:null;if(!media)return json({success:false,error:"Missing media"},400);
+  const raw=JSON.stringify(media);
+  if(raw.length>24000000)return json({success:false,error:"Media too large for HQ sync"},413);
+  await env.LIZZY_CLAIMS.put(`mg:media:v1:${postId}`,raw,{expirationTtl:2592000});
+  return json({success:true,stored:true,fullVideo:!!media.fullVideo});
+}
+if((b.action||b.type)==="mg_media_get"){
+  if(!hqOnly(req,env,b))return json({success:false,error:"Unauthorized"},401);
+  const postId=S(b.postId,140);if(!postId)return json({success:false,error:"Missing post id"},400);
+  const media=await env.LIZZY_CLAIMS.get(`mg:media:v1:${postId}`,{type:"json"});
+  return json({success:true,media:media||null});
+}
 if((b.action||b.type)==="annoy_trigger"){
   if(!hqOnly(req,env,b))return json({success:false,error:"Unauthorized"},401);
   const cooldown=await getAnnoyCooldown(env);

@@ -1748,18 +1748,55 @@ async function applyCommand(c){
   render(true);renderSheet();
 }
 let hqBusy=false,snapSig="";
-function pushSnapshot(){
+const HQ_MEDIA_SYNC_VERSION="v3-media-1";
+const HQ_MEDIA_MAX_VIDEO_BYTES=16*1024*1024;
+function blobDataURL(blob){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(String(r.result||""));r.onerror=()=>rej(r.error||new Error("read failed"));r.readAsDataURL(blob)})}
+function imagePreviewDataURL(src,maxSide=640,quality=.72){return new Promise((res,rej)=>{
+  if(!src)return rej(new Error("No image"));
+  const im=new Image(),finish=()=>{try{const scale=Math.min(1,maxSide/Math.max(im.naturalWidth||1,im.naturalHeight||1)),c=document.createElement("canvas");c.width=Math.max(1,Math.round((im.naturalWidth||1)*scale));c.height=Math.max(1,Math.round((im.naturalHeight||1)*scale));const x=c.getContext("2d");x.drawImage(im,0,0,c.width,c.height);res(c.toDataURL("image/jpeg",quality))}catch(e){rej(e)}};
+  im.onload=finish;im.onerror=()=>rej(new Error("Image preview failed"));im.src=src;
+})}
+function videoPosterDataURL(blob,maxSide=640,quality=.7){return new Promise((resolve,reject)=>{
+  if(!(blob instanceof Blob))return reject(new Error("No video blob"));
+  const url=URL.createObjectURL(blob),v=document.createElement("video");let done=false;
+  const cleanup=()=>{try{URL.revokeObjectURL(url)}catch{}};
+  const capture=()=>{if(done)return;done=true;try{const w=v.videoWidth||640,h=v.videoHeight||360,scale=Math.min(1,maxSide/Math.max(w,h)),c=document.createElement("canvas");c.width=Math.max(1,Math.round(w*scale));c.height=Math.max(1,Math.round(h*scale));c.getContext("2d").drawImage(v,0,0,c.width,c.height);const out=c.toDataURL("image/jpeg",quality);cleanup();resolve(out)}catch(e){cleanup();reject(e)}};
+  v.muted=true;v.playsInline=true;v.preload="metadata";
+  v.onloadedmetadata=()=>{try{v.currentTime=Math.min(Math.max(.15,(Number(v.duration)||1)*.12),Math.max(.15,(Number(v.duration)||1)-.05))}catch{capture()}};
+  v.onseeked=capture;v.onloadeddata=()=>{if(!Number.isFinite(v.duration)||v.duration<=.2)capture()};v.onerror=()=>{cleanup();reject(new Error("Video preview failed"))};v.src=url;
+})}
+async function syncPostMediaToHQ(p){
+  if(!p||!CONFIG.humans.includes(p.userId))return;
+  const marker=`mg-media-synced:${HQ_MEDIA_SYNC_VERSION}:${p.id}`;
+  if(await Store.getMeta(marker,false))return;
+  try{
+    const mediaType=p.mediaType==="video"?"video":"photo";let media={mediaType,duration:Number(p.duration||0)||0,preview:null,video:null,videoType:null,fullVideo:false};
+    if(mediaType==="video"){
+      if(!(p.video instanceof Blob))return;
+      media.preview=await videoPosterDataURL(p.video).catch(()=>null);
+      if(p.video.size<=HQ_MEDIA_MAX_VIDEO_BYTES){media.video=await blobDataURL(p.video);media.videoType=p.videoType||p.video.type||"video/mp4";media.fullVideo=true}
+    }else if(typeof p.image==="string"&&p.image){media.preview=await imagePreviewDataURL(p.image).catch(()=>null)}
+    if(!media.preview&&!media.video)return;
+    const out=await hqPost({action:"mg_media_put",postId:p.id,media});
+    if(out&&out.success!==false)await Store.setMeta(marker,true);
+  }catch{}
+}
+async function pushSnapshot(){
   const latest=state.posts.slice(0,45),lizzy=state.posts.filter(p=>p.userId==="lizzy").slice(0,20),seen=new Set(),picked=[];
   for(const p of [...lizzy,...latest]){if(!seen.has(p.id)){seen.add(p.id);picked.push(p)}}
   picked.sort((a,b)=>b.createdAt-a.createdAt);
-  const posts=picked.slice(0,60).map(p=>({
-    id:p.id,userId:p.userId,caption:(p.caption||"").slice(0,180),mood:p.mood||"",audience:p.audience||"everyone",mediaType:p.mediaType||"photo",
+  const chosen=picked.slice(0,60);
+  const mediaPosts=chosen.filter(p=>CONFIG.humans.includes(p.userId)&&(p.mediaType==="video"||p.image)).slice(0,12);
+  for(const p of mediaPosts)await syncPostMediaToHQ(p);
+  const posts=chosen.map(p=>({
+    id:p.id,userId:p.userId,caption:(p.caption||"").slice(0,180),mood:p.mood||"",audience:p.audience||"everyone",mediaType:p.mediaType||"photo",duration:Number(p.duration||0)||0,
+    mediaAvailable:CONFIG.humans.includes(p.userId)&&!!(p.mediaType==="video"||p.image),
     thumb:(p.mediaType!=="video"&&typeof p.image==="string"&&p.image.length<1800)?p.image:null,
     mine:p.reactions.mikael||null,rx:Object.values(p.reactions||{}).reduce((a,r)=>(a[r]=(a[r]||0)+1,a),{}),createdAt:p.createdAt,
     comments:(p.comments||[]).slice(-8).map(c=>({id:c.id,userId:c.userId,text:String(c.text||"").slice(0,100),parentId:c.parentId||null,pinned:!!c.pinned}))
   }));
   const sig=JSON.stringify(posts);if(sig===snapSig)return;snapSig=sig;
-  hqPost({action:"mg_snapshot_put",snapshot:{at:Date.now(),posts}}).catch(()=>{});
+  await hqPost({action:"mg_snapshot_put",snapshot:{at:Date.now(),posts}}).catch(()=>{});
 }
 async function pollHQ(){
   if(hqBusy)return;
@@ -1769,7 +1806,7 @@ async function pollHQ(){
     const done=new Set(await Store.getMeta("mg-handled",[])),ids=[];
     for(const c of d.commands||[]){ids.push(c.id);if(done.has(c.id))continue;done.add(c.id);try{await applyCommand(c)}catch{}}
     if(ids.length){await Store.setMeta("mg-handled",[...done].slice(-200));hqPost({action:"mg_ack",ids}).catch(()=>{})}
-    pushSnapshot();
+    await pushSnapshot();
   }catch{}finally{hqBusy=false}
 }
 function startHQ(){

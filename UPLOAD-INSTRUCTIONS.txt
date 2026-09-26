@@ -1,0 +1,20 @@
+V3 HQ MEDIA SYNC FIX
+
+Upload/replace in YourUltimateFanV3:
+- mizzygram.js
+- mizzygram.html
+- cloudflare-worker.js (then deploy this code to the LIVE lizzyos-notifications Cloudflare Worker)
+- assets/mizzygram/president/ (64 President Micky images; included so this package also preserves the previous President update)
+
+What changed:
+- Recent Lizzy/Mikael photo posts sync a compressed real preview to HQ.
+- Videos up to 16 MB sync as actual playable videos in HQ.
+- Videos larger than 16 MB sync a real preview frame + duration instead of a generic placeholder.
+- Existing recent human posts are also synced when MizzyGram opens.
+- Post snapshots remain small because media is stored separately per post.
+
+After deployment:
+1. Open V3 MizzyGram on Lizzy's device and leave it open for 10-20 seconds.
+2. Open MickyHQ > MizzyGram HQ and press Refresh.
+3. A recent Lizzy photo should display as the actual photo.
+4. A recent video <=16 MB should display with video controls and play.
