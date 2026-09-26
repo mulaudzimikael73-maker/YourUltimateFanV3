@@ -1715,9 +1715,11 @@ function homeExtras(){
    device polls, applies them, and publishes a small snapshot back)
    ===================================================================== */
 const WORKER="https://lizzyos-notifications.mulaudzimikael73.workers.dev/";
-const hqPost=body=>fetch(WORKER,{method:"POST",headers:{"Content-Type":"text/plain;charset=UTF-8"},body:JSON.stringify({type:body.action,...body})}).then(r=>r.json());
+const hqPost=async body=>{const r=await fetch(WORKER,{method:"POST",headers:{"Content-Type":"text/plain;charset=UTF-8"},body:JSON.stringify({type:body.action,...body})});const d=await r.json();if(!r.ok||d.success===false)throw new Error(d.error||"HQ sync failed");return d};
 async function applyCommand(c){
-  const p=c.postId?(c.postId==="latest"?state.posts.find(x=>x.userId==="lizzy"):state.posts.find(x=>x.id===c.postId)):null,save=async()=>{try{await Store.savePost(p)}catch{}};
+  const p=c.postId?(c.postId==="latest"?state.posts.find(x=>x.userId==="lizzy"):state.posts.find(x=>x.id===c.postId)):null,save=()=>Store.savePost(p);
+  if(["like","react","comment","reply","pin"].includes(c.kind)&&!p)return false;
+  if(p){p.reactions=p.reactions||{};p.comments=p.comments||[];}
   switch(c.kind){
     case"post":{
       const u=CONFIG.users[c.account];if(!u)return;
@@ -1740,12 +1742,13 @@ async function applyCommand(c){
     case"like":case"react":
       if(p){p.reactions.mikael=reactionOf(c.reaction)?c.reaction:"love";reactNotify(p,"mikael");await save()}break;
     case"comment":case"reply":
-      if(p&&c.text){const n={id:uid(),userId:"mikael",text:String(c.text).slice(0,CONFIG.maxComment),createdAt:Date.now(),likes:[],parentId:c.parentId||null};p.comments.push(n);notifyComment(p,n);await save()}break;
+      if(p&&c.text){const n={id:c.id||uid(),userId:"mikael",text:String(c.text).slice(0,CONFIG.maxComment),createdAt:Date.now(),likes:[],parentId:c.parentId||null};if(!p.comments.some(x=>x.id===n.id)){p.comments.push(n);notifyComment(p,n)}await save()}break;
     case"pin":
       if(p&&p.comments.some(x=>x.id===c.commentId)){p.comments.forEach(x=>{x.pinned=x.id===c.commentId});notify({to:p.userId,from:"mikael",kind:"pin",postId:p.id});await save()}break;
     case"event":runEvent(c.event);break;
   }
-  render(true);renderSheet();
+  try{render(true);renderSheet()}catch{}
+  return true;
 }
 let hqBusy=false,snapSig="";
 const HQ_MEDIA_SYNC_VERSION="v3-media-1";
@@ -1795,8 +1798,8 @@ async function pushSnapshot(){
     mine:p.reactions.mikael||null,rx:Object.values(p.reactions||{}).reduce((a,r)=>(a[r]=(a[r]||0)+1,a),{}),createdAt:p.createdAt,
     comments:(p.comments||[]).slice(-8).map(c=>({id:c.id,userId:c.userId,text:String(c.text||"").slice(0,100),parentId:c.parentId||null,pinned:!!c.pinned}))
   }));
-  const sig=JSON.stringify(posts);if(sig===snapSig)return;snapSig=sig;
-  await hqPost({action:"mg_snapshot_put",snapshot:{at:Date.now(),posts}}).catch(()=>{});
+  const sig=JSON.stringify(posts);if(sig===snapSig)return;
+  await hqPost({action:"mg_snapshot_put",snapshot:{at:Date.now(),posts}});snapSig=sig;
 }
 async function pollHQ(){
   if(hqBusy)return;
@@ -1804,7 +1807,10 @@ async function pollHQ(){
   try{
     const d=await (await fetch(WORKER+"?action=mg_queue",{cache:"no-store"})).json();
     const done=new Set(await Store.getMeta("mg-handled",[])),ids=[];
-    for(const c of d.commands||[]){ids.push(c.id);if(done.has(c.id))continue;done.add(c.id);try{await applyCommand(c)}catch{}}
+    for(const c of d.commands||[]){
+      if(done.has(c.id)){ids.push(c.id);continue}
+      try{if(await applyCommand(c)===false)continue;done.add(c.id);ids.push(c.id)}catch{/* Keep failed commands queued for retry. */}
+    }
     if(ids.length){await Store.setMeta("mg-handled",[...done].slice(-200));hqPost({action:"mg_ack",ids}).catch(()=>{})}
     await pushSnapshot();
   }catch{}finally{hqBusy=false}
@@ -2308,25 +2314,19 @@ async function ensureInfluencerWeek(){
   await persistInfluencer();
 }
 const INTERNET_BANK_CREATOR_KEY="bankOfMickyCreatorMBV1";
-const INTERNET_BANK_WALLET_KEY="lizzyMickyBucsV1";
-const INTERNET_BANK_INFLUENCER_TOTAL_KEY="bankOfMickyInfluencerTotalV2";
 const INTERNET_BANK_LEDGER_KEY="bankOfMickyTransactionsV2";
 function localBankRead(key,fallback){
   try{const raw=localStorage.getItem(key);return raw===null?fallback:JSON.parse(raw)}catch{return fallback}
 }
 function creditInternetBank(amount,description,meta={}){
   amount=Math.round((Number(amount)||0)*100)/100;if(amount<=0)return null;
-  const oldWallet=Number(localBankRead(INTERNET_BANK_WALLET_KEY,0))||0;
-  const wallet=Math.round((oldWallet+amount)*100)/100;
-  const oldTotal=Number(localBankRead(INTERNET_BANK_INFLUENCER_TOTAL_KEY,0))||0;
-  const total=Math.round((oldTotal+amount)*100)/100;
+  const oldBalance=Number(localBankRead(INTERNET_BANK_CREATOR_KEY,0))||0;
+  const balance=Math.round((oldBalance+amount)*100)/100;
   const ledger=localBankRead(INTERNET_BANK_LEDGER_KEY,[]);
-  const tx={id:"mizzy-"+uid(),at:Date.now(),amount,description,kind:"influencer",currency:"MB",balanceAfter:wallet,...meta};
-  localStorage.setItem(INTERNET_BANK_WALLET_KEY,JSON.stringify(wallet));
-  localStorage.setItem(INTERNET_BANK_INFLUENCER_TOTAL_KEY,JSON.stringify(total));
+  const tx={id:"mizzy-"+uid(),at:Date.now(),amount,description,kind:"influencer",currency:"MB",balanceAfter:balance,...meta};
+  localStorage.setItem(INTERNET_BANK_CREATOR_KEY,JSON.stringify(balance));
   localStorage.setItem(INTERNET_BANK_LEDGER_KEY,JSON.stringify([tx,...(Array.isArray(ledger)?ledger:[])].slice(0,250)));
   window.dispatchEvent(new Event("bankOfMickyUpdated"));
-  window.dispatchEvent(new Event("lizzyStoreRefresh"));
   return tx;
 }
 async function migrateLegacyMizzyBankIfNeeded(){
