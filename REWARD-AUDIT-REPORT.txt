@@ -1,0 +1,55 @@
+LIZZYOS V3 — DAILY REWARDS FULL AUDIT
+Date: 2026-09-26
+
+AUDITED
+342 Daily Reward definitions total:
+- 180 Dull / Basic
+- 44 Reverse Tokens
+- 45 Normal
+- 28 Rare
+- 24 Epic
+- 21 Legendary
+
+FINAL VALIDATION
+23/23 reward-system checks passed.
+- All Reverse Tokens route to a visible Reverse Tokens Owed shelf and can be marked settled.
+- All actionable Normal/Rare/Epic/Legendary rewards route to a real feature or redeemable token.
+- All Token Jar reward targets exist.
+- All explicit Garden seed targets exist and grow into valid Garden items.
+- One-of-One Lizzy Bloom remains a real plantable seed/flower reward.
+- Double/Triple next-reward effects are consumed correctly on a future non-Reverse reward.
+- Micky Bucs x3 Next Win is consumed correctly.
+- Crack-the-Code reward hints are actually spent by the Hint button.
+- Classified Peek credits are visible and usable in Interactive Rewards.
+- Vault discounts are queued and consumed one purchase at a time, preserving 15% vs 50% rewards.
+- VIP Week activates for seven days and its stacked reroll/discount/override privileges now consume one at a time.
+- Rare/Epic Garden Decorations are real Garden collection items.
+- Rare/Epic LizzyOS Badges are visible in Reward Extras.
+- Memory Unlock / Hidden Memory Unlock create visible memory prompts.
+- Secret Playlist Addition and previously inert manual rewards become redeemable Token Jar items.
+- Reverse Token, perk, badge, memory and keepsake shelves are visible in Token Jar.
+
+INTENTIONAL COLLECTIBLES
+The deliberately silly Basic prizes remain keepsakes when they do not promise a functional effect.
+Five Normal novelty awards are also intentionally collectibles rather than spendable perks:
+- Lucky Star
+- Pasta Appreciation Award
+- Coke Appreciation Award
+- Little Miss Attitude Bonus
+- Specsy Bonus
+
+REPAIRS INCLUDED
+- Retroactive migration converts old inert Memory Unlocks, playlist additions, Garden decorations and selected manual rewards into their new functional destinations.
+- Existing legacy Vault discounts migrate into the new discount queue.
+- Existing One-of-One Garden Flower claim migration is preserved.
+
+FILES TO REPLACE
+- index.html
+- style.css
+- script.js
+- seed-store.js
+- interactive-rewards.js
+
+NO UPDATE REQUIRED
+- MickyHQ
+- Cloudflare Worker

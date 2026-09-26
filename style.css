@@ -5059,3 +5059,22 @@ body[data-personality="Agent Yelizaveta"]:not(.mikaelTakeoverActive)::after{
   #desktopArea{grid-template-columns:1fr!important;}
 }
 
+
+/* DAILY REWARD AUDIT V1 — visible reverse tokens, perks, badges and memory prompts */
+.dailyRewardMultiplier{margin:10px auto 6px;padding:7px 12px;width:max-content;max-width:100%;border-radius:999px;background:rgba(255,255,255,.16);font-size:12px;font-weight:900;letter-spacing:.04em}
+.tokenShelfReverse,.tokenShelfPerks,.tokenShelfExtras{margin-top:14px}
+.reverseTokenGrid,.rewardPerkGrid,.rewardBadgeGrid{display:grid;gap:8px}
+.reverseTokenCard,.rewardPerkCard,.rewardBadgeCard{display:flex;align-items:center;gap:10px;padding:10px 11px;border-radius:14px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12)}
+.reverseTokenCard>div,.rewardPerkCard>div{min-width:0;flex:1;display:grid;gap:2px}
+.reverseTokenCard small,.rewardPerkCard small{opacity:.78;line-height:1.25}
+.reverseTokenCard button{flex:0 0 auto;padding:7px 9px;border-radius:10px}
+.rewardPerkCard>span,.rewardBadgeCard>span{font-size:22px}
+.rewardPerkCard>b{margin-left:auto;white-space:nowrap}
+.rewardBadgeGrid{grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}
+.rewardBadgeCard{justify-content:flex-start}
+.rewardBadgeCard small{margin-left:auto}
+.rewardMemoryPrompts{margin-top:10px;padding:10px 12px;border-radius:14px;background:rgba(255,255,255,.06)}
+.rewardMemoryPrompts summary{cursor:pointer;font-weight:900}
+.rewardMemoryPrompts article{margin-top:8px;padding:9px 10px;border-radius:12px;background:rgba(255,255,255,.07)}
+.rewardMemoryPrompts article p{margin:5px 0;line-height:1.35}
+@media(max-width:600px){.reverseTokenCard{align-items:flex-start;flex-wrap:wrap}.reverseTokenCard button{width:100%}}
