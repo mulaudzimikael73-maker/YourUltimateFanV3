@@ -412,6 +412,7 @@ export default{async fetch(req,env){
      return json({success:true,deposits});
    }
    if(u.searchParams.get("action")==="mg_queue"){const commands=await arrKV(env,"mg:queue:v1");return json({success:true,commands});}
+   if(u.searchParams.get("action")==="world_queue"){const commands=await arrKV(env,"world:queue:v1");return json({success:true,commands});}
    if(u.searchParams.get("pendingLizzyMessages")==="1"){
      const messages=await listMessages(env,true);
      return json({success:true,messages,pendingCount:messages.length});
@@ -777,6 +778,53 @@ if((b.action||b.type)==="mg_media_get"){
   const postId=S(b.postId,140);if(!postId)return json({success:false,error:"Missing post id"},400);
   const media=await env.LIZZY_CLAIMS.get(`mg:media:v1:${postId}`,{type:"json"});
   return json({success:true,media:media||null});
+}
+/* ---- The Internet: fictional market + purchased entertainment bridge ---- */
+if((b.action||b.type)==="world_hq_push"){
+  if(!hqOnly(req,env,b))return json({success:false,error:"Unauthorized"},401);
+  const c=b.command||{};
+  if(c.kind!=="market")return json({success:false,error:"Unknown world command"},400);
+  const allowed=["pump","drop","crash","rally","recover","gradual_rise","gradual_decline","freeze","unfreeze","set_mode"];
+  if(!allowed.includes(String(c.action||"")))return json({success:false,error:"Unknown market action"},400);
+  const q=await arrKV(env,"world:queue:v1");
+  q.push({...c,id:crypto.randomUUID(),createdAt:new Date().toISOString()});
+  await env.LIZZY_CLAIMS.put("world:queue:v1",JSON.stringify(q.slice(-40)));
+  return json({success:true});
+}
+if((b.action||b.type)==="world_ack"){
+  const ids=Array.isArray(b.ids)?b.ids:[];
+  const q=(await arrKV(env,"world:queue:v1")).filter(c=>!ids.includes(c.id));
+  await env.LIZZY_CLAIMS.put("world:queue:v1",JSON.stringify(q));
+  return json({success:true});
+}
+if((b.action||b.type)==="world_snapshot_put"){
+  const raw=JSON.stringify(b.snapshot||{});if(raw.length>350000)return json({success:false,error:"Snapshot too large"},400);
+  await env.LIZZY_CLAIMS.put("world:snapshot:v1",raw);return json({success:true});
+}
+if((b.action||b.type)==="world_snapshot_get"){
+  if(!hqOnly(req,env,b))return json({success:false,error:"Unauthorized"},401);
+  return json({success:true,snapshot:await env.LIZZY_CLAIMS.get("world:snapshot:v1",{type:"json"})});
+}
+if((b.action||b.type)==="world_media_put"){
+  if(!hqOnly(req,env,b))return json({success:false,error:"Unauthorized"},401);
+  const purchaseId=S(b.purchaseId,180),media=b.media||{},data=String(media.data||"");
+  if(!purchaseId||!data)return json({success:false,error:"Purchase and media are required"},400);
+  if(data.length>23000000)return json({success:false,error:"Entertainment upload is too large. Keep the original file under 16 MB."},400);
+  const snap=await env.LIZZY_CLAIMS.get("world:snapshot:v1",{type:"json"});
+  if(!snap||!Array.isArray(snap.purchases)||!snap.purchases.some(p=>p.id===purchaseId))return json({success:false,error:"That ticket purchase is not synced from LizzyOS yet."},409);
+  const mediaId=crypto.randomUUID();
+  const stored={data,mediaType:S(media.mediaType,20),mime:S(media.mime,120),name:S(media.name,180),size:Number(media.size)||0,createdAt:new Date().toISOString()};
+  await env.LIZZY_CLAIMS.put(`world:media:${mediaId}`,JSON.stringify(stored),{expirationTtl:30*86400});
+  const q=await arrKV(env,"world:queue:v1");q.push({kind:"ent_delivery",id:crypto.randomUUID(),purchaseId,mediaId,createdAt:new Date().toISOString()});
+  await env.LIZZY_CLAIMS.put("world:queue:v1",JSON.stringify(q.slice(-40)));
+  return json({success:true,mediaId});
+}
+if((b.action||b.type)==="world_media_get"){
+  const mediaId=S(b.mediaId,180);if(!mediaId)return json({success:false,error:"Missing media id"},400);
+  return json({success:true,media:await env.LIZZY_CLAIMS.get(`world:media:${mediaId}`,{type:"json"})});
+}
+if((b.action||b.type)==="world_media_delete"){
+  const mediaId=S(b.mediaId,180);if(mediaId)await env.LIZZY_CLAIMS.delete(`world:media:${mediaId}`);return json({success:true});
 }
 if((b.action||b.type)==="annoy_trigger"){
   if(!hqOnly(req,env,b))return json({success:false,error:"Unauthorized"},401);
