@@ -1,13 +1,14 @@
-V3 PRODUCTION MERGE — 2026-09-26
-Replace/upload these files to YourUltimateFanV3:
-- index.html
-- style.css
-- internet.js
-- market-entertainment.js
-- mizzygram.js
-- mizzygram.html
-- cloudflare-worker.js
-- assets/market/logos/ (21 logo files)
+V3 — ONE-OF-ONE GARDEN REWARD PATCH
 
-IMPORTANT: cloudflare-worker.js must also be deployed to the LIVE lizzyos-notifications Cloudflare Worker.
-This package uses production storage keys and the live Worker — no TEST keys are included.
+Replace these files in the V3 repository:
+- script.js
+- index.html
+
+What it does:
+- Changes future "One-of-One Garden Flower" rewards to grant a plantable One-of-One Lizzy Bloom Seed.
+- Adds the unique One-of-One Lizzy Bloom plant to Lizzy's Garden.
+- Retroactively checks this device for the already-claimed 2026-09-26 reward and grants exactly 1 seed.
+- Uses a one-time grant marker so refreshes cannot duplicate the seed.
+- The seed remains in Garden inventory until planted.
+
+No HQ or Cloudflare Worker update is needed.
