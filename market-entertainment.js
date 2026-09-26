@@ -2,7 +2,7 @@
 "use strict";
 const core=window.LizzyInternetCore;if(!core)return;
 const $=id=>document.getElementById(id),esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
-const WORKER=core.worker;
+const WORKER=(core.worker||window.LIZZY_TELEGRAM_WORKER_URL||"https://lizzyos-notifications.mulaudzimikael73.workers.dev/").trim();
 const MARKET_KEY="lizzyFictionalStockMarketV1",ENT_KEY="lizzyEntertainmentTicketsV1";
 const MARKET_TICK_MS=30*60*1000;
 const STOCKS=[
@@ -169,7 +169,7 @@ async function playEntertainment(id){
  }
 }
 
-async function worldApi(action,body={}){if(!WORKER)throw new Error("Test Worker not configured");const r=await fetch(WORKER,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action,...body}),cache:"no-store"});const d=await r.json().catch(()=>({}));if(!r.ok||d.success===false)throw new Error(d.error||`Request failed (${r.status})`);return d}
+async function worldApi(action,body={}){if(!WORKER)throw new Error("LizzyOS Worker not configured");const r=await fetch(WORKER,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action,...body}),cache:"no-store"});const d=await r.json().catch(()=>({}));if(!r.ok||d.success===false)throw new Error(d.error||`Request failed (${r.status})`);return d}
 async function getWorldQueue(){if(!WORKER)return[];const r=await fetch(WORKER+"?action=world_queue",{cache:"no-store"});const d=await r.json().catch(()=>({}));if(!r.ok)return[];return d.commands||[]}
 function marketMove(s,tickers,pct){for(const ticker of tickers){if(s.frozen[ticker]&&pct!==0)continue;const p=Math.max(1,round(s.prices[ticker]*(1+pct/100)));s.prices[ticker]=p;(s.history[ticker]||(s.history[ticker]=[])).push({t:Date.now(),p});s.history[ticker]=s.history[ticker].slice(-72)}}
 function applyMarketCommand(c){const s=marketState(),all=STOCKS.map(x=>x.ticker),ticker=String(c.ticker||"").toUpperCase(),targets=c.scope==="market"?all:(STOCKS.some(x=>x.ticker===ticker)?[ticker]:[]);if(!targets.length&&c.action!=="set_mode")return;let pct=Number(c.percent);if(!Number.isFinite(pct)||pct<=0)pct=undefined;switch(c.action){case"pump":marketMove(s,targets,pct||12);break;case"drop":marketMove(s,targets,-(pct||12));break;case"crash":marketMove(s,targets,-(pct||35));break;case"rally":marketMove(s,targets,pct||22);break;case"recover":marketMove(s,targets,pct||15);break;case"gradual_rise":{const total=pct||12,steps=6;marketMove(s,targets,total/steps);targets.forEach(t=>s.trends[t]={perTick:(total/100)/steps,remaining:steps-1});break}case"gradual_decline":{const total=-(pct||12),steps=6;marketMove(s,targets,total/steps);targets.forEach(t=>s.trends[t]={perTick:(total/100)/steps,remaining:steps-1});break}case"freeze":targets.forEach(t=>s.frozen[t]=true);break;case"unfreeze":targets.forEach(t=>delete s.frozen[t]);break;case"set_mode":s.mode=c.mode||"normal";break;default:return}
