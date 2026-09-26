@@ -1740,7 +1740,13 @@ async function applyCommand(c){
       if(post.audience!=="lizzy")scheduleCommunityReactions(post);
       break}
     case"like":case"react":
-      if(p){p.reactions.mikael=reactionOf(c.reaction)?c.reaction:"love";reactNotify(p,"mikael");await save()}break;
+      if(p){
+        const version=`${c.createdAt||""}:${c.id||""}`;
+        if(c.id?.startsWith("hq_")&&p.hqReactionVersion&&p.hqReactionVersion>version)return true;
+        p.reactions.mikael=reactionOf(c.reaction)?c.reaction:"love";
+        if(c.id?.startsWith("hq_"))p.hqReactionVersion=version;
+        reactNotify(p,"mikael");await save()
+      }break;
     case"comment":case"reply":
       if(p&&c.text){const n={id:c.id||uid(),userId:"mikael",text:String(c.text).slice(0,CONFIG.maxComment),createdAt:Date.now(),likes:[],parentId:c.parentId||null};if(!p.comments.some(x=>x.id===n.id)){p.comments.push(n);notifyComment(p,n)}await save()}break;
     case"pin":
@@ -1795,7 +1801,7 @@ async function pushSnapshot(){
     id:p.id,userId:p.userId,caption:(p.caption||"").slice(0,180),mood:p.mood||"",audience:p.audience||"everyone",mediaType:p.mediaType||"photo",duration:Number(p.duration||0)||0,
     mediaAvailable:CONFIG.humans.includes(p.userId)&&!!(p.mediaType==="video"||p.image),
     thumb:(p.mediaType!=="video"&&typeof p.image==="string"&&p.image.length<1800)?p.image:null,
-    mine:p.reactions.mikael||null,rx:Object.values(p.reactions||{}).reduce((a,r)=>(a[r]=(a[r]||0)+1,a),{}),createdAt:p.createdAt,
+    hqReactionVersion:p.hqReactionVersion||null,mine:p.reactions.mikael||null,rx:Object.values(p.reactions||{}).reduce((a,r)=>(a[r]=(a[r]||0)+1,a),{}),createdAt:p.createdAt,
     comments:(p.comments||[]).slice(-8).map(c=>({id:c.id,userId:c.userId,text:String(c.text||"").slice(0,100),parentId:c.parentId||null,pinned:!!c.pinned}))
   }));
   const sig=JSON.stringify(posts);if(sig===snapSig)return;
@@ -1811,7 +1817,7 @@ async function pollHQ(){
       if(done.has(c.id)){ids.push(c.id);continue}
       try{if(await applyCommand(c)===false)continue;done.add(c.id);ids.push(c.id)}catch{/* Keep failed commands queued for retry. */}
     }
-    if(ids.length){await Store.setMeta("mg-handled",[...done].slice(-200));hqPost({action:"mg_ack",ids}).catch(()=>{})}
+    if(ids.length){await Store.setMeta("mg-handled",[...done].slice(-200));{const legacyIds=ids.filter(id=>!id.startsWith("hq_"));if(legacyIds.length)hqPost({action:"mg_ack",ids:legacyIds}).catch(()=>{})}}
     await pushSnapshot();
   }catch{}finally{hqBusy=false}
 }
