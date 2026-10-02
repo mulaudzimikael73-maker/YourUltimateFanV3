@@ -2,7 +2,7 @@
 "use strict";
 const core=window.LizzyInternetCore;if(!core)return;
 const $=id=>document.getElementById(id),esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
-const WORKER=(core.worker||window.LIZZY_TELEGRAM_WORKER_URL||"https://lizzyos-notifications.mulaudzimikael73.workers.dev/").trim();
+const WORKER=(core.worker||window.LIZZY_TELEGRAM_WORKER_URL||"https://lizzyos-notifications.mulaudzimikael73.workers.dev/v3/").trim();
 const MARKET_KEY="lizzyFictionalStockMarketV1",ENT_KEY="lizzyEntertainmentTicketsV1";
 const MARKET_TICK_MS=30*60*1000;
 const STOCKS=[

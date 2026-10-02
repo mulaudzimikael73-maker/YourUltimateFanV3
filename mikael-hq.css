@@ -7,3 +7,5 @@
 .mgRow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .mgLbl{display:block;margin-top:12px;font-size:13px;opacity:.7}
 .annoy-btn.picked{outline:2px solid #f08ac1;background:#f08ac133}
+
+.heistFrame{display:block;width:100%;height:calc(100dvh - 170px);min-height:650px;border:1px solid #ad8754;border-radius:18px;background:#0b0e11}#heist .section-intro{margin-bottom:14px}@media(max-width:700px){.heistFrame{height:85dvh;min-height:620px;border-radius:10px}}

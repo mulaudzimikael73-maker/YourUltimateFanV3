@@ -3,7 +3,7 @@
 // LIZZYOS TELEGRAM NOTIFICATION BRIDGE
 // Uses text/plain to avoid browser CORS preflight failures.
 // =====================================================
-const LIZZY_TELEGRAM_WORKER_URL = "https://lizzyos-notifications.mulaudzimikael73.workers.dev/";
+const LIZZY_TELEGRAM_WORKER_URL = "https://lizzyos-notifications.mulaudzimikael73.workers.dev/v3/";
 // Expose the production Worker URL to modules loaded in separate script files.
 window.LIZZY_TELEGRAM_WORKER_URL = LIZZY_TELEGRAM_WORKER_URL;
 
