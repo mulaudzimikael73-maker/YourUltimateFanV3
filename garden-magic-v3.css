@@ -1,0 +1,140 @@
+/* Garden Magic TEST: scoped visual additions only. Original garden grid and image assets untouched. */
+#lizzyGardenWindow .gardenApp{position:relative}
+#lizzyGardenWindow .gardenPlotPanel{border:1px solid rgba(204,249,190,.52)!important;box-shadow:0 18px 50px rgba(16,66,44,.14),inset 0 0 42px rgba(168,230,153,.13)!important;background-image:radial-gradient(ellipse at 12% 8%,rgba(255,250,194,.23),transparent 42%),radial-gradient(ellipse at 95% 84%,rgba(101,164,111,.24),transparent 45%),linear-gradient(180deg,rgba(141,210,238,.32),rgba(139,206,114,.3) 52%,rgba(91,62,39,.25))!important}
+#lizzyGardenWindow .gardenPlotPanel .gardenPanelHeading:after{content:'⛲  🪴  🌿  🪻  🪑';font-size:19px;letter-spacing:8px;opacity:.78;text-shadow:0 4px 8px #1238;pointer-events:none}
+#lizzyGardenWindow .gardenPlot{box-shadow:inset 0 5px 12px rgba(255,255,255,.1),0 9px 25px rgba(28,68,41,.14)!important;border-color:rgba(236,247,215,.48)!important}
+#lizzyGardenWindow .gardenPlot .plantVisual img,#lizzyGardenWindow .gardenFlowerCollection img,#lizzyGardenWindow .gardenSeedInventory img{filter:none!important;object-fit:contain!important;image-rendering:auto!important}
+#lizzyGardenWindow .gardenPlot:not(.empty):hover{border-color:rgba(255,245,197,.83)!important;box-shadow:0 15px 32px rgba(31,72,43,.3)!important}
+#lizzyGardenWindow .gardenPlots{background:repeating-linear-gradient(120deg,transparent 0 49px,rgba(243,227,183,.05) 50px 54px,transparent 55px 105px);border-radius:20px}
+#lizzyGardenWindow .gardenPlotPanel:before{color:#fffae8;text-shadow:0 2px 6px #194b3877}
+#lizzyGardenWindow.gm-evening .gardenPlotPanel{background-image:linear-gradient(180deg,rgba(32,35,89,.35),rgba(72,44,100,.16)),radial-gradient(circle at 80% 20%,#d5cef366,transparent 25%),linear-gradient(180deg,#6684aa99,#72815d66)!important}
+#lizzyGardenWindow.gm-evening .gardenPlotPanel .gardenPanelHeading:after{content:'🌙  ✨  🪻  🕯️';filter:drop-shadow(0 0 6px #ffe9c0)}
+#lizzyGardenWindow .gm-hub{margin-top:18px;padding:18px;border:1px solid #ffffff4f;border-radius:24px;background:linear-gradient(135deg,#344b47dd,#6a5176bb 52%,#326451cc);box-shadow:0 18px 40px #102b2244;color:#fff;overflow:hidden;position:relative}
+#lizzyGardenWindow .gm-hub:before{content:'✧   ✿    ✧   🌿     ✧     🦋';position:absolute;right:13px;top:8px;opacity:.18;pointer-events:none;font-size:24px}
+#lizzyGardenWindow .gm-head{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;position:relative}
+#lizzyGardenWindow .gm-head h3{margin:4px 0!important;font-size:21px}
+#lizzyGardenWindow .gm-head small{letter-spacing:.12em;font-size:10px;opacity:.8}
+#lizzyGardenWindow .gm-modes,#lizzyGardenWindow .gm-tabs{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}
+#lizzyGardenWindow .gm-hub button{border:1px solid #ffffff50;background:#ffffff19;color:white;border-radius:12px;padding:9px 12px;font-weight:700;cursor:pointer;transition:transform .16s,background .16s}
+#lizzyGardenWindow .gm-hub button:hover:not(:disabled){background:#ffffff30;transform:translateY(-2px)}
+#lizzyGardenWindow .gm-hub button.gm-on,#lizzyGardenWindow .gm-hub button.gm-primary{background:#ffe7c9;color:#3d2d43;border-color:#ffe7c9}
+#lizzyGardenWindow .gm-hub button:disabled{opacity:.5;cursor:not-allowed}
+#lizzyGardenWindow .gm-pane{background:#ffffff10;border:1px solid #ffffff26;border-radius:20px;padding:17px;margin-top:13px}
+#lizzyGardenWindow .gm-pane h3{margin:0 0 7px!important;color:#fff}
+#lizzyGardenWindow .gm-pane p{margin:5px 0 12px;line-height:1.55}
+#lizzyGardenWindow .gm-landscape{height:160px;border-radius:18px;position:relative;overflow:hidden;margin:12px 0 15px;background:linear-gradient(180deg,#bfe7e7 0 38%,#86bd8d 39% 59%,#4b8959 60%);box-shadow:inset 0 -35px 40px #20503955}
+#lizzyGardenWindow .gm-landscape:after{content:'🌳         🌳   🌷       🌼      🌿          🌸';position:absolute;bottom:0;left:0;right:0;text-align:center;font-size:32px;letter-spacing:8px;white-space:nowrap;opacity:.9}
+#lizzyGardenWindow .gm-landscape.butterfly:before{content:'🦋           🌺         🦋        🦋';position:absolute;left:7%;top:21%;font-size:34px;animation:gmFloat 4s ease-in-out infinite alternate;z-index:1}
+#lizzyGardenWindow .gm-landscape.moon{background:radial-gradient(circle at 75% 18%,#e8edc1b5,transparent 18%),linear-gradient(180deg,#1c254a,#5a4d8c 49%,#305e68 50%,#254e50);box-shadow:inset 0 -30px 30px #031b3244}
+#lizzyGardenWindow .gm-landscape.moon:before{content:'🌙           ✨       🌟       ✨';position:absolute;top:10%;left:6%;font-size:29px}
+#lizzyGardenWindow .gm-landscape.hidden-garden{background:radial-gradient(circle at center,#f3d5a2a8,transparent 47%),linear-gradient(140deg,#437c61,#245e4b 57%,#66895d)}
+#lizzyGardenWindow .gm-landscape.hidden-garden:before{content:'🌳      🎁       ⛲      💐';position:absolute;top:35%;left:7%;font-size:33px;z-index:1}
+@keyframes gmFloat{to{transform:translate(15px,-17px)}}
+#lizzyGardenWindow .gm-statline{display:flex;flex-wrap:wrap;gap:9px;margin:10px 0}
+#lizzyGardenWindow .gm-statline span{padding:7px 10px;border-radius:10px;background:#ffffff19;font-size:12px}
+#lizzyGardenWindow .gm-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:9px;margin:12px 0}
+#lizzyGardenWindow .gm-tile{padding:11px;border-radius:14px;background:#ffffff13;border:1px solid #ffffff2a;min-height:88px;display:flex;flex-direction:column;gap:5px}
+#lizzyGardenWindow .gm-tile b{font-size:13px}
+#lizzyGardenWindow .gm-tile small{font-size:11px;opacity:.78}
+#lizzyGardenWindow .gm-progress{height:8px;background:#ffffff31;border-radius:100px;overflow:hidden;margin:8px 0}
+#lizzyGardenWindow .gm-progress i{display:block;height:100%;background:#e6d5ff;border-radius:inherit}
+#lizzyGardenWindow .gm-input,#lizzyGardenWindow .gm-textarea,#lizzyGardenWindow .gm-select{width:100%;color:#332842!important;border-radius:12px;border:1px solid #c1b2c6;background:#fffaf8;padding:11px;margin:5px 0 10px;font:inherit}
+#lizzyGardenWindow .gm-textarea{min-height:75px;resize:vertical}
+#lizzyGardenWindow .gm-flower-choices{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px;margin:10px 0}
+#lizzyGardenWindow .gm-flower-choices button{display:flex;align-items:center;justify-content:center;flex-direction:column;min-height:90px;gap:5px;font-size:12px}
+#lizzyGardenWindow .gm-flower-choices img{width:50px;height:46px;object-fit:contain;background:#ffffffc7;border-radius:10px}
+#lizzyGardenWindow .gm-caption{font-size:12px;opacity:.82;line-height:1.5}
+#lizzyGardenWindow .gm-message{padding:10px 12px;border-radius:12px;background:#ffffff16;margin:10px 0;white-space:pre-wrap;overflow-wrap:anywhere}
+#lizzyGardenWindow .gm-letters{display:grid;gap:9px;margin-top:10px}
+#lizzyGardenWindow .gm-card{border:1px solid #ffffff2c;background:#ffffff14;border-radius:14px;padding:12px}
+#lizzyGardenWindow .gm-card img{max-width:55px;max-height:55px;object-fit:contain}
+#lizzyGardenWindow .gm-gift-header{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+#lizzyGardenWindow .gm-warning{color:#ffe4b6;font-weight:700}
+@media(max-width:650px){#lizzyGardenWindow .gardenPlotPanel .gardenPanelHeading:after{font-size:13px;letter-spacing:0}#lizzyGardenWindow .gm-hub{padding:12px}#lizzyGardenWindow .gm-landscape{height:125px}}
+@media(prefers-reduced-motion:reduce){#lizzyGardenWindow .gm-landscape.butterfly:before{animation:none}#lizzyGardenWindow .gm-hub button{transition:none}}
+
+#lizzyGardenWindow .gm-card.gm-moonlit{border:1px solid #c6caffaa;background:radial-gradient(circle at 90% 0%,#aeadff55,transparent 60%),#ffffff1d;box-shadow:0 0 15px #d3c8ff44}
+
+/* ===== Garden Magic v2: handcrafted image-led game panels; no AI scene backgrounds ===== */
+#lizzyGardenWindow .gm-seedlist{display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:12px;margin:14px 0}
+#lizzyGardenWindow .gm-seedcard{border:1px solid #ffffff3c;background:linear-gradient(155deg,#ffffff19,#ffffff08);border-radius:16px;padding:12px;display:flex;flex-direction:column;align-items:center;gap:7px;text-align:center;min-width:0}
+#lizzyGardenWindow .gm-seedcard>img{width:100%;height:120px;object-fit:contain;filter:drop-shadow(0 9px 14px #021d2444)}
+#lizzyGardenWindow .gm-seedcard b{font-size:13px;min-height:35px;line-height:1.3}
+#lizzyGardenWindow .gm-seedcard small{font-size:11px;opacity:.83}
+#lizzyGardenWindow .gm-seedcard button{margin-top:auto;width:100%}
+#lizzyGardenWindow .gm-butterfly-album{display:grid;grid-template-columns:repeat(auto-fill,minmax(142px,1fr));gap:11px;margin:14px 0}
+#lizzyGardenWindow .gm-species{padding:13px 9px;background:#fffdf914;border:1px solid #ffffff30;border-radius:16px;min-width:0;display:flex;align-items:center;flex-direction:column;gap:5px;text-align:center;min-height:185px}
+#lizzyGardenWindow .gm-species img{width:118px;max-width:100%;height:118px;object-fit:contain;filter:drop-shadow(0 6px 8px #08152655)}
+#lizzyGardenWindow .gm-species b{font-size:12px;line-height:1.3;overflow-wrap:anywhere}
+#lizzyGardenWindow .gm-species small{font-size:10px;opacity:.85}
+#lizzyGardenWindow .gm-undiscovered img{filter:brightness(0) drop-shadow(0 5px 6px #08152644);opacity:.55}
+#lizzyGardenWindow .gm-discovered{border-color:#efdbb366;background:linear-gradient(160deg,#fff8e921,#ffffff0b)}
+#lizzyGardenWindow .gm-encounter{display:grid;grid-template-columns:minmax(135px,200px) 1fr;gap:18px;align-items:center;max-width:680px;margin:auto}
+#lizzyGardenWindow .gm-encounter>img{width:100%;height:210px;object-fit:contain;animation:gm-bob 3s ease-in-out infinite alternate;filter:drop-shadow(0 14px 16px #091a2e77)}
+#lizzyGardenWindow .gm-encounter button{margin:4px}
+#lizzyGardenWindow .gm-timing{height:24px;border:2px solid #ffffffa0;border-radius:999px;position:relative;overflow:hidden;background:#081c3580;margin:14px 0;box-shadow:inset 0 2px 8px #1015208f}
+#lizzyGardenWindow .gm-target{position:absolute;top:0;bottom:0;left:50%;transform:translateX(-50%);background:linear-gradient(90deg,#f6d480bd,#ffeaa7,#f5ce74bc);box-shadow:0 0 15px #ffe6b7}
+#lizzyGardenWindow .gm-marker{position:absolute;top:0;bottom:0;width:6px;left:0;background:white;box-shadow:0 0 8px 4px #ffffffc0;animation:gm-sweep 2.6s linear infinite alternate}
+@keyframes gm-sweep{from{left:0}to{left:calc(100% - 6px)}}
+@keyframes gm-bob{to{transform:translateY(-8px) rotate(2deg)}}
+#lizzyGardenWindow .gm-moon-scene{background:linear-gradient(145deg,#26315b,#4f4474 55%,#394e79);border:1px solid #b9acff6c;box-shadow:inset 0 0 35px #d7c9ff0b,0 10px 30px #16123242}
+#lizzyGardenWindow .gm-two-actions{display:flex;flex-wrap:wrap;gap:7px}
+#lizzyGardenWindow .gm-starline{display:flex;gap:9px;flex-wrap:wrap}
+#lizzyGardenWindow .gm-starline button{background:#c8c6ef31!important;border-color:#d2d0ff77!important}
+#lizzyGardenWindow .gm-plantbed{align-items:center;text-align:center;gap:7px;min-width:0}
+#lizzyGardenWindow .gm-plantbed>img{max-width:100%;width:110px;height:108px;object-fit:contain}
+#lizzyGardenWindow .gm-plantbed button{margin-top:auto}
+#lizzyGardenWindow .gm-memory-tree{display:grid;grid-template-columns:minmax(180px,35%) 1fr;gap:22px;align-items:center;background:linear-gradient(125deg,#395d4c,#56694d 45%,#4d3b5c);border:1px solid #f2d6bb6b}
+#lizzyGardenWindow .gm-memory-tree>img{width:100%;max-height:310px;object-fit:contain;filter:drop-shadow(0 15px 17px #0b2f304b)}
+#lizzyGardenWindow .gm-memory-tree p{line-height:1.6}
+#lizzyGardenWindow .gm-gifts{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px}
+#lizzyGardenWindow .gm-giftcard img{max-width:120px;height:125px;object-fit:contain;display:block;margin:7px auto}
+#lizzyGardenWindow .gm-formgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+#lizzyGardenWindow .gm-check{display:flex;align-items:center;gap:10px;margin:10px 0 17px;padding:8px;background:#ffffff12;border-radius:10px}
+#lizzyGardenWindow .gm-check input{width:19px;height:19px;accent-color:#d6bbe9}
+#lizzyGardenWindow .gm-glowing-bouquet{background:radial-gradient(ellipse at 70% 20%,#aaa6ff59,transparent 64%),linear-gradient(140deg,#543e73a8,#314865a6);border-color:#e5d7ffbb;box-shadow:0 0 14px #bdb1ff5a;animation:gm-glow 4s ease-in-out infinite alternate}
+@keyframes gm-glow{to{box-shadow:0 0 26px #e5d9ff94}}
+#lizzyGardenWindow .gm-glowing-bouquet .gm-gift-header img{filter:drop-shadow(0 0 10px #bfe5ff)}
+.gm-overlay{position:fixed;inset:0;z-index:999999;background:#111128de;display:grid;place-items:center;padding:18px;backdrop-filter:blur(9px)}
+.gm-reveal{position:relative;border:1px solid #ffdeda;border-radius:24px;padding:26px;text-align:center;max-width:550px;width:min(100%,550px);background:linear-gradient(140deg,#fffdf9,#fae0eb);color:#43324c;box-shadow:0 20px 70px #08070eaa;max-height:90vh;overflow:auto}
+.gm-reveal h2{font:700 clamp(19px,3vw,28px) Georgia,serif;margin:12px 0}
+.gm-reveal #gmCloseReveal{position:absolute;right:10px;top:9px;background:#fff;border:1px solid #d4c3d6;border-radius:9px;padding:6px 10px;color:#43324c;cursor:pointer}
+.gm-reveal-glow{background:radial-gradient(circle at 50% 30%,#d7eafa,#e7dcff 65%,#ad97db);border:2px solid #f9f0ff;box-shadow:0 0 30px #bbaaff,0 20px 70px #050415}
+.gm-reveal-flowers{display:flex;justify-content:center;align-items:center;flex-wrap:wrap;margin:16px 0;min-height:180px}
+.gm-reveal-flowers img{max-width:115px;max-height:170px;object-fit:contain;filter:drop-shadow(0 10px 10px #7974a077);animation:gm-bob 2.5s ease-in-out infinite alternate}
+.gm-reveal-glow .gm-reveal-flowers img{filter:drop-shadow(0 0 14px #d9e5ff)}
+#lizzyGardenWindow .gm-hub .gm-card{margin-bottom:12px}
+#lizzyGardenWindow .gm-hub h4{margin:9px 0}
+@media(max-width:680px){#lizzyGardenWindow .gm-encounter{grid-template-columns:1fr}#lizzyGardenWindow .gm-encounter>img{height:160px}#lizzyGardenWindow .gm-memory-tree{grid-template-columns:1fr}#lizzyGardenWindow .gm-memory-tree>img{max-height:220px}#lizzyGardenWindow .gm-formgrid{grid-template-columns:1fr}#lizzyGardenWindow .gm-butterfly-album{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(prefers-reduced-motion:reduce){#lizzyGardenWindow .gm-encounter>img,#lizzyGardenWindow .gm-glowing-bouquet,#lizzyGardenWindow .gm-marker{animation:none!important;left:50%!important}#lizzyGardenWindow .gm-encounter>img,#lizzyGardenWindow .gm-glowing-bouquet,.gm-reveal-flowers img{animation:none!important}}
+
+/* ===== Garden Magic v2.1: skill challenges, earnable seeds, wishing journal ===== */
+#lizzyGardenWindow .gm-shop-heading{display:flex;justify-content:space-between;align-items:start;flex-wrap:wrap;gap:12px;margin-bottom:8px}
+#lizzyGardenWindow .gm-shop-heading h3{margin:0 0 5px}
+#lizzyGardenWindow .gm-wallet{white-space:nowrap;background:linear-gradient(135deg,#d7ba74,#f7eac8);color:#3e3151;border-radius:999px;padding:8px 13px;font-size:13px;box-shadow:0 4px 14px #261e3150}
+#lizzyGardenWindow .gm-seedcard button{font-size:12px;line-height:1.3;min-height:37px}
+#lizzyGardenWindow .gm-seedcard button+button{margin-top:3px;background:linear-gradient(125deg,#d8a66e,#eed9a9);color:#3c2b40;border-color:#f6e2be}
+#lizzyGardenWindow .gm-seedcard button:disabled{opacity:.5;cursor:not-allowed}
+#lizzyGardenWindow .gm-challenge-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin:14px 0}
+#lizzyGardenWindow .gm-challenge-grid>button{width:100%;min-height:90px}
+#lizzyGardenWindow .gm-challenge{min-width:0;border:1px solid #e1d9ff87;background:#101c465e;border-radius:15px;padding:12px;min-height:160px}
+#lizzyGardenWindow .gm-challenge h4{margin:0 0 5px}
+#lizzyGardenWindow .gm-challenge .gm-timing{height:29px;margin:14px 0 10px}
+#lizzyGardenWindow .gm-target{border-left:1px solid #fffad8;border-right:1px solid #fffad8}
+#lizzyGardenWindow .gm-clue{background:linear-gradient(120deg,#292b5480,#574a7880);border:1px solid #d9cbff75;border-radius:13px;padding:12px 14px;margin:12px 0}
+#lizzyGardenWindow .gm-clue p{margin:5px 0;line-height:1.7;font-style:italic}
+#lizzyGardenWindow .gm-hint{border-left:4px solid #f4cb72;padding:7px 10px;background:#ebd7ac22;border-radius:8px}
+#lizzyGardenWindow .gm-starline button{min-width:85px;min-height:43px}
+#lizzyGardenWindow .gm-wish-picker{display:flex;flex-direction:column;gap:8px;margin:12px 0 15px;max-width:450px}
+#lizzyGardenWindow .gm-wish-picker select{background:#fdf9f5;color:#40334e;border-radius:9px;border:1px solid #bdaec9;padding:10px;max-width:100%}
+#lizzyGardenWindow .gm-wishes{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:11px;margin-top:12px}
+#lizzyGardenWindow .gm-wish-result{display:flex;align-items:center;gap:12px;min-height:91px;border:1px solid #f1d5b685;border-radius:14px;padding:11px;background:linear-gradient(120deg,#fffbf216,#ded9ff17)}
+#lizzyGardenWindow .gm-wish-result b{display:block;font-size:13px;line-height:1.4}
+#lizzyGardenWindow .gm-wish-result small{display:block;opacity:.8;font-size:11px;margin:3px 0}
+#lizzyGardenWindow .gm-wish-result p{margin:4px 0 0;font-size:12px}
+#lizzyGardenWindow .gm-wish-icon{flex:0 0 56px;font-size:30px;text-align:center}
+#lizzyGardenWindow .gm-wish-icon img{width:56px;height:58px;object-fit:contain}
+#lizzyGardenWindow .gm-decor-icon{font-size:47px;min-height:96px;display:grid;place-items:center}
+@media(max-width:680px){#lizzyGardenWindow .gm-challenge-grid{grid-template-columns:1fr}#lizzyGardenWindow .gm-wallet{font-size:12px}#lizzyGardenWindow .gm-wishes{grid-template-columns:1fr}}
+#lizzyGardenWindow .gm-plantbed button.gm-uproot{background:transparent!important;border:1px dashed #dbaead8a!important;font-size:11px;opacity:.85;margin-top:5px}
+#lizzyGardenWindow .gm-plantbed button.gm-uproot:hover{opacity:1}
