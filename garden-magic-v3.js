@@ -41,6 +41,7 @@
  local.legacyMigrated=true;
  local.nectar=Math.max(0,Number(local.nectar)||0);
  local.wishHistory=Array.isArray(local.wishHistory)?local.wishHistory:[];
+ local.specialBouquetDebits=Array.isArray(local.specialBouquetDebits)?local.specialBouquetDebits:[];
  local.wishChoice=['stardust','seed','decor'].includes(local.wishChoice)?local.wishChoice:'stardust';
  const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(local))}catch(e){status('Local storage is full. Garden changes may not save.')}};
  let shared={bouquets:[],surprises:[],progress:{},deliveries:{total:0,fromMikael:0,fromLizzy:0}};
@@ -122,25 +123,43 @@
   save();return true;
  }
  function reconcileOpenedGifts(){if(!hidden())return;for(const g of shared.surprises||[])if(g.openedAt)grantGift(g)}
+ function bouquetCounts(flowers){const counts={};for(const id of flowers||[])counts[id]=(counts[id]||0)+1;return counts;}
+ function hasBouquetFlowers(flowers){
+  const counts=bouquetCounts(flowers),g=garden();
+  return Object.entries(counts).every(([id,n])=>Number(species[id]?local.harvested[id]:g.flowers?.[id])>=n);
+ }
  function applyDelivery(item){const p=local.pendingDelivery;if(!p||item.clientTx!==p.clientTx)return false;
-  // One local deduction for one server-confirmed receipt, regardless of retries.
-  if(!p.applied){let ok=true;const originals=[];
-   for(const id of p.flowers){
-    if(species[id]){if(Number(local.harvested[id]||0)<1){ok=false;continue}local.harvested[id]--;}
-    else originals.push(id);
+  // Complete any legacy receipt already debited by the previous V3 checkout.
+  if(p.applied){local.pendingDelivery=null;chosen=[];note='';save();return true;}
+  // A received delivery is authoritative. Never deduct twice after a network retry/reload.
+  const special=p.flowers.filter(id=>species[id]),normal=p.flowers.filter(id=>!species[id]);
+  if(!p.specialApplied&&!local.specialBouquetDebits.includes(p.clientTx)){
+   const counts=bouquetCounts(special);
+   if(!Object.entries(counts).every(([id,n])=>Number(local.harvested[id]||0)>=n)){
+    status('⚠️ Bouquet delivered, but special-flower stock needs reconciliation. Keep this receipt and contact Mikael.');return false;
    }
-   // Use original garden's public API so its in-memory model AND localStorage stay consistent.
-   // Updating localStorage alone would be undone by the next original-garden render/save.
-   if(originals.length&&typeof window.LizzyGarden?.addFlower==='function'){
-    for(const id of originals){if(Number(garden().flowers?.[id]||0)<1){ok=false;continue}window.LizzyGarden.addFlower(id,-1,'Used in a delivered bouquet');}
-   }else if(originals.length){const g=garden();for(const id of originals){if(Number(g.flowers?.[id]||0)<1){ok=false;continue}g.flowers[id]--;}
-    try{localStorage.setItem(GARDEN,JSON.stringify(g))}catch(e){ok=false}
-   }
-   p.applied=true;p.inventoryOK=ok;save();}
+   // Receipt and special-flower deduction are saved as one localStorage update.
+   for(const [id,n] of Object.entries(counts))local.harvested[id]-=n;
+   local.specialBouquetDebits.push(p.clientTx);local.specialBouquetDebits=local.specialBouquetDebits.slice(-160);
+   p.specialApplied=true;save();
+  }
+  if(normal.length){
+   const checkout=window.LizzyGarden?.consumeBouquetFlowers;
+   if(typeof checkout!=='function'){status('⚠️ Main garden checkout is unavailable. Upload the accompanying script.js.');return false;}
+   const result=checkout(normal,p.clientTx);
+   if(!result?.ok){status('⚠️ Bouquet delivered but checkout needs attention: '+(result?.error||'Inventory unavailable'));return false;}
+  }
   local.pendingDelivery=null;chosen=[];note='';save();return true;
  }
- function reconcileDelivery(){const p=local.pendingDelivery;if(!p)return;const item=shared.bouquets.find(b=>b.clientTx===p.clientTx&&b.from==='Lizzy');if(item){const safe=applyDelivery(item);if(safe)status('💌 Previous bouquet delivery was recovered successfully.')}}
- async function retryDelivery(){const p=local.pendingDelivery;if(!p)return;const res=await api('garden_v3_send',{from:'Lizzy',...p});shared.bouquets.push(res.item);shared.deliveries={...deliveries(),total:deliveries().total+(res.duplicate?0:1),fromLizzy:deliveries().fromLizzy+(res.duplicate?0:1)};applyDelivery(res.item);await sendProgress();}
+ function reconcileDelivery(){const p=local.pendingDelivery;if(!p)return;const item=shared.bouquets.find(b=>b.clientTx===p.clientTx&&b.from==='Lizzy');if(item){const done=applyDelivery(item);if(done)status('💌 Previous bouquet delivery recovered. Inventory deducted once.')}}
+ async function retryDelivery(){const p=local.pendingDelivery;if(!p)return;
+  // Same clientTx on retries: server deduplicates. Always reload the *server* counters;
+  // appending locally and then incrementing would count one delivery twice.
+  const r=await api('garden_v3_send',{from:'Lizzy',...p});
+  const state=await api('garden_v3_state');mergeShared(state);
+  if(local.pendingDelivery&&!applyDelivery(r.item))throw Error('Bouquet delivered to HQ, but flower inventory needs reconciliation. Use Retry after checking stock.');
+  await sendProgress();
+ }
  async function sendProgress(){if(!worker()||sendingProgress)return;scan();unlockSeeds();const p=progress(),s=JSON.stringify(p);if(local.lastSync===s)return;
  sendingProgress=true;try{const d=await api('garden_v3_progress',{progress:p});mergeShared(d);local.lastSync=s;save()}catch(e){status('⚠️ V3 sync: '+e.message)}finally{sendingProgress=false}}
  async function refresh(force=false){if(isFetching||!worker()||(!force&&now()-lastFetched<38000))return;
@@ -194,7 +213,7 @@
   <h3>🎁 Gifts from Mikael</h3><div class="gm-gifts">${gifts.length?gifts.slice().reverse().map(giftCard).join(''):'<p>No gifts waiting yet. Mikael can prepare surprises through Micky HQ.</p>'}</div><h3>🪴 Potted plants placed in your Hidden Garden</h3><div class="gm-seedlist">${potted.length?potted.map(p=>`<div class="gm-seedcard">${smallImg(p.flowerId)}<b>${esc(catalog[p.flowerId]?.name||p.flowerId)}</b><small>Gift from Mikael · ${esc(giftPlaces[p.location]||'Garden')}</small></div>`).join(''):'<p class="gm-caption">Potted plants Mikael sends appear here after unwrapping.</p>'}</div><h3>✨ My decorations (${decor.length})</h3><div class="gm-statline">${decor.length?decor.map(p=>`<span>${decorations[p.id]?.[1]||'🌷'} ${esc(decorations[p.id]?.[0]||p.id)}${p.source==='hidden-shop'?' · Bought':p.source==='milestone'?' · Earned':' · Gifted'}</span>`).join(''):'<span>No decorations yet. Purchase them above or receive gifts from Mikael.</span>'}</div>`;
  }
  function available(){const g=garden(),arr=[];for(const o of flowerOptions){const count=Number(species[o.id]?local.harvested[o.id]:g.flowers?.[o.id])||0;if(count>0)arr.push({...o,count})}return arr}
- function flowerSelection(){const valid=available();return `<div class="gm-flower-choices">${valid.length?valid.map(o=>`<button data-flower="${o.id}" class="${chosen.includes(o.id)?'gm-on':''}">${img(o.img)}<b>${esc(o.name)}</b><small>Available: ${o.count}</small></button>`).join(''):'<p>No harvested flowers available. Grow plants in your main garden or one of the special gardens.</p>'}</div>`}
+ function flowerSelection(){const valid=available(),counts=bouquetCounts(chosen);return `<div class="gm-flower-choices">${valid.length?valid.map(o=>`<div class="gm-flower-choice ${counts[o.id]?'gm-on':''}">${img(o.img)}<b>${esc(o.name)}</b><small>Stored: ${o.count} · Selected: ${counts[o.id]||0}</small><div class="gm-qty-controls"><button type="button" data-remove-flower="${o.id}" ${counts[o.id]?'':'disabled'} aria-label="Remove one ${esc(o.name)}">−</button><strong>${counts[o.id]||0}</strong><button type="button" data-flower="${o.id}" ${chosen.length<6&&(counts[o.id]||0)<o.count?'':'disabled'} aria-label="Add one ${esc(o.name)}">+</button></div></div>`).join(''):'<p>No harvested flowers available. Grow plants in your main garden or one of the special gardens.</p>'}</div>`}
  function bouquetCard(b){const isIn=b.to==='Lizzy',glow=b.glow===true||false;return `<div class="gm-card ${glow?'gm-glowing-bouquet':''}"><b>${isIn?'🎁 From Mikael':'💌 Sent to Mikael'} ${glow?'· ✨ Glowing':''}</b><div class="gm-gift-header">${(b.flowers||[]).map(smallImg).join('')}</div><p>${esc((b.flowers||[]).map(id=>catalog[id]?.name||id).join(', '))}</p><p class="gm-caption">${esc(b.wrapping||'')} · ${esc(b.ribbon||'')} · ${b.openedAt?'Opened':'Delivered'}</p><div class="gm-message">${esc(b.note||'A bouquet with love')}</div>${isIn&&!b.openedAt?`<button data-open-bouquet="${esc(b.id)}">${glow?'✨ Open glowing bouquet':'💐 Open bouquet'}</button>`:''}</div>`}
  function studioPage(){const gl=chosen.some(id=>glowIds.has(id));const c=deliveries();return `<h3>💐 Bouquet Studio</h3><p>Choose up to six harvested flowers, wrapping and a ribbon. Glowing bouquets require a moonlit flower. Mikael can send bouquets directly from HQ.</p><div class="gm-statline"><span>Sent: ${c.fromLizzy}</span><span>From Mikael: ${c.fromMikael}</span><span>Total deliveries: ${c.total}</span></div><div class="gm-card"><h3>🌷 Pick flowers</h3>${flowerSelection()}<p class="gm-caption">Selected: ${chosen.length}/6 · ${gl?'✨ Glowing bouquet available':'Choose a moonlit flower for glow'}</p><div class="gm-formgrid"><label>Wrapping<select id="gmWrapping" class="gm-select">${wrapOptions.map(x=>`<option ${x===wrapping?'selected':''}>${x}</option>`).join('')}</select></label><label>Ribbon<select id="gmRibbon" class="gm-select">${ribbonOptions.map(x=>`<option ${x===ribbon?'selected':''}>${x}</option>`).join('')}</select></label></div><label>Personal note<textarea id="gmNote" maxlength="300" class="gm-textarea" placeholder="Write Mikael a note…">${esc(note)}</textarea></label><label class="gm-check"><input id="gmGlow" type="checkbox" ${gl?'checked':''} ${gl?'':'disabled'}> ✨ Glowing bouquet</label><button id="gmSend" class="gm-primary" ${chosen.length&&!local.pendingDelivery?'':'disabled'}>💌 Send to Mikael</button>${local.pendingDelivery?'<div class="gm-warning">The previous delivery may have reached HQ. Retry the same reference to finish safely.</div><button id="gmRetry">↻ Retry / confirm previous delivery</button>':''}</div><h3>📖 Bouquet & Gift Memory Book</h3><div class="gm-letters">${shared.bouquets.length?shared.bouquets.slice().reverse().map(bouquetCard).join(''):'<p class="gm-caption">Your delivered bouquets will be kept here.</p>'}</div>`}
  function passportPage(){const c=deliveries(),photos=Object.values(local.butterflies).reduce((s,x)=>s+Number(x.photos||0),0),moon=local.beds.filter(p=>p.stage>=3&&species[p.flowerId]?.zone==='moon').length;
@@ -326,10 +345,11 @@
      const awarded=grantGift(r.item);render();status(awarded?'🎁 Gift opened and added to your Hidden Garden!':'🎁 Gift opened.');await sendProgress();
     }catch(e){status('⚠️ '+e.message);b.disabled=false}return;
    }
-   if(key('flower')){
+   if(key('flower')||key('removeFlower')){
     wrapping=$('gmWrapping')?.value||wrapping;ribbon=$('gmRibbon')?.value||ribbon;note=$('gmNote')?.value||note;
-    const id=b.dataset.flower;if(chosen.includes(id))chosen=chosen.filter(x=>x!==id);
-    else if(chosen.length<6&&available().some(x=>x.id===id))chosen.push(id);
+    const id=b.dataset.flower||b.dataset.removeFlower;
+    if(b.dataset.removeFlower){const i=chosen.lastIndexOf(id);if(i>=0)chosen.splice(i,1);}
+    else {const inStorage=available().find(x=>x.id===id)?.count||0;if(chosen.length<6&&chosen.filter(x=>x===id).length<inStorage)chosen.push(id);}
     render();return;
    }
    if(b.id==='gmRetry'){
@@ -338,7 +358,7 @@
    if(b.id==='gmSend'){
     if(local.pendingDelivery||!chosen.length)return;
     wrapping=$('gmWrapping')?.value||wrapping;ribbon=$('gmRibbon')?.value||ribbon;note=$('gmNote')?.value||note;
-    const own=available();if(chosen.some(id=>!own.some(x=>x.id===id)))return status('One of the selected flowers is no longer available.');
+    if(!hasBouquetFlowers(chosen))return status('Not enough harvested flowers in storage for this arrangement.');
     const glow=Boolean($('gmGlow')?.checked)&&chosen.some(id=>glowIds.has(id));
     const tx={clientTx:uid(),flowers:[...chosen],wrapping,ribbon,note,glow};local.pendingDelivery=tx;save();b.disabled=true;
     try{await retryDelivery();render();status('💌 '+(glow?'Glowing bouquet':'Bouquet')+' delivered to Mikael in Micky HQ!')}
@@ -354,8 +374,9 @@
  function init(){if(!document.querySelector('#lizzyGardenWindow .gardenApp'))return;
   makeUI();scan();unlockSeeds();save();render();
   $('lizzyGardenIcon')?.addEventListener('click',()=>{render();refresh(true)});
-  window.addEventListener('lizzyGardenUpdated',()=>{if(scan()){render();sendProgress()}});
-  window.addEventListener('storage',e=>{if(e.key===GARDEN){if(scan()){render();sendProgress()}}});
+  window.addEventListener('lizzyGardenUpdated',()=>{render();if(scan())sendProgress()});
+  window.addEventListener('lizzyGardenHarvested',()=>{render();if(scan())sendProgress()});
+  window.addEventListener('storage',e=>{if(e.key===GARDEN){render();if(scan())sendProgress()}});
   // Refresh disabled watering/harvesting controls without disturbing notes or catching animations.
   setInterval(()=>{if(document.hidden)return;const body=$('gmBody');if(!body)return;
    body.querySelectorAll('[data-water-special]').forEach(b=>{const p=local.beds.find(x=>x.id===b.dataset.waterSpecial);if(p)b.disabled=p.stage>=3||now()-(p.lastCare||0)<1200;});

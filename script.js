@@ -3368,6 +3368,41 @@ window.LizzyDailyRewardsV4={counts:{basic:BASIC.length,reverse:REVERSE.length,no
         gardenComment(`${FLOWERS[flowerId].img?"🌸":FLOWERS[flowerId].emoji} ${FLOWERS[flowerId].name} added to the collection${reason?` — ${reason}`:""}.`);
         renderGarden();
     }
+    // Garden Magic V3 bouquet checkout. Count stems, validate everything, and save
+    // inventory + idempotency receipt together so a retried delivery cannot double-charge.
+    function consumeBouquetFlowers(stems, deliveryRef){
+        const ref=String(deliveryRef||'').trim();
+        if(!/^[a-zA-Z0-9_-]{10,100}$/.test(ref))return {ok:false,error:'Invalid bouquet reference'};
+        if(!Array.isArray(stems)||stems.length>6)return {ok:false,error:'Invalid bouquet size'};
+        const latest=safeRead(KEYS.garden,null);
+        if(latest&&typeof latest==='object'){
+            garden=Object.assign(defaultGarden(),latest);
+            garden.seeds=garden.seeds||{};garden.plants=Array.isArray(garden.plants)?garden.plants:[];
+            garden.flowers=garden.flowers||{};
+        }
+        garden.bouquetRedemptions=Array.isArray(garden.bouquetRedemptions)?garden.bouquetRedemptions:[];
+        if(garden.bouquetRedemptions.includes(ref))return {ok:true,duplicate:true};
+        const counts={};
+        for(const f of stems){
+            if(!FLOWERS[f]||FLOWERS[f].type!=='flower'||f==='oneOfOneBloom')return {ok:false,error:'Invalid flower in bouquet'};
+            counts[f]=(counts[f]||0)+1;
+        }
+        for(const [f,n] of Object.entries(counts)){
+            if(Number(garden.flowers[f]||0)<n)return {ok:false,error:'Not enough '+FLOWERS[f].name+' in Flower Storage'};
+        }
+        for(const [f,n] of Object.entries(counts))garden.flowers[f]-=n;
+        garden.bouquetRedemptions.push(ref);
+        garden.bouquetRedemptions=garden.bouquetRedemptions.slice(-160);
+        saveGarden();
+        if(!$('lizzyGardenWindow')?.classList.contains('hidden'))renderCollection();
+        return {ok:true,duplicate:false};
+    }
+    function canConsumeBouquetFlowers(stems){
+        const fresh=safeRead(KEYS.garden,{flowers:{}}),counts={};
+        for(const f of stems||[])counts[f]=(counts[f]||0)+1;
+        return Object.entries(counts).every(([id,n])=>FLOWERS[id]&&FLOWERS[id].type==='flower'&&id!=='oneOfOneBloom'&&Number(fresh.flowers?.[id]||0)>=n);
+    }
+
     function randomStandardFlower(){
         return STANDARD_FLOWERS[hash(Date.now()+"flower"+Math.random())%STANDARD_FLOWERS.length];
     }
@@ -4624,7 +4659,7 @@ Status: REDEEMED${isArgument?"\n\nMikael's right to appeal: DENIED 😂":""}`;
 
     // Public helper for the upcoming Cloudflare/Telegram setup:
     // localStorage.setItem("lizzyTelegramWorkerURL","https://YOUR-WORKER.workers.dev")
-    window.LizzyGarden = {render:renderGarden,addSeed,addFlower,addToken,harvestPlant};
+    window.LizzyGarden = {render:renderGarden,addSeed,addFlower,addToken,harvestPlant,consumeBouquetFlowers,canConsumeBouquetFlowers};
 
     /* ---------------------------------------------------------------
        EXTERNAL REWARD SYNC (Vault / Secret Shelf / Daily Rewards)
