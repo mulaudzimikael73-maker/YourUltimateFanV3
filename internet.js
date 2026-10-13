@@ -863,8 +863,17 @@ function news(){
  const quote=pickForToday(NEWS_QUOTES,"quote");
  const bankArticle=pickForToday(NEWS_BANK_ARTICLES,"bankArticle");
  const presidentArticle=pickForToday(NEWS_PRESIDENT_ARTICLES,"presidentArticle");
- const gobFeatures=gobshiteStoryPicks(3);
- const gobBriefs=pickManyForToday(NEWS_GOBSHITE_BRIEFS,"gobshite-briefs",4);
+ // One-day editorial spotlight: new pieces promoted for 13 October 2026 only.
+ // Ordinary deterministic daily shuffling resumes automatically on 14 October.
+ const gobSpecialEdition=newsDayKey()==="2026-10-13";
+ const spotlightFeatures=["A01","E01","H02","A02"];
+ const spotlightBriefs=["C02","F02","J01","C03","J04"];
+ const gobFeatures=gobSpecialEdition
+  ? spotlightFeatures.map(id=>NEWS_GOBSHITE_FEATURES.find(article=>article.id===id)).filter(Boolean)
+  : gobshiteStoryPicks(3);
+ const gobBriefs=gobSpecialEdition
+  ? spotlightBriefs.map(id=>NEWS_GOBSHITE_BRIEFS.find(article=>article.id===id)).filter(Boolean)
+  : pickManyForToday(NEWS_GOBSHITE_BRIEFS,"gobshite-briefs",4);
  // Half the daily ticker remains original; half comes from the new pack.
  const ticker=pickManyForToday([
   ...pickManyForToday(NEWS_TICKER,"ticker-original",3),
@@ -911,8 +920,8 @@ function news(){
 
   ${GOBSHITE_EDITION_CSS}
   <section class="newsBlog gobshiteEdition">
-    <div class="newsSectionTitle">🗞️ The Daily Gobshite — Today's Exclusives</div>
-    <p class="gobIntro">Brand-new investigations mixed into the existing daily paper. A fresh selection appears every day.</p>
+    <div class="newsSectionTitle">🗞️ The Daily Gobshite — ${gobSpecialEdition?"13 October Special Edition":"Today's Exclusives"}</div>
+    <p class="gobIntro">${gobSpecialEdition?"Today’s spotlight: Memorygate, the accidental-call scandal, spontaneous hello calls and the horror-movie negotiations. Tomorrow, the regular daily shuffle resumes.":"Brand-new investigations mixed into the existing daily paper. A fresh selection appears every day."}</p>
     ${gobFeatures.map(gobshiteFeatureHtml).join("")}
   </section>
   <section class="newsBulletin">
