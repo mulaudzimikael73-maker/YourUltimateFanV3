@@ -3090,6 +3090,7 @@ window.LizzyDailyRewardsV4={counts:{basic:BASIC.length,reverse:REVERSE.length,no
             plants:[],
             seeds:{},
             flowers:{},
+            harvestHistory:[],
             selectedSeed:null,
             lastWeatherApplied:"",
             lastPestApplied:"",
@@ -3105,6 +3106,7 @@ window.LizzyDailyRewardsV4={counts:{basic:BASIC.length,reverse:REVERSE.length,no
     let garden = Object.assign(defaultGarden(), safeRead(KEYS.garden, {}));
     garden.seeds = garden.seeds || {};
     garden.flowers = garden.flowers || {};
+    garden.harvestHistory = Array.isArray(garden.harvestHistory) ? garden.harvestHistory : [];
     garden.plants = Array.isArray(garden.plants) ? garden.plants : [];
     let tokens = Object.assign(defaultTokens(), safeRead(KEYS.tokens, {}));
     tokens.inventory = tokens.inventory || {};
@@ -3265,6 +3267,77 @@ window.LizzyDailyRewardsV4={counts:{basic:BASIC.length,reverse:REVERSE.length,no
         if(watered>=1)return 1;
         return 0;
     }
+    // GARDEN HARVEST V3: Only ordinary flowers in the original garden.
+    // Fruit trees, ornamental trees, and the unique One-of-One Lizzy Bloom
+    // retain their existing collection/reward behaviour unchanged.
+    const HARVEST_COOLDOWN_MS = 72 * 60 * 60 * 1000;
+    function harvestableFlower(plant){
+        const f = plant && FLOWERS[plant.flowerId];
+        return !!(f && f.type === "flower" && plant.flowerId !== "oneOfOneBloom");
+    }
+    function harvestRemaining(plant){
+        if(!plant || !plant.lastHarvestAt) return 0;
+        const at = Date.parse(plant.lastHarvestAt);
+        if(!Number.isFinite(at)) return 0;
+        return Math.max(0, Math.min(HARVEST_COOLDOWN_MS, HARVEST_COOLDOWN_MS - (Date.now() - at)));
+    }
+    function harvestCountdown(ms){
+        const totalMinutes = Math.max(1, Math.ceil(ms / 60000));
+        const days = Math.floor(totalMinutes / 1440);
+        const hours = Math.floor((totalMinutes % 1440) / 60);
+        const minutes = totalMinutes % 60;
+        if(days) return `${days}d ${hours}h`;
+        if(hours) return `${hours}h ${minutes}m`;
+        return `${minutes}m`;
+    }
+    function harvestPlant(id){
+        // Re-sync from persistent garden state before inventory-affecting action.
+        // Bouquet Studio also consumes flowers via window.LizzyGarden.addFlower.
+        const latest = safeRead(KEYS.garden, null);
+        if(latest && typeof latest === "object") {
+            garden = Object.assign(defaultGarden(), latest);
+            garden.seeds = garden.seeds || {};
+            garden.flowers = garden.flowers || {};
+            garden.harvestHistory = Array.isArray(garden.harvestHistory) ? garden.harvestHistory : [];
+            garden.plants = Array.isArray(garden.plants) ? garden.plants : [];
+        }
+        const p = garden.plants.find(x=>x.id===id);
+        if(!p || !harvestableFlower(p)) return false;
+        const f = FLOWERS[p.flowerId];
+        if(growthStage(p)<4){gardenComment('🌱 '+f.name+' is still growing.');return false;}
+        const remaining = harvestRemaining(p);
+        if(remaining>0){gardenComment('⏳ '+f.name+' is ready in '+harvestCountdown(remaining)+'.');return false;}
+        if(currentHealth(p)<45 || p.pest){
+            gardenComment('💧 Water '+f.name+' and treat any pests before harvesting.');
+            return false;
+        }
+        garden.flowers[p.flowerId] = Math.max(0, Number(garden.flowers[p.flowerId]||0)) + 1;
+        p.lastHarvestAt = nowISO();
+        p.harvestCount = Math.max(0, Number(p.harvestCount||0)) + 1;
+        garden.harvestHistory.push({plantId:p.id,flowerId:p.flowerId,at:p.lastHarvestAt});
+        garden.harvestHistory = garden.harvestHistory.slice(-100);
+        saveGarden();
+        renderGarden();
+        gardenComment('✂️ Harvested 1 '+f.name+'! Added to Flower Storage. The plant stays in its plot; next harvest in 3 days.');
+        window.dispatchEvent(new CustomEvent('lizzyGardenHarvested', {detail:{plantId:p.id,flowerId:p.flowerId,quantity:1}}));
+        return true;
+    }
+    function migrateOriginalGardenHarvestOnce(){
+        if(Number(garden.harvestFeatureVersion||0)>=1) return;
+        // Before this update, a flower was automatically awarded at maturity.
+        // Respect that historical award: a mature pre-existing flower starts
+        // its first regrowth cycle from its most recent watering timestamp.
+        // New plants have no lastHarvestAt and become ready at maturity.
+        for(const p of garden.plants){
+            if(harvestableFlower(p) && growthStage(p)>=4 && !p.lastHarvestAt){
+                p.lastHarvestAt = p.lastWatered || p.plantedAt || nowISO();
+            }
+        }
+        garden.harvestFeatureVersion = 1;
+        saveGarden();
+    }
+    migrateOriginalGardenHarvestOnce();
+
     function flowerIcon(f,size=48){
         if(f&&f.img) return `<img class="flowerImg" src="${f.img}" alt="${f.name}" style="width:${size}px;height:${size}px;object-fit:contain;vertical-align:middle">`;
         return f?f.emoji:"🌸";
@@ -3486,9 +3559,11 @@ window.LizzyDailyRewardsV4={counts:{basic:BASIC.length,reverse:REVERSE.length,no
                     ${dying?`<small class="plantDyingWarning">⏳ Wilts away in ~${hoursLeft}h without water</small>`:""}
                     <div class="plantHealthBar"><div class="plantHealthFill" style="width:${health}%"></div></div>
                     <small>💧 Last watered: ${new Date(p.lastWatered).toLocaleString()}</small>
+                    ${harvestableFlower(p)&&growthStage(p)===4?`<small class="harvest-status">${harvestRemaining(p)>0?'🌱 Next blossom: '+harvestCountdown(harvestRemaining(p)):health<45||p.pest?'💧 Plant needs care before harvest':'🌸 Blossom ready to harvest'}</small>`:''}
                     <div class="plantActions">
                         <button data-water="${p.id}">💧 Water</button>
                         <button data-boost="${p.id}">✨ Check</button>
+                        ${harvestableFlower(p)&&growthStage(p)===4?`<button data-harvest-main="${p.id}" ${harvestRemaining(p)>0||health<45||p.pest?'disabled':''}>${harvestRemaining(p)>0?'⏳ '+harvestCountdown(harvestRemaining(p)):'✂️ Harvest Flower'}</button>`:''}
                         ${pestType?`<button data-spray="${p.id}" ${Number(garden.bugSpray||0)<=0?"disabled":""}>🧴 Bug Spray (${Number(garden.bugSpray||0)})</button><button data-quickfix="${p.id}">🎯 Quick Fix</button>`:""}
                     </div>
                 </div>
@@ -3500,6 +3575,7 @@ window.LizzyDailyRewardsV4={counts:{basic:BASIC.length,reverse:REVERSE.length,no
 
         host.querySelectorAll("[data-empty-slot]").forEach(el=>el.onclick=()=>plantSelectedSeed(Number(el.dataset.emptySlot)));
         host.querySelectorAll("[data-water]").forEach(b=>b.onclick=e=>{e.stopPropagation();waterPlant(b.dataset.water)});
+        host.querySelectorAll("[data-harvest-main]").forEach(b=>b.onclick=e=>{e.stopPropagation();harvestPlant(b.dataset.harvestMain)});
         host.querySelectorAll("[data-boost]").forEach(b=>b.onclick=e=>{e.stopPropagation();inspectPlant(b.dataset.boost)});
         host.querySelectorAll("[data-spray]").forEach(b=>b.onclick=e=>{e.stopPropagation();useBugSpray(b.dataset.spray)});
         host.querySelectorAll("[data-quickfix]").forEach(b=>b.onclick=e=>{e.stopPropagation();openPestMiniGame(b.dataset.quickfix)});
@@ -3508,11 +3584,12 @@ window.LizzyDailyRewardsV4={counts:{basic:BASIC.length,reverse:REVERSE.length,no
     function renderCollection(){
         const host=$("gardenFlowerCollection");
         const entries=Object.entries(garden.flowers).filter(([,n])=>n>0);
-        host.innerHTML=entries.length?entries.map(([id,n])=>`
+        host.innerHTML=`<div class="gardenHarvestStorageNote">✂️ Flowers you harvest are stored here for Bouquet Studio. Existing flowers and reward items remain in your collection. Plants regrow a harvestable blossom every 3 days.</div>`+
+        (entries.length?entries.map(([id,n])=>`
             <div class="flowerCollectionChip">
                 <b>${flowerIcon(FLOWERS[id],28)} ${FLOWERS[id].name} ×${n}</b>
                 <small>${FLOWERS[id].rarity}</small>
-            </div>`).join(""):`<div class="memoryMessage">Your collection will grow as flowers bloom and rewards drop. 🌷</div>`;
+            </div>`).join(""):`<div class="memoryMessage">No harvested flowers yet. Mature a flower, then press Harvest Flower. 🌷</div>`);
     }
 
     function renderGarden(){
@@ -3532,6 +3609,10 @@ window.LizzyDailyRewardsV4={counts:{basic:BASIC.length,reverse:REVERSE.length,no
             .plantPestBadge{color:#d97706;font-weight:600}
             .plantDyingWarning{color:#b91c1c;font-weight:600}
             .gardenGraveyard{grid-column:1/-1;text-align:center;opacity:.65;padding:10px 0;font-size:12px}
+            .gardenHarvestStorageNote{grid-column:1/-1;width:100%;padding:9px 12px;border-radius:12px;background:rgba(92,151,95,.12);font-size:12px;line-height:1.5;color:inherit}
+            .harvest-status{display:block;color:#2b8550;font-weight:700;margin:4px 0}
+            .plantActions button[data-harvest-main]{background:#327f53;color:#fff;border:1px solid #327f53}
+            .plantActions button[data-harvest-main]:disabled{background:#8b9f90;color:#f7f7f7;cursor:not-allowed;opacity:.77}
             #gardenPestAlert{background:#fef3c7;color:#92400e;border:1px solid #f59e0b}
             .pestGameOverlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9998;display:flex;align-items:center;justify-content:center}
             .pestGameCard{background:#1c2117;border:1px solid #4a5d3a;border-radius:16px;padding:20px;width:min(360px,90vw);text-align:center;color:#eef5e5;font-family:inherit}
@@ -3654,15 +3735,22 @@ window.LizzyDailyRewardsV4={counts:{basic:BASIC.length,reverse:REVERSE.length,no
         p.waterCount=(p.waterCount||0)+1;
         const after=growthStage(p);
         if(after===4 && before<4){
-            addFlower(p.flowerId,1,"Fully grown in the Garden");
+            if(harvestableFlower(p)){
+                gardenComment('🌸 '+FLOWERS[p.flowerId].name+' is fully grown! Press Harvest Flower to collect its first blossom.');
+            }else{
+                // Preserve the established auto-award for trees and the unique flower.
+                addFlower(p.flowerId,1,"Fully grown in the Garden");
+            }
         }
         saveGarden();
         window.dispatchEvent(new CustomEvent("lizzyJobProof",{detail:{type:"plant_watered",plantId:id}}));
         const card=document.querySelector(`[data-plant="${id}"] .plantVisual`);
         card?.classList.add("waterSplash");setTimeout(()=>card?.classList.remove("waterSplash"),700);
-        gardenComment(p.flowerId==="bananaTree"
-            ? randomFrom(MIKAEL_COMMENTS.banana)
-            : "💧 Water delivered. The plant has decided not to file a complaint today.");
+        gardenComment(after===4&&before<4&&harvestableFlower(p)
+            ? '🌸 '+FLOWERS[p.flowerId].name+' is fully grown! Harvest its blossom when you are ready.'
+            : p.flowerId==="bananaTree"
+                ? randomFrom(MIKAEL_COMMENTS.banana)
+                : "💧 Water delivered. The plant has decided not to file a complaint today.");
         renderGarden();
     }
 
@@ -4536,7 +4624,7 @@ Status: REDEEMED${isArgument?"\n\nMikael's right to appeal: DENIED 😂":""}`;
 
     // Public helper for the upcoming Cloudflare/Telegram setup:
     // localStorage.setItem("lizzyTelegramWorkerURL","https://YOUR-WORKER.workers.dev")
-    window.LizzyGarden = {render:renderGarden,addSeed,addFlower,addToken};
+    window.LizzyGarden = {render:renderGarden,addSeed,addFlower,addToken,harvestPlant};
 
     /* ---------------------------------------------------------------
        EXTERNAL REWARD SYNC (Vault / Secret Shelf / Daily Rewards)
@@ -4550,6 +4638,7 @@ Status: REDEEMED${isArgument?"\n\nMikael's right to appeal: DENIED 😂":""}`;
             garden=Object.assign(defaultGarden(),g);
             garden.seeds=garden.seeds||{};
             garden.flowers=garden.flowers||{};
+            garden.harvestHistory=Array.isArray(garden.harvestHistory)?garden.harvestHistory:[];
             garden.plants=Array.isArray(garden.plants)?garden.plants:[];
         }
         const t=safeRead(KEYS.tokens,null);
@@ -4578,6 +4667,13 @@ Status: REDEEMED${isArgument?"\n\nMikael's right to appeal: DENIED 😂":""}`;
         seedIds(){return Object.keys(SEEDS)}
     };
 
+    // Repaint only while the original garden is visible; the 72-hour timer
+    // is based on saved timestamps, not on the tab remaining open.
+    setInterval(()=>{
+        if(!$('lizzyGardenWindow')?.classList.contains('hidden')){
+            try{renderPlots()}catch(e){}
+        }
+    },60000);
     renderTokens();
 })();
 
