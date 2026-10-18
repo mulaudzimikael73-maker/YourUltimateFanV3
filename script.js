@@ -2064,14 +2064,109 @@ document.addEventListener("keydown", (event) => {
 // Telegram notification handling is now in letter-notifications.js.
 // =========================================================
 
-// WOULD MIKAEL RATHER 40Q
-(()=>{const bank=[{"a": "🏀 Basketball", "b": "⚽ Soccer", "correct": "A", "n": 1}, {"a": "❄️ Winter", "b": "☀️ Summer", "correct": "A", "n": 2}, {"a": "🍕 Pizza", "b": "🍔 Burgers", "correct": "B", "n": 3}, {"a": "📺 The Office", "b": "🚔 Brooklyn Nine-Nine", "correct": "A", "n": 4}, {"a": "🦇 Batman", "b": "🕷️ Spider-Man", "correct": "A", "n": 5}, {"a": "🎤 Dave", "b": "🎤 J. Cole", "correct": "B", "n": 6}, {"a": "🎵 Kwesta", "b": "🎵 Sjava", "correct": "A", "n": 7}, {"a": "⚽ Liverpool", "b": "☠️ Orlando Pirates", "correct": "A", "n": 8}, {"a": "🏠 Movies at home", "b": "🌃 Night out", "correct": "A", "n": 9}, {"a": "✈️ 6 months in Dagestan", "b": "🌍 5 different countries", "correct": "A", "n": 10}, {"a": "💰 1,000,000 MB now", "b": "💼 Dream job for life", "correct": "B", "n": 11}, {"a": "🏀 Meet Michael Jordan", "b": "🔥 1v1 Steph Curry", "correct": "B", "n": 12}, {"a": "🍽️ Fancy restaurant", "b": "🎳 Fun activity date", "correct": "B", "n": 13}, {"a": "📞 Call all night", "b": "💬 Text all day", "correct": "A", "n": 14}, {"a": "🎁 Thoughtful gift", "b": "❤️ Thoughtful message", "correct": "A", "n": 15}, {"a": "🎳 Lose to Lizzy at bowling", "b": "😩 Admit Lizzy was right", "correct": "A", "n": 16}, {"a": "😂 Lizzy roasts you all day", "b": "👔 Lizzy chooses your outfits for a week", "correct": "A", "n": 17}, {"a": "👓 Never say Four Eyes", "b": "😏 Never say Little Miss Attitude", "correct": "A", "n": 18}, {"a": "🔎 Lizzy reads your search history", "b": "📸 Lizzy reads your camera roll", "correct": "B", "n": 19}, {"a": "💕 One huge romantic surprise", "b": "🌸 Lots of little surprises", "correct": "B", "n": 20}, {"a": "🌅 Wake up really early", "b": "🌙 Stay up ridiculously late", "correct": "B", "n": 21}, {"a": "🏀 Courtside NBA Finals tickets", "b": "⚽ Champions League Final tickets", "correct": "B", "n": 22}, {"a": "🎤 J. Cole concert", "b": "🎤 Dave concert", "correct": "BOTH", "n": 23}, {"a": "🦇 Live in Gotham for a month", "b": "🏀 Train with Michael Jordan for a week", "correct": "B", "n": 24}, {"a": "🎮 Gaming night", "b": "🎬 Movie marathon", "correct": "B", "n": 25}, {"a": "🍳 Breakfast date", "b": "🍽️ Dinner date", "correct": "A", "n": 26}, {"a": "🏖️ Beach holiday", "b": "🏔️ Mountain holiday", "correct": "B", "n": 27}, {"a": "💵 Extremely rich but unknown", "b": "🌟 Famous but comfortably wealthy", "correct": "A", "n": 28}, {"a": "🏆 Liverpool win Champions League", "b": "🏆 Orlando Pirates win CAF Champions League", "correct": "B", "n": 29}, {"a": "🏀 Michael Jordan in his prime", "b": "🏀 Steph Curry in his prime", "correct": "A", "n": 30}, {"a": "😂 Make Lizzy laugh", "b": "😳 Make Lizzy blush", "correct": "B", "n": 31}, {"a": "💌 Long paragraph from Lizzy", "b": "🎁 Surprise from Lizzy", "correct": "BOTH", "n": 32}, {"a": "🫂 30-minute cuddle", "b": "📞 3-hour late-night call", "correct": "BOTH", "n": 33}, {"a": "🎳 Beat Lizzy badly at bowling", "b": "😏 Let her win and never tell her", "correct": "B", "n": 34}, {"a": "🪪 Full government name for a week", "b": "👑 Only Mr Perfect for a week", "correct": "B", "n": 35}, {"a": "👀 Lizzy knows everything you've said about her", "b": "📱 Lizzy gets your unlocked phone for 30 minutes", "correct": "B", "n": 36}, {"a": "💕 Plan the entire date yourself", "b": "👸 Let Lizzy plan everything", "correct": "B", "n": 37}, {"a": "💋 One perfect kiss", "b": "🫂 Unlimited hugs for a week", "correct": "BOTH", "n": 38}, {"a": "😤 Win every argument against Lizzy", "b": "🥺 Never have Lizzy annoyed with you again", "correct": "A", "n": 39}, {"a": "❤️ Hear Lizzy say “I miss you”", "b": "👀 Hear Lizzy admit “You were right”", "correct": "A", "n": 40}],$=x=>document.getElementById(x);let round=[],i=0,score=0,answerLog=[];
-function intro(){$("wouldRatherIntro").classList.remove("hidden");$("wouldRatherPlay").classList.add("hidden");$("wouldRatherResult").classList.add("hidden")}
-function start(){round=[...bank].sort(()=>Math.random()-.5).slice(0,5);i=score=0;answerLog=[];$("wouldRatherIntro").classList.add("hidden");$("wouldRatherResult").classList.add("hidden");$("wouldRatherPlay").classList.remove("hidden");render()}
-function render(){let q=round[i];$("wouldRatherProgress").textContent=`${i+1}/5 • Q${q.n}`;$("wouldRatherScore").textContent=`Score: ${score}`;$("wouldRatherA").textContent=q.a;$("wouldRatherB").textContent=q.b;$("wouldRatherA").disabled=$("wouldRatherB").disabled=false;$("wouldRatherReaction").textContent=""}
-function pick(x){let q=round[i],ok=q.correct==="BOTH"||q.correct===x;if(ok)score++;answerLog.push({questionNumber:q.n,question:`${q.a} OR ${q.b}`,lizzyAnswer:x==="A"?q.a:q.b,mikaelAnswer:q.correct==="BOTH"?"Either / Both":q.correct==="A"?q.a:q.b,correct:ok?"Yes":"No"});$("wouldRatherA").disabled=$("wouldRatherB").disabled=true;$("wouldRatherReaction").textContent=ok?"Correct 👀❤️":"Wrong 😭 Mr Perfect disagrees.";setTimeout(()=>{i++;i<5?render():finish()},650)}
-function finish(){window.dispatchEvent(new CustomEvent("lizzyJobProof",{detail:{type:"would_rather_complete"}}));window.dispatchEvent(new CustomEvent("lizzyJobProof",{detail:{type:"game_complete",game:"would_rather",perfect:score===5}}));$("wouldRatherPlay").classList.add("hidden");$("wouldRatherResult").classList.remove("hidden");let t=score===5?"DANGEROUSLY HIGH CLEARANCE 🕵️❤️":score>=4?"Very Suspicious 👀":score>=3?"Respectable 😌":score>=2?"Further Investigation Required 😂":"SECURITY CLEARANCE DENIED 🚨";$("wouldRatherResultTitle").textContent=`${score}/5 — ${t}`;$("wouldRatherResultText").textContent=score===5?"Agent Yelizaveta knows Mr Perfect suspiciously well.":"Play another random five and prove yourself.";fetch("https://formspree.io/f/mrpzlzkw",{method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json"},body:JSON.stringify({game:"Would Mikael Rather?",score:`${score}/5`,result:t,questions_and_answers:answerLog.map((a,n)=>`${n+1}. ${a.question}\nLizzy: ${a.lizzyAnswer}\nMikael: ${a.mikaelAnswer}\nCorrect: ${a.correct}`).join("\n\n")})}).catch(()=>{});lizzyTelegramNotify("🤔 WOULD MIKAEL RATHER COMPLETED",`${score}/5 — ${t}`,answerLog.map((a,n)=>`${n+1}. ${a.question}\nLizzy: ${a.lizzyAnswer}\nMikael: ${a.mikaelAnswer}\nCorrect: ${a.correct}`).join("\n\n"))}
-$("wouldMikaelRatherIcon")?.addEventListener("click",()=>{$("wouldMikaelRatherWindow").classList.remove("hidden");intro()});$("wouldMikaelRatherClose")?.addEventListener("click",()=>$("wouldMikaelRatherWindow").classList.add("hidden"));$("closeWouldMikaelRather")?.addEventListener("click",()=>$("wouldMikaelRatherWindow").classList.add("hidden"));$("startWouldRather")?.addEventListener("click",start);$("playWouldRatherAgain")?.addEventListener("click",start);$("wouldRatherA")?.addEventListener("click",()=>pick("A"));$("wouldRatherB")?.addEventListener("click",()=>pick("B"));})();
+// WOULD MIKAEL RATHER — PRESIDENTIAL EDITION (100 new approved questions).
+// The question bank and correct answers are held ONLY in the production V3 Worker.
+(() => {
+  'use strict';
+  const $ = id => document.getElementById(id);
+  const API = window.LIZZY_TELEGRAM_WORKER_URL || 'https://lizzyos-notifications.mulaudzimikael73.workers.dev/v3/';
+  const VERSION='presidential-v3-100-20261018';
+  let round=null, current=0, picks=[], busy=false;
+  const app=$('wouldMikaelRatherWindow');
+  if(!app) return;
+  const intro=()=>{
+    $('wouldRatherIntro').classList.remove('hidden');
+    $('wouldRatherPlay').classList.add('hidden');
+    $('wouldRatherResult').classList.add('hidden');
+    $('wouldRatherReaction').textContent='';
+    round=null;current=0;picks=[];busy=false;
+    $('wouldRatherIntro').querySelector('.wouldRatherError')?.remove();
+  };
+  const status=(message)=>{$('wouldRatherReaction').textContent=message;};
+  async function request(action,data={}){
+    const r=await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=UTF-8'},body:JSON.stringify({action,...data}),cache:'no-store'});
+    const value=await r.json();
+    if(!r.ok||!value?.success)throw Error(value?.error||'Could not contact the V3 game server.');
+    return value;
+  }
+  async function start(){
+    if(busy)return;
+    busy=true;
+    const go=$('startWouldRather'),again=$('playWouldRatherAgain');
+    go.disabled=again.disabled=true;
+    try{
+      const data=await request('would_rather_v3_start');
+      if(data.version!==VERSION||Number(data.totalBank)!==100||data.round?.questions?.length!==5){
+        throw Error('The live Cloudflare Worker needs the Presidential 100-question update.');
+      }
+      round=data.round;current=0;picks=[];
+      $('wouldRatherIntro').classList.add('hidden');
+      $('wouldRatherResult').classList.add('hidden');
+      $('wouldRatherPlay').classList.remove('hidden');
+      render();
+    }catch(e){
+      $('wouldRatherIntro').classList.remove('hidden');
+      $('wouldRatherPlay').classList.add('hidden');
+      $('wouldRatherResult').classList.add('hidden');
+      const text=$('wouldRatherIntro').querySelector('.wouldRatherError')||document.createElement('p');
+      text.className='wouldRatherError';text.setAttribute('role','alert');text.textContent=String(e.message||e);
+      $('wouldRatherIntro').appendChild(text);
+    }finally{busy=false;go.disabled=again.disabled=false;}
+  }
+  function render(){
+    const q=round.questions[current];
+    $('wouldRatherProgress').textContent=`${current+1}/5 • Question ${q.n}`;
+    $('wouldRatherScore').textContent=`Answered ${picks.length}/5`;
+    $('wouldRatherA').textContent=q.a;
+    $('wouldRatherB').textContent=q.b;
+    $('wouldRatherA').disabled=$('wouldRatherB').disabled=false;
+    status('Which would Mikael choose? Results are revealed after all five answers.');
+  }
+  async function pick(answer){
+    if(busy||!round||picks.length!==current)return;
+    busy=true;
+    $('wouldRatherA').disabled=$('wouldRatherB').disabled=true;
+    picks.push(answer);
+    status('Answer locked in 🔒');
+    if(current<4){current++;busy=false;render();return;}
+    status('Checking the Presidential answer key…');
+    try{
+      const outcome=await request('would_rather_v3_submit',{id:round.id,picks});
+      finish(outcome);
+    }catch(e){
+      picks.pop();
+      status('Could not check your answers: '+String(e.message||e)+' — choose your final answer again.');
+      $('wouldRatherA').disabled=$('wouldRatherB').disabled=false;
+    }finally{busy=false;}
+  }
+  function finish(data){
+    const score=data.score,total=data.total,details=data.details||[];
+    $('wouldRatherPlay').classList.add('hidden');
+    $('wouldRatherResult').classList.remove('hidden');
+    const title=score===5?'DANGEROUSLY HIGH CLEARANCE 🕵️❤️':score>=4?'Very Suspicious 👀':score>=3?'Respectable 😌':score>=2?'Further Investigation Required 😂':'SECURITY CLEARANCE DENIED 🚨';
+    $('wouldRatherResultTitle').textContent=`${score}/${total} — ${title}`;
+    const summary=details.map((q,i)=>`${i+1}. Q${q.n} ${q.a} OR ${q.b}\nLizzy: ${q.guess==='A'?q.a:q.b}\nMikael: ${q.correct==='BOTH'?'Either A or B':q.correct==='A'?q.a:q.b}\nCorrect: ${q.ok?'Yes':'No'}`).join('\n\n');
+    const resultText=$('wouldRatherResultText');
+    resultText.textContent=(score===5?'Agent Yelizaveta knows Mr Perfect suspiciously well.':'Play another round and try to outthink the President.')+' Your five questions came from the 100 approved Presidential dilemmas.';
+    // Preserve existing LizzyOS job-proof and game-completion events.
+    window.dispatchEvent(new CustomEvent('lizzyJobProof',{detail:{type:'would_rather_complete'}}));
+    window.dispatchEvent(new CustomEvent('lizzyJobProof',{detail:{type:'game_complete',game:'would_rather',perfect:score===5}}));
+    // Preserve the game's Formspree and Telegram completion reports. One submission per round.
+    if(!data.alreadySubmitted){
+      fetch('https://formspree.io/f/mrpzlzkw',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({game:'Would Mikael Rather? Presidential Edition',score:`${score}/${total}`,result:title,questions_and_answers:summary})}).catch(()=>{});
+      if(typeof lizzyTelegramNotify==='function')lizzyTelegramNotify('🤔 WOULD MIKAEL RATHER COMPLETED',`${score}/${total} — ${title}`,summary);
+    }
+  }
+  $('wouldMikaelRatherIcon')?.addEventListener('click',()=>{app.classList.remove('hidden');intro();});
+  $('wouldMikaelRatherClose')?.addEventListener('click',()=>app.classList.add('hidden'));
+  $('closeWouldMikaelRather')?.addEventListener('click',()=>app.classList.add('hidden'));
+  $('startWouldRather')?.addEventListener('click',start);
+  $('playWouldRatherAgain')?.addEventListener('click',start);
+  $('wouldRatherA')?.addEventListener('click',()=>pick('A'));
+  $('wouldRatherB')?.addEventListener('click',()=>pick('B'));
+  // The desktop Games folder opens the existing window directly; keep it compatible.
+  window.PresidentialWouldRatherV3={start,open:()=>{app.classList.remove('hidden');intro();}};
+})();
 // TIC-TAC-TOE VS MR PERFECT
 // Easy = mostly random
 // Medium = tactical
