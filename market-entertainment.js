@@ -178,7 +178,19 @@ function applyMarketCommand(c){const s=marketState(),all=STOCKS.map(x=>x.ticker)
  const headline=String(c.headline||autoHeadline||"").trim();
  if(headline){s.news.unshift({id:"hq"+Date.now()+Math.random().toString(36).slice(2,6),t:Date.now(),ticker:c.scope==="market"?"MARKET":ticker,headline:headline.slice(0,220),sentiment:c.headline?(c.sentiment||marketEventSentiment(automaticAction)):marketEventSentiment(automaticAction),hq:true});s.news=s.news.slice(0,15)}
  saveMarket(s);if(document.querySelector(".marketSite"))market();}
-async function applyDelivery(c){const s=entState(),p=s.purchases.find(x=>x.id===c.purchaseId);if(!p)return;const d=await worldApi("world_media_get",{mediaId:c.mediaId});if(!d.media?.data)return;await MediaDB.put(p.id,d.media);p.status="ready";p.mediaId=p.id;p.deliveredAt=Date.now();p.mediaType=d.media.mediaType||p.mediaType;saveEnt(s);await worldApi("world_media_delete",{mediaId:c.mediaId}).catch(()=>{});if(document.querySelector(".entSite"))entertainment();}
+// Only confirm delivery after the matching ticket exists and the media was saved locally.
+// Do not delete the cloud copy before the delivery queue has been acknowledged.
+async function applyDelivery(c){
+ const s=entState(),p=s.purchases.find(x=>x.id===c.purchaseId);
+ if(!p){console.warn("Entertainment delivery held: ticket not found on this browser",c.purchaseId);return false;}
+ const d=await worldApi("world_media_get",{mediaId:c.mediaId});
+ if(!d.media?.data){console.warn("Entertainment delivery held: media not available yet",c.mediaId);return false;}
+ await MediaDB.put(p.id,d.media);
+ p.status="ready";p.mediaId=p.id;p.deliveredAt=Date.now();p.mediaType=d.media.mediaType||p.mediaType;
+ saveEnt(s);
+ if(document.querySelector(".entSite"))entertainment();
+ return true;
+}
 const purchaseAttempts=new Map();
 let purchaseSyncRunning=false;
 async function syncEntertainmentPurchases(){
@@ -202,7 +214,23 @@ async function syncEntertainmentPurchases(){
  }finally{purchaseSyncRunning=false}
 }
 async function pushSnapshot(){await syncEntertainmentPurchases();try{const s=marketTick(),e=entState();await worldApi("world_snapshot_put",{snapshot:{at:Date.now(),cash:core.bankSpendable(),stocks:STOCKS.map(st=>({ticker:st.ticker,name:st.name,price:s.prices[st.ticker],frozen:!!s.frozen[st.ticker]})),marketMode:s.mode,purchases:e.purchases.map(p=>({id:p.id,type:p.type,title:p.title,tier:p.tier,price:p.price,boughtAt:p.boughtAt,status:p.status,mediaType:p.mediaType}))}})}catch{}}
-async function syncWorld(){try{const cmds=await getWorldQueue();const ids=[];for(const c of cmds){try{if(c.kind==="market")applyMarketCommand(c);else if(c.kind==="ent_delivery")await applyDelivery(c);ids.push(c.id)}catch{}}if(ids.length)await worldApi("world_ack",{ids});await pushSnapshot()}catch{}}
+async function syncWorld(){
+ try{
+  const cmds=await getWorldQueue(),ids=[];
+  for(const c of cmds){
+   try{
+    if(c.kind==="market"){applyMarketCommand(c);ids.push(c.id);}
+    else if(c.kind==="ent_delivery"){
+     // Do not acknowledge a missing ticket, missing media or failed IndexedDB write.
+     if(await applyDelivery(c))ids.push(c.id);
+    }
+    else ids.push(c.id);
+   }catch(e){console.warn("Entertainment/market delivery will retry",c.id,e?.message||e);}
+  }
+  if(ids.length)await worldApi("world_ack",{ids});
+  await pushSnapshot();
+ }catch(e){console.warn("Entertainment sync error",e?.message||e);}
+}
 function open(site){site==="market"?market():entertainment()}
 $("browserPage")?.addEventListener("click",e=>{const buy=e.target.closest("[data-market-buy]")?.dataset.marketBuy;if(buy)return buyStock(buy);const sell=e.target.closest("[data-market-sell]")?.dataset.marketSell;if(sell)return sellStock(sell);const eb=e.target.closest("[data-ent-buy]");if(eb)return purchaseEntertainment(eb.dataset.entBuy,eb.dataset.entTier,eb.dataset.entPrice);const play=e.target.closest("[data-ent-play]")?.dataset.entPlay;if(play)playEntertainment(play)});
 window.LizzyMarketEntertainment={open,market,entertainment,sync:syncWorld};
