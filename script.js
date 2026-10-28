@@ -1090,6 +1090,13 @@ openWhenLetters.butterflies = {
 
 
 
+// Free, always-available letter in the original V3 Open When reader.
+if(window.LizzyV3SecretContent?.free){
+ const entry=window.LizzyV3SecretContent.free;
+ const encode=t=>String(t).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+ openWhenLetters[entry.id]={title:encode(entry.title),body:entry.content.split(/\n\n+/).map(p=>`<p>${encode(p).replace(/\n/g,"<br>")}</p>`).join("")};
+}
+
 function showOpenWhenLetter(letterKey) {
 
     const letter = openWhenLetters[letterKey];
@@ -4866,6 +4873,7 @@ if(false)(() => {
  function openLetter(){
    if(localStorage.getItem(KEY)!=="yes")return;
    $("unreleasedLetterWindow")?.classList.remove("hidden");
+   window.LizzyV3NotifyStandaloneLetter?.("unreleased_legendary","The Unreleased Letter");
  }
  function unlock(showDecrypt=true){
    const first=localStorage.getItem(KEY)!=="yes";

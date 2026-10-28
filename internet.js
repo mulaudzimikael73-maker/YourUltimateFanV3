@@ -980,6 +980,7 @@ function newsBackHome(){ home(); }
 function open(){ $("internetWindow")?.classList.remove("hidden"); home(); }
 function close(){ $("internetWindow")?.classList.add("hidden"); }
 
+window.LizzyV3RenderDailyNews = news;
 window.LizzyInternetCore={
   worker:WORKER,home,setAddress,notify,bankMoney,bankSpendable,bankSpend,bankCredit,bankCreatorBalance,bankWallet,bankRecord,bankDashboard
 };
