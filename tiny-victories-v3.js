@@ -24,10 +24,68 @@ function render(){if(!qs('tinyMain'))return;qs('tinyMain').innerHTML=appTop()+(t
 const msg=(t,err=false)=>{const x=qs('tinyFeedback');if(x){x.textContent=t;x.style.color=err?'#aa2349':'#316a46'}};
 const rid=()=>typeof crypto!=='undefined'&&crypto.randomUUID?crypto.randomUUID():Date.now()+'-'+Math.random().toString(36).slice(2);
 async function nominate(e){e.preventDefault();if(busy)return;busy=true;const b=e.target.querySelector('button[type=submit]');b.disabled=true;const d=Object.fromEntries(new FormData(e.target).entries());try{const r=await api('uom_tv_nominate',{...d,requestId:rid()});state=r.state;tab=d.recipient==='Both'?'both':d.recipient.toLowerCase();render();msg('🏅 Award issued immediately and filed in the correct cabinet!');if(d.recipient==='Lizzy'||d.recipient==='Both'){localStorage.setItem('lizzyosTinySeenV3',JSON.stringify(awards().filter(a=>a.to==='Lizzy'||a.to==='Both').map(a=>a.id)));celebrate(r.award)}else read(r.award.id)}catch(ex){msg(ex.message,true);b.disabled=false}finally{busy=false}}
-function responseOptions(a){const recipient=a.to==='Lizzy'||a.to==='Both',outside=a.selfProclaimed&&a.nominatedBy==='Mikael',nomineeFight=a.responses?.some(r=>r.kind==='fight');let opts=[];if(recipient){opts.push(['accept','🎤 Give Acceptance Speech'],['fight','⚖️ Fight This Award'])}if(outside){opts.push(['endorse','💝 Endorse Mikael’s Self-Award'],['challenge','😂 Challenge His Claims'])}if(a.nominatedBy==='Lizzy'&&nomineeFight){opts.push(['reply','💬 Reply to the Objection'])}return opts}
-function read(id){const a=awards().find(x=>x.id===id);if(!a)return;chosenAward=id;let content=`<div class="tinyFullCert"><div class="tinyCrest">♛ THE REPUBLIC OF LIZZYOS ♛</div><div class="tinyOrnament">✦ ──────── ✦ ──────── ✦</div><h1>OFFICIAL CERTIFICATE<br>OF TINY VICTORY</h1><p>This honour is presented to</p><h2>${esc(a.to==='Both'?'MIKAEL & LIZZY':a.to.toUpperCase())}</h2><h3>${esc(a.title)}</h3><p class="tinyCitation">${esc(a.detail)}</p><span class="tinyBigMedal">${a.tier==='gold'?'🏆 GOLD':a.tier==='silver'?'🥈 SILVER':'🥉 BRONZE'}</span>${a.selfProclaimed?'<strong class="tinyStamp">SELF-PROCLAIMED EXCELLENCE</strong>':''}${a.disputed?'<strong class="tinyStamp">UNDER DISPUTE — CERTIFICATE STILL VALID</strong>':''}${a.endorsedBy?`<strong class="tinyStamp">ENDORSED BY ${esc(a.endorsedBy.toUpperCase())}</strong>`:''}<div class="tinySign"><span>Nominated by ${esc(a.nominatedBy)}<br><small>${fmt(a.issuedAt)}</small></span><span>OFFICIAL GOVERNMENT RECORD<br><small>${esc(a.id)}</small></span></div></div><section class="tinyPaper"><h2>🎤 Speeches, Objections & Official Reactions</h2>${a.responses?.length?a.responses.map(r=>`<div class="tinyReply"><b>${esc(r.by)} · ${esc(r.kind.toUpperCase())}</b><small>${fmt(r.at)}</small><p>${esc(r.comment)}</p></div>`).join(''):'<p>No speeches or objections yet. The government is suspicious of the silence.</p>'}<div class="tinyResponseChoices">${responseOptions(a).map(([kind,label])=>`<button data-tiny-respond="${kind}">${label}</button>`).join('')}</div><form id="tinyResponseForm" class="tinyHidden"><label id="tinyResponseLabel">Your official statement<textarea name="comment" rows="3" maxlength="800" minlength="2" required></textarea></label><button class="tinyPrimary" type="submit">Publish Statement</button></form><button data-tiny-counter class="tinySecondary">🔥 Issue a Counter-Award</button><button data-tiny-back class="tinySecondary">← Back to Cabinets</button></section>`;
-qs('tinyMain').innerHTML=`${appTop()}${content}`;qs('tinyMain').querySelectorAll('[data-tiny-tab]').forEach(b=>b.onclick=()=>{tab=b.dataset.tinyTab;render()});qs('tinyMain').querySelectorAll('[data-tiny-respond]').forEach(b=>b.onclick=()=>{selected=b.dataset.tinyRespond;const f=qs('tinyResponseForm');f.classList.remove('tinyHidden');qs('tinyResponseLabel').firstChild.textContent=`Your ${selected==='accept'?'acceptance speech':selected==='fight'?'formal objection':selected==='endorse'?'endorsement':selected==='reply'?'rebuttal':'challenge'} `;f.scrollIntoView({block:'nearest',behavior:'smooth'})});qs('tinyResponseForm').onsubmit=sendResponse;qs('tinyMain').querySelector('[data-tiny-back]').onclick=render;qs('tinyMain').querySelector('[data-tiny-counter]').onclick=()=>{tab='create';render();const f=qs('tinyNomination');f.elements.recipient.value=a.nominatedBy==='Lizzy'?'Lizzy':'Mikael';f.elements.title.value='Counter-Award: '+a.title.slice(0,60);f.elements.reason.value='A formal counter-recognition following the highly questionable award: '+a.title;};}
-async function sendResponse(e){e.preventDefault();if(!chosenAward||!selected||busy)return;busy=true;const b=e.target.querySelector('[type=submit]');b.disabled=true;try{const r=await api(selected==='endorse'||selected==='challenge'||selected==='reply'?'uom_tv_react':'uom_tv_respond',{awardId:chosenAward,kind:selected,comment:e.target.elements.comment.value,requestId:rid()});state=r.state;read(chosenAward);msg('Your official statement is now saved with the certificate.')}catch(ex){msg(ex.message,true);b.disabled=false}finally{busy=false}}
+function responseOptions(a){
+  const recipient=a.to==='Lizzy'||a.to==='Both',outside=a.selfProclaimed&&a.nominatedBy==='Mikael';
+  const opts=[];
+  if(recipient)opts.push(['accept','🎤 Give Acceptance Speech'],['fight','⚖️ Fight This Award']);
+  if(outside)opts.push(['endorse','💝 Endorse Mikael’s Self-Award'],['challenge','😂 Challenge His Claims']);
+  return opts;
+}
+function canReply(a,item){
+  return item?.id&&item.by==='Mikael'&&(a.nominatedBy==='Lizzy'||a.to==='Lizzy'||a.to==='Both'||a.selfProclaimed);
+}
+function responseCard(a,item){
+  const original=a.responses.find(x=>x.id===item.replyToId);
+  const quote=original?`<div class="tinyReplyContext">↳ In reply to ${esc(original.by)}: “${esc(original.comment.slice(0,160))}”</div>`:'';
+  return `<div class="tinyReply" id="reply-${esc(item.id)}"><b>${esc(item.by)} · ${esc(item.kind.toUpperCase())}</b><small>${fmt(item.at)}</small>${quote}<p>${esc(item.comment)}</p>${canReply(a,item)?`<button type="button" class="tinyReplyButton" data-tiny-reply-to="${esc(item.id)}">💬 Reply to Mikael</button>`:''}</div>`;
+}
+let replyToId=null;
+function read(id){
+  const a=awards().find(x=>x.id===id);if(!a)return;
+  chosenAward=id;selected=null;replyToId=null;
+  const content=`<div class="tinyFullCert"><div class="tinyCrest">♛ THE REPUBLIC OF LIZZYOS ♛</div><div class="tinyOrnament">✦ ──────── ✦ ──────── ✦</div><h1>OFFICIAL CERTIFICATE<br>OF TINY VICTORY</h1><p>This honour is presented to</p><h2>${esc(a.to==='Both'?'MIKAEL & LIZZY':a.to.toUpperCase())}</h2><h3>${esc(a.title)}</h3><p class="tinyCitation">${esc(a.detail)}</p><span class="tinyBigMedal">${a.tier==='gold'?'🏆 GOLD':a.tier==='silver'?'🥈 SILVER':'🥉 BRONZE'}</span>${a.selfProclaimed?'<strong class="tinyStamp">SELF-PROCLAIMED EXCELLENCE</strong>':''}${a.disputed?'<strong class="tinyStamp">UNDER DISPUTE — CERTIFICATE STILL VALID</strong>':''}${a.endorsedBy?`<strong class="tinyStamp">ENDORSED BY ${esc(a.endorsedBy.toUpperCase())}</strong>`:''}<div class="tinySign"><span>Nominated by ${esc(a.nominatedBy)}<br><small>${fmt(a.issuedAt)}</small></span><span>OFFICIAL GOVERNMENT RECORD<br><small>${esc(a.id)}</small></span></div></div>
+  <section class="tinyPaper"><h2>🎤 Speeches, Replies & Official Reactions</h2><p id="tinyConversationStatus" role="status" aria-live="polite"></p><div class="tinyConversation">${a.responses?.length?a.responses.map(item=>responseCard(a,item)).join(''):'<p>No speeches or objections yet. The government is suspicious of the silence.</p>'}</div>
+  <div class="tinyResponseChoices">${responseOptions(a).map(([kind,label])=>`<button type="button" data-tiny-respond="${kind}">${label}</button>`).join('')}</div>
+  <form id="tinyResponseForm" class="tinyHidden"><label id="tinyResponseLabel">Your official statement<textarea name="comment" rows="3" maxlength="800" minlength="2" required></textarea></label><div class="tinyResponseActions"><button class="tinyPrimary" type="submit">Publish Statement</button><button type="button" id="tinyCancelResponse">Cancel</button></div></form>
+  <button type="button" id="tinyRefreshConversation" class="tinySecondary">↻ Check for New Replies</button><button type="button" data-tiny-counter class="tinySecondary">🔥 Issue a Counter-Award</button><button type="button" data-tiny-back class="tinySecondary">← Back to Cabinets</button></section>`;
+  qs('tinyMain').innerHTML=`${appTop()}${content}`;
+  qs('tinyMain').querySelectorAll('[data-tiny-tab]').forEach(b=>b.onclick=()=>{tab=b.dataset.tinyTab;render()});
+  qs('tinyMain').querySelectorAll('[data-tiny-respond]').forEach(b=>b.onclick=()=>selectResponse(b.dataset.tinyRespond,null,a));
+  qs('tinyMain').querySelectorAll('[data-tiny-reply-to]').forEach(b=>b.onclick=()=>selectResponse('reply',b.dataset.tinyReplyTo,a));
+  qs('tinyResponseForm').addEventListener('submit',sendResponse);
+  qs('tinyCancelResponse').onclick=()=>{selected=null;replyToId=null;qs('tinyResponseForm').classList.add('tinyHidden')};
+  qs('tinyRefreshConversation').onclick=()=>refreshConversation(id);
+  qs('tinyMain').querySelector('[data-tiny-back]').onclick=render;
+  qs('tinyMain').querySelector('[data-tiny-counter]').onclick=()=>{tab='create';render();const f=qs('tinyNomination');f.elements.recipient.value=a.nominatedBy==='Lizzy'?'Lizzy':'Mikael';f.elements.title.value='Counter-Award: '+a.title.slice(0,60);f.elements.reason.value='A formal counter-recognition following the highly questionable award: '+a.title;};
+}
+function selectResponse(kind,toId,a){
+  selected=kind;replyToId=toId;
+  const form=qs('tinyResponseForm');if(!form)return;
+  const target=toId?a.responses.find(x=>x.id===toId):null;
+  qs('tinyResponseLabel').firstChild.textContent=kind==='reply'&&target?'Your reply to '+target.by+':':kind==='accept'?'Your acceptance speech:':kind==='fight'?'Your formal objection:':kind==='endorse'?'Your endorsement:':'Your challenge:';
+  form.classList.remove('tinyHidden');form.scrollIntoView({block:'nearest',behavior:'smooth'});form.elements.comment.focus({preventScroll:true});
+}
+function conversationStatus(message,bad=false){
+  const element=qs('tinyConversationStatus');if(element){element.textContent=message;element.style.color=bad?'#a12c49':'#316a46';}
+}
+async function refreshConversation(id){
+  const btn=qs('tinyRefreshConversation');if(btn)btn.disabled=true;
+  try{await fetchState();read(id);conversationStatus('Latest speeches and replies loaded.');}
+  catch(e){conversationStatus(e.message,true);if(btn)btn.disabled=false;}
+}
+async function sendResponse(e){
+  e.preventDefault();if(!chosenAward||!selected||busy)return;
+  const form=e.currentTarget,button=form.querySelector('[type=submit]'),comment=form.elements.comment.value.trim();
+  if(comment.length<2){conversationStatus('Please write your response first.',true);return;}
+  busy=true;button.disabled=true;button.textContent='Publishing…';
+  const id=chosenAward,kind=selected,targetId=replyToId;
+  try{
+    const payload={awardId:id,kind,comment,requestId:rid()};if(kind==='reply')payload.replyToId=targetId;
+    const result=await api(['endorse','challenge','reply'].includes(kind)?'uom_tv_react':'uom_tv_respond',payload);
+    state=result.state;read(id);conversationStatus('✓ Published! Mikael can read and reply to your statement.');
+  }catch(err){conversationStatus('Could not publish: '+err.message,true);button.disabled=false;button.textContent='Publish Statement';}
+  finally{busy=false;}
+}
 function celebrate(a){if(!a||!qs('tinyVictoryWindow'))return;display();const pop=document.createElement('div');pop.className='tinyCelebrate';pop.innerHTML=`<div class="tinyCelebrateCard"><span class="tinyBurst">🎊 🏅 ✨ 🎊</span><p>THE DEPARTMENT HAS SPOKEN!</p><h2>A Tiny Victory!</h2><h3>${esc(a.title)}</h3><p>Presented to ${esc(a.to)} · ${esc(a.tier.toUpperCase())}${a.selfProclaimed?' · Self-Proclaimed':''}</p><button class="tinyPrimary" id="tinyCelebrationView">📜 Read Certificate</button><button class="tinySecondary" id="tinyCelebrationClose">Continue</button></div>`;qs('tinyVictoryWindow').appendChild(pop);pop.querySelector('#tinyCelebrationView').onclick=()=>{pop.remove();read(a.id)};pop.querySelector('#tinyCelebrationClose').onclick=()=>pop.remove();}
 function backgroundCheck(){if(!base()||document.hidden)return;api('uom_get').then(r=>{state=r.state;notifyNew();if(qs('tinyVictoryWindow')&&!qs('tinyVictoryWindow').classList.contains('tinyHidden')&&!chosenAward)render()}).catch(()=>{})}
 init();window.LizzyTinyVictoriesV3={open,refresh:backgroundCheck,read,celebrate};window.addEventListener('focus',backgroundCheck);setTimeout(backgroundCheck,1600);setInterval(backgroundCheck,60000);
