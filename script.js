@@ -867,6 +867,29 @@ openMemoriesButton?.addEventListener("click", () => {
 // MISSION LOG
 // ========================================
 
+// Mission Archive: preserve the original bowling case while adding the completed Eastgate report.
+function openMissionReport(id){
+    const target = String(id) === "002" ? "002" : "001";
+    document.querySelectorAll("#missionWindow [data-open-mission]").forEach(btn=>{
+        const on=btn.dataset.openMission===target;
+        btn.classList.toggle("isActive",on);
+        btn.setAttribute("aria-pressed",String(on));
+    });
+    ["001","002"].forEach(num=>{
+        const view=document.getElementById("mission"+num+"View");
+        if(!view)return;
+        const on=num===target;
+        view.hidden=!on;
+        view.classList.toggle("hidden",!on);
+    });
+    const scroll=document.querySelector("#missionWindow .windowScroll");
+    if(scroll)scroll.scrollTop=0;
+}
+document.querySelector("#missionWindow .missionArchiveNav")?.addEventListener("click",e=>{
+    const btn=e.target.closest("[data-open-mission]");
+    if(btn)openMissionReport(btn.dataset.openMission);
+});
+
 function renderFirstDateBadge(){
     const box = document.getElementById("firstDateBadgeDisplay");
     const status = document.getElementById("firstDateBadgeStatus");
@@ -879,6 +902,7 @@ function renderFirstDateBadge(){
 missionIcon?.addEventListener("click", () => {
 
     missionWindow?.classList.remove("hidden");
+    openMissionReport("001");
 
     unlockAchievement("Opened Mission Log 🗂️");
 

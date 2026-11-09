@@ -5078,3 +5078,19 @@ body[data-personality="Agent Yelizaveta"]:not(.mikaelTakeoverActive)::after{
 .rewardMemoryPrompts article{margin-top:8px;padding:9px 10px;border-radius:12px;background:rgba(255,255,255,.07)}
 .rewardMemoryPrompts article p{margin:5px 0;line-height:1.35}
 @media(max-width:600px){.reverseTokenCard{align-items:flex-start;flex-wrap:wrap}.reverseTokenCard button{width:100%}}
+
+/* LizzyOS V3 Mission Archive #002 — matches existing classified Mission Log design. */
+#missionWindow .missionArchiveNav{display:flex;flex-wrap:wrap;gap:10px;margin:20px 0 10px}
+#missionWindow .missionArchiveBtn{flex:1 1 210px;min-height:44px;padding:12px 16px;border-radius:14px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);color:inherit;font:inherit;font-weight:750;cursor:pointer}
+#missionWindow .missionArchiveBtn.isActive{border-color:#ffd879;background:rgba(255,213,121,.19);box-shadow:inset 0 0 0 1px rgba(255,213,121,.2)}
+#missionWindow .missionArchiveBtn:focus-visible{outline:3px solid #ffd879;outline-offset:2px}
+#missionWindow .missionArchiveView[hidden]{display:none!important}
+#missionWindow .mission002Section{line-height:1.6;overflow-wrap:anywhere}
+#missionWindow .mission002Section p{margin:10px 0 13px}
+#missionWindow .mission002Section h2{margin:4px 0 16px;font-size:clamp(1.08rem,2.5vw,1.45rem)}
+#missionWindow .mission002Section h3{margin:18px 0 8px;font-size:clamp(1rem,2vw,1.2rem)}
+#missionWindow .mission002Section ul{padding-left:24px;line-height:1.8}
+#missionWindow .mission002Section table{border-collapse:collapse;width:100%;font-size:.94em}
+#missionWindow .mission002Section th,#missionWindow .mission002Section td{border:1px solid rgba(255,255,255,.25);padding:8px 9px;text-align:left}
+#missionWindow .mission002Section th{background:rgba(255,255,255,.08)}
+@media(max-width:600px){#missionWindow .missionArchiveNav{flex-direction:column}#missionWindow .missionArchiveBtn{flex-basis:auto}#missionWindow .mission002Section{padding:16px}#missionWindow .mission002Section table{font-size:.8em}}
