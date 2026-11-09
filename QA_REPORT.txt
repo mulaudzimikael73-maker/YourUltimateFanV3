@@ -1,0 +1,21 @@
+LizzyOS V3 Secret Shelf Recovery — 9 November 2026
+
+ROOT CAUSE
+- The uploaded V3 (38) and its Eastgate successor include lizzy-v3-secret-content.js but omit the script tag that loads it.
+- The store reads window.LizzyV3SecretContent.items, so the 11 latest purchasable items did not load.
+- The free Overthinking letter existed in data but was missing its Open When menu button.
+
+CHANGES
+1. index.html: load lizzy-v3-secret-content.js before script.js and seed-store.js; add FREE Overthinking letter shortcut; cache-bust seed-store.js.
+2. seed-store.js: safely reconstruct missing letter records from the same device's purchase-ownership entries; preserve complete existing copies; restore purchased dossiers as before; display a collapsible My Purchased Shelf Files list; do not change prices or wallet charging. A receipt now reports the actual charged price even when an achievement simultaneously awards bonus MB.
+3. lizzy-v3-secret-content.js: included in changed-file archive unchanged so it is available even if a prior upload omitted it.
+
+VERIFICATION
+- Node syntax test passed for seed-store.js.
+- Isolated Chromium test: fresh shelf shows all 22 purchasable products (11 earlier + 11 added), with no JavaScript page errors.
+- Isolated Chromium test: purchases of dossier_007 (66 MB) and letter_005 (62 MB) delivered their full content, and receipt notifications reported 66/62 MB. An existing +5 MB achievement bonus correctly raised the remaining balance to 377 MB from 500 MB.
+- Isolated Chromium test: simulated already-owned dossier_007 and letter_005 recovered in their local storage destinations with full text, no duplicate purchase or wallet deduction; items marked owned, remaining items remain available.
+- Static validation: 7 newer dossier records and 4 newer letter records preserved; script load order correct; free letter link present; Mission #001 and Mission #002 intact; only index.html and seed-store.js modified in the full-site archive.
+
+LIMITATION
+The browser environment disallows direct access to file:// sites, so real V3 end-to-end navigation and live deployment were NOT verified. The tests ran the actual current Secret Shelf JavaScript and content data in an isolated browser DOM. Existing purchases are tied to storage on the device/browser that made them; this patch does not magically synchronize purchases between devices. Back up the currently deployed site and device storage before replacing files.

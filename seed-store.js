@@ -663,7 +663,28 @@ const shelf=()=>{const s=read(SHELF,{owned:{},bids:{}});s.owned=s.owned||{};s.bi
 function addDossier(i,price=0){let l=read(DOSSIERS,[]);if(!Array.isArray(l))l=[];if(!l.some(x=>x.id===i.id)){l.push({id:i.id,title:i.title,content:i.content,encrypted:!!i.encrypted,price,acquiredAt:new Date().toISOString()});write(DOSSIERS,l)}window.dispatchEvent(new Event("lizzyClassifiedUpdated"))}
 function migrate(){const s=shelf();if(s.owned.archive_x17){const c=ITEMS.find(x=>x.id==="archive_x17");addDossier({id:"archive_x17",title:"Cody Legal Documents",content:c.content},s.owned.archive_x17.price||0)}if(s.owned.hater_file)addDossier(ITEMS.find(x=>x.id==="hater_file"),s.owned.hater_file.price||0);if(s.owned.vault||s.owned.mrperfect_file)addDossier(ITEMS.find(x=>x.id==="mrperfect_file"),s.owned.vault?.price||s.owned.mrperfect_file?.price||0);const old=read("lizzyVaultRewardsV1",[]);if(Array.isArray(old)&&old.some(x=>x.id==="mrperfect_file"||String(x.title||"").includes("#003")))addDossier(ITEMS.find(x=>x.id==="mrperfect_file"),0);let l=read(LETTERS,[]);if(Array.isArray(l)){const f=l.filter(x=>!(x.id==="letter_002"&&String(x.content||"").includes("I like us.")));if(f.length!==l.length)write(LETTERS,f)}}
 function st(b,o){return o?"OWNED 🔓":"AVAILABLE"}
-function repairPurchasedDestinations(){const s=shelf();if(s.owned.archive_x17){const c=ITEMS.find(x=>x.id==="archive_x17");if(c)addDossier({id:"archive_x17",title:"Cody Legal Documents",content:c.content},s.owned.archive_x17.price||0)}for(const id of ["dossier_001","hater_file","mrperfect_file","o4e_004","mwa_005","aypp_006",...NEW_SECRET_ITEMS.filter(x=>x.kind==="dossier").map(x=>x.id)]){if(s.owned[id]){const i=ITEMS.find(x=>x.id===id);if(i)addDossier(i,s.owned[id].price||0)}}}
+function repairPurchasedDestinations(){
+ const s=shelf();
+ if(s.owned.archive_x17){const c=ITEMS.find(x=>x.id==="archive_x17");if(c)addDossier({id:"archive_x17",title:"Cody Legal Documents",content:c.content},s.owned.archive_x17.price||0)}
+ for(const id of ["dossier_001","hater_file","mrperfect_file","o4e_004","mwa_005","aypp_006",...NEW_SECRET_ITEMS.filter(x=>x.kind==="dossier").map(x=>x.id)]){
+  if(s.owned[id]){const i=ITEMS.find(x=>x.id===id);if(i)addDossier(i,s.owned[id].price||0)}
+ }
+ // Recover paid letters on the same device from ownership WITHOUT another purchase.
+ // Keep complete existing copies intact; only fill missing records or missing content.
+ const ownedLetters=ITEMS.filter(i=>i.kind==="letter"&&s.owned[i.id]);
+ if(ownedLetters.length){
+  let letters=read(LETTERS,[]);if(!Array.isArray(letters))letters=[];
+  let changed=false;
+  for(const i of ownedLetters){
+   const at=letters.findIndex(x=>x&&x.id===i.id);
+   if(at<0){letters.push({id:i.id,title:titleForLetter(i),content:i.content,folder:"open_when_purchased",purchasedAt:s.owned[i.id].at||new Date().toISOString()});changed=true}
+   else if(!String(letters[at].content||"").trim()){
+    letters[at].content=i.content;letters[at].title=titleForLetter(i);changed=true;
+   }
+  }
+  if(changed){write(LETTERS,letters);window.dispatchEvent(new Event("lizzyPurchasedLettersUpdated"))}
+ }
+}
 
 const VAULT_STATE="lizzyVaultStateV3";
 const VAULT_TOKEN="lizzyVaultTokenV1";
@@ -745,7 +766,12 @@ function renderShelf(){
  ${t>0?`<button id="openFreeVaultBtn" class="vaultOpenBtn">🎟️ OPEN VAULT WITH FREE TOKEN</button>`:`<small>No Free Vault Token available.</small>`}
  <div id="vaultResult"></div></section>
  <div class="vaultBidBox"><button id="vaultBuyBtn">🎰 OPEN THE VAULT — ${VAULT_PRICE} MB</button><small id="vaultBidStatus">Fixed price: ${VAULT_PRICE} MB. No bidding, no waiting.</small></div>
- <div class="secretShelfGrid">${(()=>{const avail=ITEMS.filter(x=>!sh.owned[x.id]);if(!avail.length)return `<p class="seedStoreIntro">🗃️ Every Secret Shelf item has been purchased. Purchased items now live in Open When → Purchased Letters, Classified Dossiers and the Token Jar.</p>`;return avail.map(i=>{const p=priceOf(i),afford=wallet()>=p,free=freeVaultCredits()>0;return `<article class="secretItem vaultItem"><div class="vaultItemIcon">${i.icon}</div><strong>${i.publicName}</strong><p>${i.teaser}</p><small class="vaultStatus">PRICE: ${p} MB</small><div class="vaultBidControls"><button data-buy-shelf="${i.id}" ${afford?"":"disabled"}>${afford?`BUY FOR ${p} MB`:`NEED ${p} MB`}</button>${free?`<button data-free-claim="${i.id}">🎟️ USE FREE CREDIT</button>`:""}</div></article>`}).join("")})()}</div>`;
+ <div class="secretShelfGrid">${(()=>{const avail=ITEMS.filter(x=>!sh.owned[x.id]);if(!avail.length)return `<p class="seedStoreIntro">🗃️ Every Secret Shelf item has been purchased. Purchased items now live in Open When → Purchased Letters, Classified Dossiers and the Token Jar.</p>`;return avail.map(i=>{const p=priceOf(i),afford=wallet()>=p,free=freeVaultCredits()>0;return `<article class="secretItem vaultItem"><div class="vaultItemIcon">${i.icon}</div><strong>${i.publicName}</strong><p>${i.teaser}</p><small class="vaultStatus">PRICE: ${p} MB</small><div class="vaultBidControls"><button data-buy-shelf="${i.id}" ${afford?"":"disabled"}>${afford?`BUY FOR ${p} MB`:`NEED ${p} MB`}</button>${free?`<button data-free-claim="${i.id}">🎟️ USE FREE CREDIT</button>`:""}</div></article>`}).join("")})()}</div>
+ <details class="vaultOwnedSummary" style="margin:18px 0;padding:12px;border:1px solid #c6abc7;border-radius:12px">
+ <summary style="cursor:pointer;font-weight:700">🗃️ My Purchased Shelf Files (${ITEMS.filter(x=>!!sh.owned[x.id]).length}) — tap to view</summary>
+ <p class="seedStoreIntro">Already purchased files never need to be bought again. Open letters in <b>Open When → Purchased Letters</b>, dossiers in <b>Classified Dossiers</b>, and token rewards in <b>Token Jar</b>.</p>
+ <div>${ITEMS.filter(x=>!!sh.owned[x.id]).map(i=>`<p style="margin:6px 0">✅ ${escHtml(i.title||i.publicName)} <small>— ${i.kind==="letter"?"Open When":i.kind==="dossier"||i.kind==="document"?"Classified Dossiers":"Token Jar"}</small></p>`).join("")||"No purchased files on this device yet."}</div>
+ </details>`;
  h.querySelector("#openFreeVaultBtn")?.addEventListener("click",()=>openVault("token"));
  h.querySelector("#vaultBuyBtn")?.addEventListener("click",buyVaultOpen);
  h.querySelectorAll("[data-buy-shelf]").forEach(x=>x.addEventListener("click",()=>buyShelfItem(x.dataset.buyShelf)));
@@ -776,7 +802,8 @@ function buyShelfItem(id){
  if(before<price)return alert(`${i.publicName} costs ${price} MB.\n\nYour balance: ${before} MB.`);
  if(!confirm(`Buy ${i.publicName} for ${price} MB?\n\nBalance after purchase: ${before-price} MB`))return;
  if(!grant(i,price))return alert("The purchase could not be completed.");
- const after=wallet(),paid=Math.max(0,before-after);
+ const after=wallet(),paid=Math.max(0,Number(shelf().owned[i.id]?.price ?? (before-after)));
+ // A newly unlocked achievement may award bonus MB during checkout; receipt must still show the true item price.
  shelfNotifyPurchase(i,paid,after);
  window.dispatchEvent(new CustomEvent("lizzySecretPurchaseGranted",{detail:{itemId:i.id,kind:i.kind}}));
  repairPurchasedDestinations();renderShelf();renderLetters();renderMikaelTokens();
