@@ -79,7 +79,7 @@ async function purchase(){const p=products.find(x=>x.id===selected),host=$('pres
  if(!confirm('Purchase '+p.title+' for '+p.price+' MB?\n\nMikael personally fulfils requests that need a response.'))return;
  // Check the LizzyOS Worker has these endpoints BEFORE touching the browser wallet.
  try{const ready=await call('p2_ready');if(!ready.connected||!String(ready.build||'').includes('SECRET-SHELF'))throw Error('The LizzyOS Worker is older than the Secret Shelf update.');}
- catch(e){notice='No MB was deducted. The current test Cloudflare Worker cannot accept this purchase: '+e.message;renderShelf();return;}
+ catch(e){notice='No MB was deducted. The current LizzyOS V3 Worker cannot accept this purchase: '+e.message;renderShelf();return;}
  if(p.id===77){try{const availability=await call('case2_catalog');if(!availability.next)throw Error('All eight cases are already owned. There is no ninth case to purchase.');}catch(e){notice='No MB deducted: '+e.message;renderShelf();return;}}
  const c=core();if(c.bankSpendable()<p.price){notice='You need '+p.price+' MB; you have '+c.bankSpendable()+' MB.';renderShelf();return;}
  const receipt='P2_'+id(),rs=read(RECS,{});rs[receipt]={product:p.id,fields,price:p.price,status:'prepared',at:Date.now()};try{save(RECS,rs)}catch{notice='Browser storage unavailable. No charge was made.';renderShelf();return;}
@@ -106,6 +106,9 @@ async function action(a,b){try{if(a==='choose'){selected=Number(b.dataset.produc
  function mountLetters(){const w=$('openWhenWindow')||$('openWhenFolderWindow');if(!w)return;const h=w.querySelector('.windowScroll')||w;
   if(!$('presidentialP2Letters')){const n=document.createElement('div');n.id='presidentialP2Letters';h.appendChild(n)}
   if(!$('presidentialP2Followups')){const n=document.createElement('div');n.id='presidentialP2Followups';const anchor=h.querySelector('#letterContent');if(anchor)h.insertBefore(n,anchor);else h.appendChild(n)}
+  // Place requested letters with the actual Open When choices rather than after the entire folder.
+  const privateLetters=$('presidentialP2Letters'),originalChoices=h.querySelector('#letterList');
+  if(privateLetters&&originalChoices&&originalChoices.nextElementSibling!==privateLetters)originalChoices.insertAdjacentElement('afterend',privateLetters);
   attachCurrentLetterButton();renderFolders();renderLetters();if(!state&&!loading)refresh(true);}
 
  function mountClassified(){const w=$('classifiedFolderWindow');if(!w)return;const h=w.querySelector('.windowScroll')||w;if(!$('presidentialP2Files')){const n=document.createElement('div');n.id='presidentialP2Files';h.appendChild(n)}renderFolders();}
