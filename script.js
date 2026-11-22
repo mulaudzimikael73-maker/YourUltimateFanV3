@@ -3,7 +3,7 @@
 // LIZZYOS TELEGRAM NOTIFICATION BRIDGE
 // Uses text/plain to avoid browser CORS preflight failures.
 // =====================================================
-const LIZZY_TELEGRAM_WORKER_URL = "https://lizzyos-notifications.mulaudzimikael73.workers.dev/v3/";
+const LIZZY_TELEGRAM_WORKER_URL = "https://lizzyos-notifications.mulaudzimikael73.workers.dev/";
 // Expose the production Worker URL to modules loaded in separate script files.
 window.LIZZY_TELEGRAM_WORKER_URL = LIZZY_TELEGRAM_WORKER_URL;
 
@@ -2100,7 +2100,7 @@ document.addEventListener("keydown", (event) => {
 (() => {
   'use strict';
   const $ = id => document.getElementById(id);
-  const API = window.LIZZY_TELEGRAM_WORKER_URL || 'https://lizzyos-notifications.mulaudzimikael73.workers.dev/v3/';
+  const API = window.LIZZY_TELEGRAM_WORKER_URL || 'https://lizzyos-notifications.mulaudzimikael73.workers.dev/';
   const VERSION='presidential-v3-100-20261018';
   let round=null, current=0, picks=[], busy=false;
   const app=$('wouldMikaelRatherWindow');
@@ -5946,7 +5946,18 @@ function ensureAnnoyStyles() {
     #stopAnnoyBtn{position:fixed;right:16px;bottom:16px;z-index:999990;background:#ff5c5c;color:#fff;
       border:none;border-radius:999px;padding:10px 16px;font-weight:800;font-size:12px;cursor:pointer;
       box-shadow:0 8px 24px rgba(0,0,0,.35);opacity:.55;transition:opacity .2s,transform .2s}
-    #stopAnnoyBtn:hover{opacity:1;transform:scale(1.05)}
+    #stopAnnoyBtn:hover{opacity:1;transform:scale(1.03)}
+    @media(max-width:700px){
+      /* Phone: narrow side-tab stays away from top navigation and bottom action rows,
+         while remaining clickable above any annoyance overlay. */
+      #stopAnnoyBtn{position:fixed!important;top:50%!important;right:0!important;left:auto!important;
+        bottom:auto!important;width:37px;max-width:37px;min-height:126px;
+        writing-mode:vertical-rl;text-orientation:mixed;transform:translateY(-50%)!important;
+        border-radius:11px 0 0 11px!important;padding:10px 7px!important;
+        z-index:999990!important;opacity:.93;font-size:10px!important;line-height:1.15;
+        box-shadow:0 2px 14px rgba(0,0,0,.35)}
+      #stopAnnoyBtn:hover{transform:translateY(-50%)!important}
+    }
     .annoyOverlay{position:fixed;inset:0;z-index:999980;display:flex;align-items:center;justify-content:center;
       background:rgba(10,5,20,.65);backdrop-filter:blur(3px);animation:annoyFadeIn .25s ease}
     @keyframes annoyFadeIn{from{opacity:0}to{opacity:1}}
