@@ -51,8 +51,30 @@ async function refund(tax){
  if(!data.recorded){record({reference:tax.id,kind:'refund',amount:amt,reason:tax.reason,at:new Date().toLocaleString()});notification(tax,amt,0,true);data=setReceipt(refundKey,{...data,recorded:true})}
  await post('v3_tax_refund_confirm',{id:tax.id,deviceId:deviceId(),refundAmount:amt});
 }
+let healthOkUntil=0, healthRetryAfter=0;
+async function compatibleWorker(){
+ const now=Date.now();
+ if(now<healthOkUntil)return true;
+ if(now<healthRetryAfter)return false;
+ // GET only: the older Worker cannot mistake this for a tax event / Telegram alert.
+ try{
+  const endpoint=new window.URL(URL);
+  endpoint.searchParams.set('v3TaxHealth','r7');
+  const resp=await fetch(endpoint.toString(),{method:'GET',cache:'no-store'});
+  const info=await resp.json().catch(()=>null);
+  if(!resp.ok||info?.success!==true||info?.service!=='lizzyos-v3-presidential-tax'||info?.contract!=='r7'||!info.kvBound||info.production!==true)throw Error('The Bank service is temporarily unavailable');
+  healthOkUntil=Date.now()+60000;return true;
+ }catch(e){
+  healthRetryAfter=Date.now()+300000;
+  const status=document.getElementById('v3TaxSyncStatus');
+  if(status)status.textContent='Bank service temporarily unavailable. Your balance has not been changed.';
+  console.warn('Tax sync paused: production Worker tax capability not verified');
+  return false;
+ }
+}
 let running=false;
 async function process(){if(running)return;running=true;try{
+ if(!await compatibleWorker())return;
  // Up to ten tax records can be settled in one synchronisation.
  for(let i=0;i<10;i++){
    const response=await post('v3_tax_claim',{deviceId:deviceId()});const tax=response.tax;
